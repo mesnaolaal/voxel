@@ -1,11 +1,11 @@
-# VoxelArt · 20 ejemplos de proyecto final / 20 proiektu-adibide
+# VoxelArt · 21 ejemplos de proyecto final / 21 proiektu-adibide
 
 Ejemplos de minijuegos del alumnado (MagicaVoxel + Unity con Visual Scripting), ordenados por dificultad, con simulación jugable 3D de cada uno.
 Ikasleen minijoko-adibideak (MagicaVoxel + Unity Visual Scripting), zailtasun-ordenan, bakoitzaren simulazio jokagarri 3D-rekin.
 
 ## Contenido
-- `web/index.es.html` · `web/index.eu.html` — página con los 20 juegos (castellano / euskera). Imágenes compartidas en `web/img/` (portadas y pósters, en castellano).
-- `sims/es/` · `sims/eu/` — 20 simulaciones HTML autocontenidas (Three.js r128 desde CDN), en castellano y euskera.
+- `web/index.es.html` · `web/index.eu.html` — página con los 21 juegos (castellano / euskera). Imágenes compartidas en `web/img/` (portadas y pósters, en castellano).
+- `sims/es/` · `sims/eu/` — 21 simulaciones HTML autocontenidas (Three.js r128 desde CDN), en castellano y euskera.
 - `tools/` — generadores (`sim3/*.py`, `common.py`), autopilotos de prueba (`auto_*.js`, `mk.py`), datos de la web (`games.json`, `template.html`) y traducción al euskera (`i18n-eu/`).
 
 ## Notas

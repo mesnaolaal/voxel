@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VoxelArt · 20 ejemplos de proyecto final</title>
+<title>VoxelArt · 21 ejemplos de proyecto final</title>
 <style>
 :root{--bg:#F6F8FD;--card:#FFFFFF;--card2:#EEF2FB;--line:#D9E0F0;--tx:#14183A;--mut:#566089;--teal:#5EEAD4;--ac:#0F766E;--yel:#FDE047;--pink:#BE185D;--focus:#2563EB}
 *{box-sizing:border-box}
@@ -95,7 +95,7 @@ footer{max-width:1080px;margin:0 auto;padding:0 24px 56px;color:var(--mut);font-
 
 <header>
  <span class="kicker">VOXELART · PROYECTO FINAL</span>
- <h1>20 ideas de videojuego <span>hechas con voxels</span></h1>
+ <h1>21 ideas de videojuego <span>hechas con voxels</span></h1>
  <p class="lead">Ejemplos de lo que puede entregar el alumnado: cada juego tiene su portada, póster de proyecto, pantalla de juego y tres niveles. Están ordenados de menos a más difícil de programar. Pulsa un título para ver toda la información.</p>
 </header>
 <main id="list" aria-label="Lista de juegos"></main>
@@ -2180,10 +2180,117 @@ const GAMES = [
   "lv": 3,
   "lvname": "Difícil",
   "why": "Oleadas de enemigos, torres que disparan, monedas y vida del castillo."
+ },
+ {
+  "n": 21,
+  "slug": "barril-loco",
+  "title": "Barril Loco",
+  "tag": "Un obrero tiene que subir por una obra esquivando los barriles que lanza un gorila, para rescatar a una gatita.",
+  "gana": "Llegando a la plataforma de arriba y rescatando a la gatita.",
+  "pierde": "Si un barril te toca 3 veces o se acaba el tiempo.",
+  "legend": [
+   "G · Gorila (lanza barriles)",
+   "K · Gatita (meta)",
+   "O · Obrero (jugador)",
+   "B · Barril (peligro)",
+   "E · Escalera",
+   "M · Martillo (extra)",
+   "Viga (plataforma)"
+  ],
+  "powers": [
+   [
+    "Saltar",
+    "barriles"
+   ],
+   [
+    "Trepar",
+    "escaleras"
+   ],
+   [
+    "Martillo",
+    "que rompe barriles (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Obrero",
+    "El jugador que escala la obra."
+   ],
+   [
+    "Gorila",
+    "Lanza barriles desde arriba."
+   ],
+   [
+    "Barril",
+    "Rueda y quita una vida."
+   ]
+  ],
+  "spells": [
+   [
+    "pasan 3 segundos",
+    "el gorila lanza un barril"
+   ],
+   [
+    "el obrero toca un barril",
+    "pierde 1 vida y el barril desaparece"
+   ],
+   [
+    "coge el martillo",
+    "rompe barriles durante 5 segundos"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Obra pequeña: 2 plataformas y un barril cada 4 segundos.",
+    "meta": "Llegar arriba y rescatar a la gatita.",
+    "pasa": "El obrero llega a la gatita"
+   },
+   {
+    "n": "2",
+    "nov": "3 plataformas, barriles más rápidos y aparece el martillo.",
+    "meta": "Subir sin perder las 3 vidas.",
+    "pasa": "El obrero llega a la gatita"
+   },
+   {
+    "n": "3",
+    "nov": "Rascacielos: 4 plataformas y dos gorilas.",
+    "meta": "Llegar arriba antes de que acabe el tiempo.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el obrero llega a la gatita"
+   ],
+   [
+    "Condición",
+    "¿Le quedan vidas?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: moverse · Espacio: saltar · ↑ en la escalera: trepar",
+  "lv": 3,
+  "lvname": "Difícil",
+  "why": "Barriles que ruedan y caen, escaleras, saltos, martillo, vidas y tiempo."
  }
 ];
 const TABS0 = [['res','Resumen'],['pos','Póster'],['pan','Pantalla de juego'],['niv','Niveles']];
 const SIMS = {
+ 'barril-loco':['../sims/es/barril3d.html','En 3D'],
  'laberinto-dinamita':['../sims/es/laberinto.html','Vista isométrica'],
  'valle-nevado':['../sims/es/valle3d.html','En 3D'],
  'casa-encantada':['../sims/es/casa3d.html','En 3D'],

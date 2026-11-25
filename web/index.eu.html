@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VoxelArt · 20 proiektu-adibide (azken proiektua)</title>
+<title>VoxelArt · 21 proiektu-adibide (azken proiektua)</title>
 <style>
 :root{--bg:#F6F8FD;--card:#FFFFFF;--card2:#EEF2FB;--line:#D9E0F0;--tx:#14183A;--mut:#566089;--teal:#5EEAD4;--ac:#0F766E;--yel:#FDE047;--pink:#BE185D;--focus:#2563EB}
 *{box-sizing:border-box}
@@ -95,7 +95,7 @@ footer{max-width:1080px;margin:0 auto;padding:0 24px 56px;color:var(--mut);font-
 
 <header>
  <span class="kicker">VOXELART · AZKEN PROIEKTUA</span>
- <h1>20 bideojoku-ideia <span>voxelekin eginak</span></h1>
+ <h1>21 bideojoku-ideia <span>voxelekin eginak</span></h1>
  <p class="lead">Ikasleek entrega ditzaketen adibideak: joko bakoitzak bere azala, proiektu-posterra, jokoaren pantaila eta hiru maila ditu. Programatzeko errazenetik zailenera ordenatuta daude. Sakatu izenburu bat informazio guztia ikusteko.</p>
 </header>
 <main id="list" aria-label="Jokoen zerrenda"></main>
@@ -2180,10 +2180,117 @@ const GAMES = [
   "lv": 3,
   "lvname": "Zaila",
   "why": "Etsai-olatuak, tiro egiten duten dorreak, txanponak eta gazteluaren bizitza."
+ },
+ {
+  "n": 21,
+  "slug": "barril-loco",
+  "title": "Barril Zoroa",
+  "tag": "Langile batek eraikuntza-obra bat igo behar du, gorila batek jaurtitzen dituen upelak saihestuz, katutxo bat erreskatatzeko.",
+  "gana": "Goiko plataformara iritsiz eta katutxoa erreskatatuz.",
+  "pierde": "Upel batek 3 aldiz jotzen bazaitu edo denbora amaitzen bada.",
+  "legend": [
+   "G · Gorila (upelak jaurtitzen ditu)",
+   "K · Katutxoa (helmuga)",
+   "O · Langilea (jokalaria)",
+   "B · Upela (arriskua)",
+   "E · Eskailera",
+   "M · Mailua (extra)",
+   "Habea (plataforma)"
+  ],
+  "powers": [
+   [
+    "Salto egin",
+    "upelen gainetik"
+   ],
+   [
+    "Igo",
+    "eskailerak"
+   ],
+   [
+    "Mailua",
+    "upelak apurtzeko (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Langilea",
+    "Obra igotzen duen jokalaria."
+   ],
+   [
+    "Gorila",
+    "Goitik jaurtitzen ditu upelak."
+   ],
+   [
+    "Upela",
+    "Biraka dator eta bizitza bat kentzen du."
+   ]
+  ],
+  "spells": [
+   [
+    "3 segundo pasatzen dira",
+    "gorilak upel bat jaurtitzen du"
+   ],
+   [
+    "langileak upel bat ukitzen du",
+    "bizitza 1 galtzen du eta upela desagertzen da"
+   ],
+   [
+    "mailua hartzen du",
+    "upelak apurtzen ditu 5 segundoz"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Obra txikia: 2 plataforma eta upel bat 4 segundoro.",
+    "meta": "Goraino igo eta katutxoa erreskatatu.",
+    "pasa": "Langilea katutxora iristen da"
+   },
+   {
+    "n": "2",
+    "nov": "3 plataforma, upel azkarragoak eta mailua agertzen da.",
+    "meta": "Igo 3 bizitzak galdu gabe.",
+    "pasa": "Langilea katutxora iristen da"
+   },
+   {
+    "n": "3",
+    "nov": "Zeru-harraskaria: 4 plataforma eta bi gorila.",
+    "meta": "Goraino iritsi denbora amaitu aurretik.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: langilea katutxora iristen da"
+   ],
+   [
+    "Baldintza",
+    "Bizitzarik geratzen zaio?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: mugitu · Zuriune-barra: salto egin · ↑ eskaileran: igo",
+  "lv": 3,
+  "lvname": "Zaila",
+  "why": "Erortzen eta biraka dabiltzan upelak, eskailerak, jauziak, mailua, bizitzak eta denbora."
  }
 ];
 const TABS0 = [['res','Laburpena'],['pos','Posterra'],['pan','Jokoaren pantaila'],['niv','Mailak']];
 const SIMS = {
+ 'barril-loco':['../sims/eu/barril3d.html','3D-n'],
  'laberinto-dinamita':['../sims/eu/laberinto.html','Ikuspegi isometrikoa'],
  'valle-nevado':['../sims/eu/valle3d.html','3D-n'],
  'casa-encantada':['../sims/eu/casa3d.html','3D-n'],

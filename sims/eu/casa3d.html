@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Etxe Sorgindua – simulazio jokagarria 3D</title>
+<style>
+:root{--bg:#F6F8FD;--card:#fff;--tx:#0F172A;--mut:#475569;--ac:#0F766E;--bd:#D8DEEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+h1{margin:0 0 4px;font-size:26px}
+.sub{color:var(--mut);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pill{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:999px;padding:3px 12px;font-weight:600;font-size:14px}
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#1B1033;aspect-ratio:16/10.5}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+#bn{position:absolute;left:0;right:0;top:14px;text-align:center;background:rgba(15,23,42,.78);color:#fff;font-weight:700;font-size:20px;padding:8px;display:none}
+#ov{position:absolute;inset:0;background:rgba(15,23,42,.72);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:16px}
+#ov b{font-size:34px;color:#FDE047}
+.pad{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0;gap:12px}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:6px}
+.dpad button,.bomb{border:1px solid var(--bd);background:#fff;border-radius:12px;font-size:20px;cursor:pointer;color:var(--tx)}
+.dpad button:active,.bomb:active{background:#CCFBF1}
+.bomb{width:120px;height:120px;border-radius:60px;background:#EDE9FE;border-color:#C4B5FD;font-weight:700;font-size:14px}
+.help{color:var(--mut);font-size:14px;margin:10px 0 0}
+h2{font-size:16px;margin:0 0 8px}
+#log{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:6px;min-height:300px}
+#log li{border-left:4px solid var(--bd);padding:4px 8px;background:#F8FAFC;border-radius:0 8px 8px 0}
+.t{font-weight:700;font-size:11px;letter-spacing:.04em;margin-right:6px}
+.ev{border-color:#3B82F6!important}.ev .t{color:#1D4ED8}
+.co{border-color:#F59E0B!important}.co .t{color:#B45309}
+.ac{border-color:#10B981!important}.ac .t{color:#047857}
+.btn{margin-top:10px;background:var(--ac);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Etxe Sorgindua <span style="font-weight:400;color:#64748B;font-size:18px">· 3D</span></h1>
+  <p class="sub">Proiektu-adibidearen simulazio jokagarria 3D-n. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="hud"><span class="pill" id="hA"></span><span class="pill" id="hB"></span><span class="pill" id="hC"></span><span class="pill" id="hD"></span></div>
+      <div class="stage" id="stage" tabindex="0"><div id="bn"></div><div id="ov"></div></div>
+      <div class="pad">
+        <div class="dpad">
+          <span></span><button data-d="up" aria-label="Gora">▲</button><span></span>
+          <button data-d="left" aria-label="Ezkerrera">◀</button><button data-d="down" aria-label="Behera">▼</button><button data-d="right" aria-label="Eskuinera">▶</button>
+        </div>
+        <button class="bomb" id="bBomb">HARTU / LANTERNA<br>(Zuriunea)</button>
+      </div>
+      <p class="help">Geziak edo WASD mugitzeko · Zuriunea: giltza bat hartu ondoan baduzu; bestela, lanterna pizten du (inguruko mamuak 3 s-z geldiarazten ditu, 4 s-z birkargatzen da). Bildu giltza guztiak eta ukitu atea. Saihestu mamuak eta kalabazak.</p>
+    </div>
+    <div class="card">
+      <h2>Visual Scripting zuzenean</h2>
+      <ul id="log"></ul>
+      <button class="btn" id="bRestart">Partida berrabiarazi</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var VW=640,VH=420,C=2,WH=3.4;
+var stage=document.getElementById('stage'),logEl=document.getElementById('log'),bn=document.getElementById('bn'),ov=document.getElementById('ov');
+function log(k,t,x){var li=document.createElement('li');li.className=k;li.innerHTML='<span class="t">'+t+'</span>'+x;logEl.insertBefore(li,logEl.firstChild);while(logEl.children.length>10)logEl.removeChild(logEl.lastChild)}
+function ev(t){log('ev','GERTAERA',t)}function co(t){log('co','BALDINTZA',t)}function ac(t){log('ac','EKINTZA',t)}
+function setHud(a,b,c,d){document.getElementById('hA').textContent=a;document.getElementById('hB').textContent=b;document.getElementById('hC').textContent=c;document.getElementById('hD').textContent=d}
+var renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.setSize(VW,VH,false);
+stage.insertBefore(renderer.domElement,stage.firstChild);
+var scene=new THREE.Scene();scene.background=new THREE.Color('#1B1033');scene.fog=new THREE.Fog('#1B1033',22,52);
+var cam=new THREE.PerspectiveCamera(55,VW/VH,0.1,200);
+scene.add(new THREE.AmbientLight(0x8a7bbf,0.75));
+var moon=new THREE.DirectionalLight(0x9fb4ff,0.35);moon.position.set(-10,25,10);scene.add(moon);
+var lvGroup=null,mats={};
+function mat(c){return mats[c]||(mats[c]=new THREE.MeshLambertMaterial({color:c}))}
+function emi(c,e){var k=c+'|'+e;return mats[k]||(mats[k]=new THREE.MeshLambertMaterial({color:c,emissive:e}))}
+function bx(w,h,d,col,x,y,z,parent){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof col==='string'?mat(col):col);m.position.set(x,y,z);if(parent)parent.add(m);return m}
+function checker(c1,c2,rx,ry){var c=document.createElement('canvas');c.width=c.height=2;var g=c.getContext('2d');g.fillStyle=c1;g.fillRect(0,0,2,2);g.fillStyle=c2;g.fillRect(0,0,1,1);g.fillRect(1,1,1,1);var t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);return t}
+var wallSide=new THREE.MeshLambertMaterial({map:checker('#4C3F78','#5A4B8C',1,1)}),wallTop=mat('#8B7BC0'),wallMats=[wallSide,wallSide,wallTop,wallTop,wallSide,wallSide];
+var wallGeo=new THREE.BoxGeometry(C,WH,C);
+// personajes
+var explorer=(function(){var g=new THREE.Group();
+  bx(0.28,0.7,0.3,'#374151',-0.2,0.35,0,g);bx(0.28,0.7,0.3,'#374151',0.2,0.35,0,g);
+  bx(0.8,0.85,0.5,'#92400E',0,1.1,0,g);bx(0.22,0.7,0.25,'#92400E',-0.52,1.1,0,g);bx(0.22,0.7,0.25,'#92400E',0.52,1.1,0.1,g);
+  bx(0.5,0.5,0.5,'#FCD9A6',0,1.8,0,g);bx(0.05,0.1,0.05,'#111827',-0.12,1.85,0.26,g);bx(0.05,0.1,0.05,'#111827',0.12,1.85,0.26,g);
+  bx(1.1,0.1,1.1,'#78350F',0,2.1,0,g);bx(0.6,0.3,0.6,'#92400E',0,2.3,0,g);
+  bx(0.25,0.3,0.25,emi('#FDE047','#F59E0B'),0.55,0.75,0.4,g);
+  var l=new THREE.PointLight(0xffd9a0,1.1,12);l.position.set(0,2.2,0.3);g.add(l);g.userData.light=l;return g})();
+var flashRing=new THREE.Mesh(new THREE.CircleGeometry(1,32),new THREE.MeshBasicMaterial({color:0xFDE68A,transparent:true,opacity:0,depthWrite:false}));flashRing.rotation.x=-Math.PI/2;flashRing.position.y=0.06;
+function makeGhost(){var g=new THREE.Group(),m=new THREE.MeshLambertMaterial({color:'#E8EEFF',transparent:true,opacity:0.85,emissive:'#6678AA'});
+  bx(1.1,1.2,1.1,m,0,1.3,0,g);bx(1.1,0.35,1.1,m,0,0.55,0,g);
+  [[-0.45,-0.45],[0.45,-0.45],[-0.45,0.45],[0.45,0.45],[0,0]].forEach(function(o){bx(0.3,0.3,0.3,m,o[0],0.25,o[1],g)});
+  bx(0.22,0.32,0.1,'#111827',-0.25,1.45,0.56,g);bx(0.22,0.32,0.1,'#111827',0.25,1.45,0.56,g);bx(0.4,0.2,0.1,'#111827',0,1.0,0.56,g);
+  bx(0.3,0.9,0.3,m,-0.75,1.2,0,g);bx(0.3,0.9,0.3,m,0.75,1.2,0,g);
+  g.userData.m=m;return g}
+function makePumpkin(){var g=new THREE.Group();bx(1.1,0.85,1.1,'#F97316',0,0.43,0,g);bx(0.2,0.3,0.2,'#166534',0,1.0,0,g);
+  var e=new THREE.MeshBasicMaterial({color:0xFDE047});bx(0.2,0.2,0.05,e,-0.25,0.55,0.56,g);bx(0.2,0.2,0.05,e,0.25,0.55,0.56,g);bx(0.5,0.15,0.05,e,0,0.25,0.56,g);return g}
+function makeKey(){var g=new THREE.Group(),m=emi('#FACC15','#B45309');bx(0.55,0.55,0.15,m,0,0.4,0,g);bx(0.15,0.15,0.17,'#78350F',0,0.4,0,g);bx(0.15,0.8,0.15,m,0,-0.1,0,g);bx(0.35,0.15,0.15,m,0.2,-0.4,0,g);bx(0.25,0.15,0.15,m,0.15,-0.15,0,g);return g}
+function makeDoor(){var g=new THREE.Group(),p=new THREE.Group();bx(0.5,3,1.9,'#78350F',0,1.5,0,p);bx(0.55,2.6,0.2,'#92400E',0,1.5,-0.55,p);bx(0.55,2.6,0.2,'#92400E',0,1.5,0.55,p);bx(0.2,0.3,0.3,'#FACC15',0.3,1.4,0.6,p);p.position.z=-0.95;p.children.forEach(function(c){c.position.z+=0.95});g.add(p);g.userData.p=p;
+  var arch=bx(0.7,3.4,2.1,'#2a1a10',0,1.7,0,g);arch.scale.set(1,1,1);g.remove(arch);return g}
+// ---------- niveles ----------
+var LV=[
+ {name:'Giltza bat eta tranpa bat dituen gela bat',gs:0,rows:[
+  '#############',
+  '#E..#.......#',
+  '#...#...K...#',
+  '#...........D',
+  '#...#...C...#',
+  '#...#.......#',
+  '#############']},
+ {name:'Bi giltza eta patruilatzen duen mamu bat',gs:2.3,rows:[
+  '###############',
+  '#E..#.....#...#',
+  '#...#..K..#.K.#',
+  '#.....G.......#',
+  '#...#.....#...#',
+  '#...#.....#...#',
+  '#...#.....#...#',
+  '#...#.....#...D',
+  '###############']},
+ {name:'Hiru giltza, bi mamu eta kalabaza-tranpak',gs:2.7,rows:[
+  '#################',
+  '#E...#.....#...K#',
+  '#....#..C..#....#',
+  '#...............#',
+  '#....#.....#....#',
+  '#.K..#..G..#..C.#',
+  '#....#.....#....#',
+  '#######.#####.###',
+  '#..G...C.....K..D',
+  '#...............#',
+  '#################']}];
+var S=null,held={};
+function isWall(cx,cz){var r=S.L.rows[cz];if(!r)return true;var ch=r[cx];return ch===undefined||ch==='#'||ch==='D'}
+function solidAt(x,z){return isWall(Math.round(x/C),Math.round(z/C))}
+function canMove(x,z,r){return !solidAt(x-r,z-r)&&!solidAt(x+r,z-r)&&!solidAt(x-r,z+r)&&!solidAt(x+r,z+r)}
+function clearLevel(){if(lvGroup){scene.remove(lvGroup);lvGroup.traverse(function(o){if(o.geometry&&o.geometry!==wallGeo)o.geometry.dispose()})}lvGroup=new THREE.Group();scene.add(lvGroup)}
+function buildLevel(n){
+  var L=LV[n];S.L=L;clearLevel();
+  var rows=L.rows,nz=rows.length,nx=rows[0].length;
+  var fl=new THREE.Mesh(new THREE.PlaneGeometry(nx*C,nz*C),new THREE.MeshLambertMaterial({map:checker('#3B2A22','#4A3529',nx,nz)}));
+  fl.rotation.x=-Math.PI/2;fl.position.set((nx-1)*C/2,0,(nz-1)*C/2);lvGroup.add(fl);
+  S.keys=[];S.ghosts=[];S.pumps=[];S.door=null;S.need=0;
+  for(var z=0;z<nz;z++)for(var x=0;x<nx;x++){var ch=rows[z][x],wx=x*C,wz=z*C;
+    if(ch==='#'){var w=new THREE.Mesh(wallGeo,wallMats);w.position.set(wx,WH/2,wz);lvGroup.add(w);}
+    else if(ch==='D'){var d=makeDoor();d.position.set(wx,0,wz);lvGroup.add(d);S.door={x:wx,z:wz,mesh:d,open:false};
+      var fr=new THREE.Mesh(wallGeo,wallMats);fr.scale.set(1,0.12,1);fr.position.set(wx,WH-0.2,wz);lvGroup.add(fr);
+      [-1,1].forEach(function(sd){bx(0.7,WH,0.3,'#2a1a10',wx,WH/2,wz+sd*1.0,lvGroup)})}
+    else if(ch==='E'){S.start={x:wx,z:wz}}
+    else if(ch==='K'){var k=makeKey();k.position.set(wx,1.2,wz);lvGroup.add(k);S.keys.push({x:wx,z:wz,mesh:k,got:false});S.need++}
+    else if(ch==='G'){var g=makeGhost();g.position.set(wx,0,wz);lvGroup.add(g);S.ghosts.push({x:wx,z:wz,mesh:g,dx:1,dz:0,sp:L.gs,stun:0,last:'',ph:Math.random()*6})}
+    else if(ch==='C'){var pm=makePumpkin();pm.position.set(wx,0,wz);lvGroup.add(pm);S.pumps.push({x:wx,z:wz,mesh:pm,used:false})}}
+  // antorchas
+  [[0.18,0.25],[0.82,0.25],[0.5,0.78]].forEach(function(f,i){var px=Math.round(nx*f[0]),pz=Math.round(nz*f[1]);
+    var tl=new THREE.PointLight(0xff9a4a,0.8,10);tl.position.set(px*C,2.4,pz*C);lvGroup.add(tl);bx(0.3,0.3,0.3,emi('#F97316','#F97316'),px*C,2.2,pz*C,lvGroup)});
+  // alfombras
+  bx(C*3,0.03,C*2,'#7F1D1D',(S.start.x)+C,0.02,S.start.z+C,lvGroup);
+  scene.add(explorer);explorer.position.set(S.start.x,0,S.start.z);scene.add(flashRing);
+  S.p={x:S.start.x,z:S.start.z,ry:Math.PI,inv:0,bob:0};S.nk=0;S.cd=0;S.flash=0;S.camx=S.start.x;S.camz=S.start.z;
+}
+function hud(){setHud('Maila '+(S.lv+1)+'/3','Bizitzak '+new Array(S.lives+1).join('♥'),'Giltzak '+S.nk+'/'+S.need,S.cd>0?'Lanterna '+S.cd.toFixed(1)+' s':'Lanterna prest')}
+function showOv(t,s,s2){ov.style.display='flex';ov.innerHTML='<b>'+t+'</b><span>'+s+'</span>'+(s2?'<span>'+s2+'</span>':'')}
+function hideOv(){ov.style.display='none'}
+function newGame(){S={mode:'title',lv:0,t:0,lives:3,nk:0,need:0,cd:0,flash:0,msg:'',msgT:0,hint:''};logEl.innerHTML='';ev('Jokoaren Start');ac('Aldagaiak: bizitzak = 3, giltzak = 0');buildLevel(0);showOv('ETXE SORGINDUA','Sakatu Zuriunea edo ukitu hasteko')}
+function loadLevel(n){S.lv=n;S.mode='play';buildLevel(n);hideOv();S.msg='Maila '+(n+1)+' · '+S.L.name;S.msgT=S.t+2200;
+  ev('Load Scene "Maila '+(n+1)+'"');ac('Instantiate Esploratzailea, '+S.need+' giltza, '+S.ghosts.length+' mamu, '+S.pumps.length+' kalabaza eta Atea')}
+function toNext(){if(S.lv<2){S.mode='next';S.msg='Maila gainditu da!';S.msgT=S.t+2000;S.nextAt=S.t+2000;ac('Mezua erakutsi, 2 s itxaron, Load Scene "Maila '+(S.lv+2)+'"')}else{S.mode='won';ac('Load Scene "Garaipena"');showOv('IHES EGIN DUZU!','Etxe sorgindutik atera zara','Sakatu Zuriunea errepikatzeko')}}
+function hurt(why){var p=S.p;if(p.inv>S.t)return;S.lives--;p.inv=S.t+2000;
+  ev('On Trigger Enter ('+why+')');ac('bizitzak = bizitzak − 1 → '+S.lives);
+  if(S.lives<=0){ac('Load Scene "GameOver"');S.mode='over';showOv('HARRAPATU ZAITUZTE!','Mamuek 3 aldiz harrapatu zaituzte','Sakatu Zuriunea berriro saiatzeko');return}
+  p.x=S.start.x;p.z=S.start.z;ac('Esploratzailea sarrerara Teleport')}
+function onSpace(){
+  var p=S.p;ev('Input: Zuriunea tekla');
+  var k=S.keys.filter(function(k){return !k.got&&Math.hypot(k.x-p.x,k.z-p.z)<2.2})[0];
+  if(k){co('Giltzarik dago gertu? BAI');k.got=true;k.mesh.visible=false;S.nk++;ac('Destroy(Giltza) eta giltzak = '+S.nk+'/'+S.need);S.msg='Giltza '+S.nk+'/'+S.need+'!';S.msgT=S.t+1000;return}
+  co('Giltzarik dago gertu? EZ');
+  if(S.cd>0){ac('Lanterna birkargatzen ('+S.cd.toFixed(1)+' s)');return}
+  S.cd=4;S.flash=0.6;var n=0;S.ghosts.forEach(function(g){if(Math.hypot(g.x-p.x,g.z-p.z)<7){g.stun=3;n++}});
+  ac('Lanterna ON: '+n+' mamu geldituta 3 s-z')}
+function update(dt){
+  S.t+=dt*1000;
+  if(S.mode==='next'&&S.t>=S.nextAt)loadLevel(S.lv+1);
+  if(S.mode!=='play')return;
+  var p=S.p;S.cd=Math.max(0,S.cd-dt);S.flash=Math.max(0,S.flash-dt);
+  var dx=(held.right?1:0)-(held.left?1:0),dz=(held.down?1:0)-(held.up?1:0),m=Math.hypot(dx,dz);
+  if(m>0){dx/=m;dz/=m;var sp=5*dt,nx=p.x+dx*sp,nz=p.z+dz*sp;if(canMove(nx,p.z,0.42))p.x=nx;if(canMove(p.x,nz,0.42))p.z=nz;
+    var ty=Math.atan2(dx,dz),df=ty-p.ry;while(df>Math.PI)df-=6.283;while(df<-Math.PI)df+=6.283;p.ry+=df*Math.min(1,14*dt);p.bob+=dt*11}
+  // fantasmas
+  S.ghosts.forEach(function(g){
+    if(g.stun>0){g.stun-=dt;g.mesh.userData.m.color.set(g.stun>0?'#60A5FA':'#E8EEFF');return}
+    g.mesh.userData.m.color.set('#E8EEFF');
+    var cx=Math.round(g.x/C),cz=Math.round(g.z/C),ccx=cx*C,ccz=cz*C,step=g.sp*dt;
+    var near=Math.hypot(g.x-ccx,g.z-ccz)<=step*1.01+0.01,id=cx+','+cz;
+    var ahead=isWall(Math.round((g.x+g.dx*C*0.5+g.dx*0.01)/C),Math.round((g.z+g.dz*C*0.5+g.dz*0.01)/C));
+    if(near&&g.last!==id){g.last=id;
+      var opts=[[1,0],[-1,0],[0,1],[0,-1]].filter(function(v){return !isWall(cx+v[0],cz+v[1])});
+      var fwd=opts.filter(function(v){return !(v[0]===-g.dx&&v[1]===-g.dz)});if(fwd.length)opts=fwd;
+      var keep=opts.some(function(v){return v[0]===g.dx&&v[1]===g.dz});
+      if(!keep||Math.random()<0.4){var v=opts[Math.floor(Math.random()*opts.length)];if(v){g.x=ccx;g.z=ccz;g.dx=v[0];g.dz=v[1]}}}
+    g.x+=g.dx*step;g.z+=g.dz*step;
+    if(Math.hypot(g.x-p.x,g.z-p.z)<1.0)hurt('Mamua ∩ Esploratzailea')});
+  if(S.mode!=='play')return;
+  S.pumps.forEach(function(pm){if(!pm.used&&Math.hypot(pm.x-p.x,pm.z-p.z)<1.0){pm.used=true;pm.mesh.visible=false;hurt('Esploratzailea ∩ Kalabaza-tranpa')}});
+  if(S.mode!=='play')return;
+  // llave cercana
+  var nk=S.keys.some(function(k){return !k.got&&Math.hypot(k.x-p.x,k.z-p.z)<2.2});S.hint=nk?'Sakatu Zuriunea giltza hartzeko':'';
+  // puerta
+  var d=S.door;
+  if(d&&Math.hypot(d.x-p.x,d.z-p.z)<2.0){
+    if(S.nk>=S.need){ev('On Trigger Enter (Esploratzailea ∩ Atea)');co('Giltza guztiak ditu? BAI ('+S.nk+'/'+S.need+')');ac('Atea ireki');d.open=true;toNext();return}
+    else if(S.t>(S.doorT||0)){S.doorT=S.t+2500;ev('On Trigger Enter (Esploratzailea ∩ Atea)');co('Giltza guztiak ditu? EZ ('+S.nk+'/'+S.need+')');ac('Atea itxita jarraitzen du');S.msg='Giltzak falta dira: '+S.nk+'/'+S.need;S.msgT=S.t+1600}}
+}
+function render(dt){
+  var p=S.p,t=S.t/1000;
+  explorer.position.set(p.x,Math.abs(Math.sin(p.bob))*0.12,p.z);explorer.rotation.y=p.ry;
+  explorer.visible=!(p.inv>S.t&&Math.floor(S.t/90)%2);
+  explorer.userData.light.intensity=S.flash>0?3.5:1.1;explorer.userData.light.distance=S.flash>0?20:12;
+  flashRing.position.set(p.x,0.06,p.z);var fr=S.flash>0?(1-S.flash/0.6):1;flashRing.scale.setScalar(Math.max(0.01,7*Math.min(1,fr*1.2)));flashRing.material.opacity=S.flash>0?0.45*(S.flash/0.6):0;
+  S.keys.forEach(function(k){if(!k.got){k.mesh.rotation.y=t*2;k.mesh.position.y=1.2+Math.sin(t*3+k.x)*0.15}});
+  S.ghosts.forEach(function(g){g.mesh.position.set(g.x,0.2+Math.sin(t*3+g.ph)*0.18,g.z);if(g.stun<=0&&(g.dx||g.dz))g.mesh.rotation.y=Math.atan2(g.dx,g.dz)});
+  if(S.door){var pn=S.door.mesh.userData.p,tr=S.door.open?-1.35:0;pn.rotation.y+=(tr-pn.rotation.y)*Math.min(1,6*dt)}
+  S.camx+=(p.x-S.camx)*Math.min(1,6*dt);S.camz+=(p.z-S.camz)*Math.min(1,6*dt);
+  cam.position.set(S.camx,16,S.camz+9.5);cam.lookAt(S.camx,0.4,S.camz-1.5);
+  var txt=(S.msg&&S.t<S.msgT)?S.msg:(S.mode==='next'?'Maila gainditu da!':(S.mode==='play'?S.hint:''));
+  if(txt){bn.style.display='block';bn.textContent=txt}else bn.style.display='none';
+  renderer.render(scene,cam);
+}
+var KEYS={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
+function pressSpace(){if(S.mode==='title')loadLevel(0);else if(S.mode==='over'||S.mode==='won')newGame();else if(S.mode==='play')onSpace()}
+window.addEventListener('keydown',function(e){
+  if(KEYS[e.key]){held[KEYS[e.key]]=true;e.preventDefault()}
+  else if(e.key===' '){e.preventDefault();if(!e.repeat)pressSpace()}});
+window.addEventListener('keyup',function(e){if(KEYS[e.key])held[KEYS[e.key]]=false});
+document.querySelectorAll('.dpad button').forEach(function(b){var d=b.dataset.d;
+  function on(e){e.preventDefault();held[d]=true}function off(e){e.preventDefault();held[d]=false}
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off)});
+document.getElementById('bBomb').addEventListener('pointerdown',function(e){e.preventDefault();pressSpace()});
+document.getElementById('bRestart').addEventListener('click',function(){newGame()});
+stage.addEventListener('pointerdown',function(){if(S.mode!=='play')pressSpace()});
+var last=performance.now();
+function loop(now){var dt=Math.min(50,now-last)/1000;last=now;update(dt);hud();render(dt);requestAnimationFrame(loop)}
+newGame();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

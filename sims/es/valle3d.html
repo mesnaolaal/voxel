@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Valle Nevado – simulación jugable 3D</title>
+<style>
+:root{--bg:#F6F8FD;--card:#fff;--tx:#0F172A;--mut:#475569;--ac:#0F766E;--bd:#D8DEEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+h1{margin:0 0 4px;font-size:26px}
+.sub{color:var(--mut);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pill{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:999px;padding:3px 12px;font-weight:600;font-size:14px}
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#BFE3FF;aspect-ratio:16/10.5}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+#bn{position:absolute;left:0;right:0;top:14px;text-align:center;background:rgba(15,23,42,.78);color:#fff;font-weight:700;font-size:20px;padding:8px;display:none}
+#ov{position:absolute;inset:0;background:rgba(15,23,42,.72);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:16px}
+#ov b{font-size:34px;color:#FDE047}
+.pad{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0;gap:12px}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:6px}
+.dpad button,.bomb{border:1px solid var(--bd);background:#fff;border-radius:12px;font-size:20px;cursor:pointer;color:var(--tx)}
+.dpad button:active,.bomb:active{background:#CCFBF1}
+.bomb{width:110px;height:110px;border-radius:55px;background:#DBEAFE;border-color:#93C5FD;font-weight:700;font-size:15px}
+.help{color:var(--mut);font-size:14px;margin:10px 0 0}
+h2{font-size:16px;margin:0 0 8px}
+#log{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:6px;min-height:300px}
+#log li{border-left:4px solid var(--bd);padding:4px 8px;background:#F8FAFC;border-radius:0 8px 8px 0}
+.t{font-weight:700;font-size:11px;letter-spacing:.04em;margin-right:6px}
+.ev{border-color:#3B82F6!important}.ev .t{color:#1D4ED8}
+.co{border-color:#F59E0B!important}.co .t{color:#B45309}
+.ac{border-color:#10B981!important}.ac .t{color:#047857}
+.btn{margin-top:10px;background:var(--ac);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Valle Nevado <span style="font-weight:400;color:#64748B;font-size:18px">· 3D</span></h1>
+  <p class="sub">Simulación jugable en 3D del ejemplo de proyecto. A la derecha verás qué EVENTO → CONDICIÓN → ACCIÓN de Visual Scripting se dispara en cada momento.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="hud"><span class="pill" id="hA"></span><span class="pill" id="hB"></span><span class="pill" id="hC"></span><span class="pill" id="hD"></span></div>
+      <div class="stage" id="stage" tabindex="0"><div id="bn"></div><div id="ov"></div></div>
+      <div class="pad">
+        <div class="dpad">
+          <span></span><button data-d="up" aria-label="Arriba">▲</button><span></span>
+          <button data-d="left" aria-label="Izquierda">◀</button><button data-d="down" aria-label="Abajo">▼</button><button data-d="right" aria-label="Derecha">▶</button>
+        </div>
+        <button class="bomb" id="bBomb">FRENAR<br>(Espacio)</button>
+      </div>
+      <p class="help">◀ ▶ para esquiar · Espacio: frenar · ▼ turbo en la bajada. Pasa entre los palos de cada puerta (se ponen verdes) y esquiva árboles y muñecos de nieve.</p>
+    </div>
+    <div class="card">
+      <h2>Visual Scripting en vivo</h2>
+      <ul id="log"></ul>
+      <button class="btn" id="bRestart">Reiniciar partida</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var VW=640,VH=420,HW=9,THETA=0.2;
+var stage=document.getElementById('stage'),logEl=document.getElementById('log'),bn=document.getElementById('bn'),ov=document.getElementById('ov');
+function log(k,t,x){var li=document.createElement('li');li.className=k;li.innerHTML='<span class="t">'+t+'</span>'+x;logEl.insertBefore(li,logEl.firstChild);while(logEl.children.length>10)logEl.removeChild(logEl.lastChild)}
+function ev(t){log('ev','EVENTO',t)}function co(t){log('co','CONDICIÓN',t)}function ac(t){log('ac','ACCIÓN',t)}
+function setHud(a,b,c,d){document.getElementById('hA').textContent=a;document.getElementById('hB').textContent=b;document.getElementById('hC').textContent=c;document.getElementById('hD').textContent=d}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+// ---------- three.js ----------
+var renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+renderer.setSize(VW,VH,false);
+stage.insertBefore(renderer.domElement,stage.firstChild);
+var scene=new THREE.Scene();scene.background=new THREE.Color('#BFE3FF');scene.fog=new THREE.Fog('#D5EBFF',45,150);
+var cam=new THREE.PerspectiveCamera(62,VW/VH,0.1,400);
+scene.add(new THREE.AmbientLight(0xffffff,0.72));
+var sun=new THREE.DirectionalLight(0xffffff,0.75);sun.position.set(-30,60,20);scene.add(sun);
+var world=new THREE.Group();world.rotation.x=-THETA;scene.add(world);
+var lvGroup=null,skier,mats={};
+function mat(c){return mats[c]||(mats[c]=new THREE.MeshLambertMaterial({color:c}))}
+function bx(w,h,d,col,x,y,z,parent){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof col==='string'?mat(col):col);m.position.set(x,y,z);if(parent)parent.add(m);return m}
+function checker(c1,c2,rx,ry){var c=document.createElement('canvas');c.width=c.height=2;var g=c.getContext('2d');g.fillStyle=c1;g.fillRect(0,0,2,2);g.fillStyle=c2;g.fillRect(0,0,1,1);g.fillRect(1,1,1,1);var t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);return t}
+function pine(parent,x,z,sc){var g=new THREE.Group();
+  bx(0.5,1,0.5,'#7C4A1E',0,0.5,0,g);bx(3.2,1.3,3.2,'#166534',0,1.65,0,g);bx(2.4,1.2,2.4,'#15803D',0,2.9,0,g);bx(1.5,1.1,1.5,'#22C55E',0,4.05,0,g);bx(0.9,0.25,0.9,'#F8FAFC',0,4.75,0,g);
+  g.position.set(x,0,z);g.scale.setScalar(sc||1);parent.add(g);return g}
+function snowman(parent,x,z){var g=new THREE.Group();
+  bx(1.8,1.6,1.8,'#F8FAFC',0,0.8,0,g);bx(1.3,1.2,1.3,'#F8FAFC',0,2.2,0,g);bx(0.95,0.95,0.95,'#F8FAFC',0,3.3,0,g);
+  bx(0.2,0.2,0.7,'#F97316',0,3.3,-0.7,g);bx(0.12,0.12,0.1,'#111827',-0.22,3.5,-0.48,g);bx(0.12,0.12,0.1,'#111827',0.22,3.5,-0.48,g);
+  bx(1.1,0.12,1.1,'#111827',0,3.85,0,g);bx(0.7,0.5,0.7,'#111827',0,4.15,0,g);
+  g.position.set(x,0,z);parent.add(g);return g}
+// esquiador
+function buildSkier(){var g=new THREE.Group();
+  bx(0.25,0.12,2.4,'#DC2626',-0.35,0.06,0,g);bx(0.25,0.12,2.4,'#DC2626',0.35,0.06,0,g);
+  bx(0.75,1.1,0.5,'#2563EB',0,1.0,0,g);bx(0.42,0.42,0.42,'#FCD9A6',0,1.75,0,g);bx(0.5,0.18,0.5,'#DC2626',0,2.05,0,g);
+  bx(0.2,0.7,0.2,'#1D4ED8',-0.5,1.0,-0.1,g);bx(0.2,0.7,0.2,'#1D4ED8',0.5,1.0,-0.1,g);
+  bx(0.06,1.3,0.06,'#374151',-0.62,0.65,-0.35,g);bx(0.06,1.3,0.06,'#374151',0.62,0.65,-0.35,g);
+  return g}
+// nieve cayendo
+var NSNOW=500,snowPos=new Float32Array(NSNOW*3);
+for(var i=0;i<NSNOW;i++){snowPos[i*3]=(Math.random()-0.5)*50;snowPos[i*3+1]=Math.random()*25;snowPos[i*3+2]=(Math.random()-0.5)*60}
+var snowGeo=new THREE.BufferGeometry();snowGeo.setAttribute('position',new THREE.BufferAttribute(snowPos,3));
+var snowPts=new THREE.Points(snowGeo,new THREE.PointsMaterial({color:0xffffff,size:3,sizeAttenuation:false,fog:false}));snowPts.frustumCulled=false;scene.add(snowPts);
+
+// ---------- juego ----------
+var LV=[
+ {len:180,gates:1,trees:12,snow:0,time:0,name:'Una pista ancha con una puerta'},
+ {len:260,gates:2,trees:22,snow:3,time:0,name:'Eslalon con dos puertas y más árboles'},
+ {len:340,gates:4,trees:26,snow:4,time:36,name:'Cuatro puertas y poco tiempo'}];
+var S=null,held={};
+function clearLevel(){if(lvGroup){world.remove(lvGroup);lvGroup.traverse(function(o){if(o.geometry)o.geometry.dispose()})}lvGroup=new THREE.Group();world.add(lvGroup)}
+function buildWorld(n){
+  var L=LV[n];clearLevel();
+  var len=L.len;
+  // suelo
+  var out=new THREE.Mesh(new THREE.PlaneGeometry(160,len+260),new THREE.MeshLambertMaterial({map:checker('#D5E2F3','#CBDAEE',160/4,(len+260)/4)}));
+  out.rotation.x=-Math.PI/2;out.position.set(0,-0.02,-len/2+30);lvGroup.add(out);
+  var pis=new THREE.Mesh(new THREE.PlaneGeometry(HW*2,len+140),new THREE.MeshLambertMaterial({map:checker('#FFFFFF','#EDF3FB',HW/2,(len+140)/4)}));
+  pis.rotation.x=-Math.PI/2;pis.position.set(0,0,-len/2+20);lvGroup.add(pis);
+  // bordes de pista
+  [-1,1].forEach(function(s){bx(0.3,0.5,len+140,'#94A3B8',s*(HW+0.15),0.25,-len/2+20,lvGroup)});
+  // salida y meta
+  bx(HW*2,0.05,0.8,'#38BDF8',0,0.04,0,lvGroup);
+  [-1,1].forEach(function(s){bx(0.6,7,0.6,'#DC2626',s*(HW+0.6),3.5,-len,lvGroup)});
+  var beam=new THREE.Mesh(new THREE.BoxGeometry(HW*2+1.8,1.6,0.5),new THREE.MeshLambertMaterial({map:checker('#111827','#F8FAFC',(HW*2+1.8)/1.6,1)}));beam.position.set(0,6.6,-len);lvGroup.add(beam);
+  var fl=new THREE.Mesh(new THREE.PlaneGeometry(HW*2,1.2),new THREE.MeshLambertMaterial({map:checker('#111827','#F8FAFC',HW*2/1.2,1)}));fl.rotation.x=-Math.PI/2;fl.position.set(0,0.05,-len);lvGroup.add(fl);
+  // árboles decorativos (instanciados)
+  var r=rng(5+n*3),parts=[[0.5,1,0.5,0.5,'#7C4A1E'],[3.2,1.3,3.2,1.65,'#166534'],[2.4,1.2,2.4,2.9,'#15803D'],[1.5,1.1,1.5,4.05,'#22C55E'],[0.9,0.25,0.9,4.75,'#F8FAFC']];
+  var dec=[];for(var z=30;z>-len-90;z-=2.4){[-1,1].forEach(function(sd){dec.push([sd*(HW+2.2+r()*5),z+r()*1.5,0.8+r()*0.6]);if(r()<0.7)dec.push([sd*(HW+9+r()*14),z+r()*2,0.9+r()*0.9])})}
+  var dummy=new THREE.Object3D();
+  parts.forEach(function(pt){var im=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),mat(pt[4]),dec.length);
+    dec.forEach(function(d,i){dummy.position.set(d[0],pt[3]*d[2],d[1]);dummy.scale.set(pt[0]*d[2],pt[1]*d[2],pt[2]*d[2]);dummy.updateMatrix();im.setMatrixAt(i,dummy.matrix)});
+    im.instanceMatrix.needsUpdate=true;im.frustumCulled=false;lvGroup.add(im)});
+  // montañas
+  [[-60,-len-110,34,46],[0,-len-140,48,64],[70,-len-100,36,50],[-120,-len-30,30,40],[125,-len-20,32,44]].forEach(function(m){
+    var mt=new THREE.Mesh(new THREE.ConeGeometry(m[2],m[3],4),mat('#9FB4D3'));mt.position.set(m[0],m[3]/2-2,m[1]);mt.rotation.y=0.7;lvGroup.add(mt);
+    var cap=new THREE.Mesh(new THREE.ConeGeometry(m[2]*0.36,m[3]*0.36,4),mat('#FFFFFF'));cap.position.set(m[0],m[3]*0.82-2,m[1]);cap.rotation.y=0.7;lvGroup.add(cap)});
+  // lógica de nivel
+  var rr=rng(11+n*17),i;
+  S.gs=[];S.obs=[];
+  for(i=0;i<L.gates;i++){var gs=(i+1)*len/(L.gates+1),gx=(i%2?1:-1)*(1.5+rr()*3.5);
+    var col=i%2?'#2563EB':'#DC2626',m1=new THREE.MeshLambertMaterial({color:col}),m2=new THREE.MeshLambertMaterial({color:col});
+    var g={x:gx,s:gs,w:7,done:false,ok:false,base:col,m:[m1,m2]};
+    bx(0.28,3.4,0.28,m1,gx-3.5,1.7,-gs,lvGroup);bx(0.28,3.4,0.28,m2,gx+3.5,1.7,-gs,lvGroup);
+    g.flag=bx(7,0.5,0.05,m1,gx,3.0,-gs,lvGroup);S.gs.push(g)}
+  var tot=L.trees+L.snow;
+  for(i=0;i<tot;i++){var s,x,tries=0,bad;
+    do{s=22+(i+rr()*0.9)*((len-48)/tot);x=(rr()*2-1)*(HW-1.4);bad=S.gs.some(function(g){return Math.abs(s-g.s)<9&&Math.abs(x-g.x)<g.w/2+3});tries++}while(bad&&tries<12);
+    var t=i<L.snow?'snow':'tree';S.obs.push({t:t,x:x,s:s});
+    if(t==='tree')pine(lvGroup,x,-s,1);else snowman(lvGroup,x,-s)}
+  if(!skier){skier=buildSkier()}
+  world.add(skier);
+}
+function hud(){setHud('Nivel '+(S.lv+1)+'/3','Vidas '+new Array(S.lives+1).join('♥'),'Puertas '+S.passed+'/'+S.L.gates,S.L.time?'Tiempo '+Math.max(0,S.timeLeft).toFixed(1)+' s':'Sin límite de tiempo')}
+function showOv(t,s,s2){ov.style.display='flex';ov.innerHTML='<b>'+t+'</b><span>'+s+'</span>'+(s2?'<span>'+s2+'</span>':'')}
+function hideOv(){ov.style.display='none'}
+function newGame(){S={mode:'title',lv:0,t:0,lives:3,L:LV[0],passed:0,timeLeft:0,p:{x:0,s:0,v:0,inv:0},lean:0,shake:0,camx:0};logEl.innerHTML='';ev('Start del juego');ac('Variables: vidas = 3, nivel = 1');buildWorld(0);showOv('VALLE NEVADO','Pulsa Espacio o toca para empezar')}
+function loadLevel(n){
+  S.lv=n;S.L=LV[n];S.mode='play';S.why='';S.passed=0;S.timeLeft=S.L.time;S.p={x:0,s:0,v:0,inv:0};S.camx=0;
+  buildWorld(n);hideOv();S.msg='Nivel '+(n+1)+' · '+S.L.name;S.msgT=S.t+2200;
+  ev('Load Scene "Nivel '+(n+1)+'"');ac('Instantiate Esquiador, '+S.L.gates+' puerta(s), '+(S.L.trees+S.L.snow)+' obstáculos y Meta');
+}
+function toNext(){if(S.lv<2){S.mode='next';S.msg='¡Nivel superado!';S.msgT=S.t+2000;S.nextAt=S.t+2000;ac('Mostrar mensaje, esperar 2 s, Load Scene "Nivel '+(S.lv+2)+'"')}else{S.mode='won';ac('Load Scene "Victoria"');showOv('¡LO LOGRASTE!','Has completado los 3 niveles','Pulsa Espacio para repetir')}}
+function gameOver(t,why){S.mode='over';showOv(t,why,'Pulsa Espacio para reintentar')}
+function hit(why){var p=S.p;if(p.inv>S.t)return;S.lives--;p.inv=S.t+1500;p.v=3;p.s=Math.max(0,p.s-3);S.shake=0.5;
+  ev('On Trigger Enter ('+why+')');ac('vidas = vidas − 1 → '+S.lives);
+  if(S.lives<=0){ac('Load Scene "GameOver"');gameOver('¡FIN DEL JUEGO!','Te has chocado 3 veces')}}
+function update(dt){
+  S.t+=dt*1000;
+  if(S.mode==='next'&&S.t>=S.nextAt)loadLevel(S.lv+1);
+  if(S.mode!=='play')return;
+  var p=S.p,L=S.L;
+  var target=held.space?5:(held.down?22:16);
+  p.v+=(target-p.v)*Math.min(1,1.8*dt);
+  var dx=(held.right?1:0)-(held.left?1:0);
+  p.x+=dx*(6+p.v*0.3)*dt;if(p.x>HW+0.5)p.x=HW+0.5;if(p.x<-HW-0.5)p.x=-HW-0.5;
+  p.s+=p.v*dt;S.lean+=(dx-S.lean)*Math.min(1,8*dt);
+  if(L.time){S.timeLeft-=dt;if(S.timeLeft<=0){S.timeLeft=0;ev('Cronómetro = 0');co('¿Ha llegado a la meta? NO');ac('Mostrar Game Over');gameOver('¡TIEMPO AGOTADO!','Se acabó el tiempo');return}}
+  S.obs.forEach(function(o){if(S.mode==='play'&&Math.abs(o.x-p.x)<(o.t==='tree'?1.4:1.2)&&Math.abs(o.s-p.s)<1.1)hit(o.t==='tree'?'Esquiador ∩ Pino':'Esquiador ∩ Muñeco de nieve')});
+  if(S.mode!=='play')return;
+  S.gs.forEach(function(g){if(!g.done&&p.s>=g.s){g.done=true;
+    if(Math.abs(p.x-g.x)<g.w/2-0.4){g.ok=true;S.passed++;g.m.forEach(function(m){m.color.set('#16A34A')});ev('On Trigger Enter (Esquiador ∩ Puerta)');ac('puertas = '+S.passed+'/'+L.gates);S.msg='¡Puerta '+S.passed+'!';S.msgT=S.t+800}
+    else{g.m.forEach(function(m){m.color.set('#6B7280')});ev('Esquiador pasa fuera de la puerta');ac('La puerta no cuenta');S.msg='¡Puerta saltada!';S.msgT=S.t+1200}}});
+  if(p.s>=L.len){
+    ev('On Trigger Enter (Esquiador ∩ Meta)');
+    if(S.passed>=L.gates){co('¿Ha pasado todas las puertas? SÍ ('+S.passed+'/'+L.gates+')');ac('Parar el cronómetro');toNext()}
+    else{co('¿Ha pasado todas las puertas? NO ('+S.passed+'/'+L.gates+')');
+      var g=S.gs.filter(function(q){return !q.ok})[0];
+      ac('Teleport a la puerta que faltaba');S.msg='Te faltan puertas: ¡vuelve a pasarlas!';S.msgT=S.t+2000;
+      p.s=g.s-9;p.x=g.x;p.v=0;
+      S.gs.forEach(function(q){if(q.s>=g.s){q.done=false;q.ok=false;q.m.forEach(function(m){m.color.set(q.base)})}});
+      S.passed=S.gs.filter(function(q){return q.ok}).length}}
+}
+var v1=new THREE.Vector3(),v2=new THREE.Vector3();
+function render(dt){
+  var p=S.p;
+  skier.position.set(p.x,0,-p.s);skier.rotation.z=-S.lean*0.35;skier.rotation.y=-S.lean*0.4;
+  skier.visible=!(p.inv>S.t&&Math.floor(S.t/90)%2);
+  S.camx+=(p.x*0.8-S.camx)*Math.min(1,5*dt);
+  S.shake=Math.max(0,S.shake-dt);
+  var sh=S.shake*0.6,pull=held.down&&S.mode==='play'?1:0;
+  v1.set(S.camx+(Math.random()-0.5)*sh,4.1+(Math.random()-0.5)*sh,-p.s+9.5);cam.position.copy(world.localToWorld(v1));
+  v2.set(p.x*0.9,1.6,-p.s-13);cam.lookAt(world.localToWorld(v2));
+  var fov=60+Math.max(0,(p.v-12))*0.7;if(Math.abs(cam.fov-fov)>0.05){cam.fov+=(fov-cam.fov)*Math.min(1,4*dt);cam.updateProjectionMatrix()}
+  // nieve
+  for(var i=0;i<NSNOW;i++){var y=snowPos[i*3+1]-3.2*dt;if(y<0)y+=25;snowPos[i*3+1]=y;snowPos[i*3]+=Math.sin(S.t/900+i)*0.004}
+  snowGeo.attributes.position.needsUpdate=true;snowPts.position.set(cam.position.x,cam.position.y-5,cam.position.z-34);
+  if(S.msg&&S.t<S.msgT){bn.style.display='block';bn.textContent=S.msg}else if(S.mode==='next'){bn.style.display='block';bn.textContent='¡Nivel superado!'}else bn.style.display='none';
+  renderer.render(scene,cam);
+}
+// ---------- entrada ----------
+var KEYS={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
+function pressSpace(){if(S.mode==='title')loadLevel(0);else if(S.mode==='over'||S.mode==='won'){S.lives=3;newGame()}}
+window.addEventListener('keydown',function(e){
+  if(KEYS[e.key]){held[KEYS[e.key]]=true;e.preventDefault()}
+  else if(e.key===' '){e.preventDefault();held.space=true;if(!e.repeat)pressSpace()}});
+window.addEventListener('keyup',function(e){if(KEYS[e.key])held[KEYS[e.key]]=false;if(e.key===' ')held.space=false});
+document.querySelectorAll('.dpad button').forEach(function(b){var d=b.dataset.d;
+  function on(e){e.preventDefault();held[d]=true}function off(e){e.preventDefault();held[d]=false}
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off)});
+var bb=document.getElementById('bBomb');
+bb.addEventListener('pointerdown',function(e){e.preventDefault();held.space=true;pressSpace()});
+['pointerup','pointerleave','pointercancel'].forEach(function(n){bb.addEventListener(n,function(){held.space=false})});
+document.getElementById('bRestart').addEventListener('click',function(){newGame()});
+stage.addEventListener('pointerdown',function(){if(S.mode!=='play')pressSpace()});
+var last=performance.now();
+function loop(now){var dt=Math.min(50,now-last)/1000;last=now;update(dt);hud();render(dt);requestAnimationFrame(loop)}
+newGame();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

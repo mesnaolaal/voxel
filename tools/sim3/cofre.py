@@ -1,0 +1,129 @@
+from common import build
+G=r'''
+amb.intensity=0.5;sun.intensity=0.5;
+var TITLE='COFRE PIRATA';
+var LV=[
+ {name:'Isla pequeña y sin enemigos',time:35,rows:[
+  '~~~~~~~~~~~~~',
+  '~SSSSSSSSSSS~',
+  '~SSMSSSSMSSS~',
+  '~SSSSpSSSSSS~',
+  '~SPSSSSSSMSS~',
+  '~SSSSSpSSSSC~',
+  '~SSMSSSSSSSS~',
+  '~~SSSSSSSMS~~',
+  '~~~~~~~~~~~~~']},
+ {name:'Charcos en el camino y un cangrejo que patrulla',time:40,rows:[
+  '~~~~~~~~~~~~~~~',
+  '~SSSSSS~SSSSSS~',
+  '~SPSSMS~SSSMSS~',
+  '~SSpSSS~SSSSSC~',
+  '~SS~SSS~SKSSSS~',
+  '~SMSSSS~SSSMSS~',
+  '~SSSSSS~S~SSMS~',
+  '~SSSSSS~SSSSSS~',
+  '~~~~~~~~~~~~~~~']},
+ {name:'Tres islas unidas por puentes y dos cangrejos',time:35,rows:[
+  '~~~~~~~~~~~~~~~~~~~',
+  '~SSSSS~~SSSSS~~SSS~',
+  '~SPSMS~~SSMSS~~SMS~',
+  '~SSSSSBBSSSSS~~SSS~',
+  '~SKSSS~~SSKSS~~SSS~',
+  '~SSSMS~~SSSSSBBSSC~',
+  '~SSSSS~~SSMSS~~SSS~',
+  '~SSSSS~~SSSSS~~SSS~',
+  '~~~~~~~~~~~~~~~~~~~']}];
+function land(cx,cz){var ch=cellCh(cx,cz);return ch!==undefined&&ch!=='~'}
+function solidAt(x,z){return cellCh(Math.round(x/C),Math.round(z/C))==='p'}
+function canMove(x,z,r){return !solidAt(x-r,z-r)&&!solidAt(x+r,z-r)&&!solidAt(x-r,z+r)&&!solidAt(x+r,z+r)}
+function waterAt(x,z){return !land(Math.round(x/C),Math.round(z/C))}
+var sandMats=null;
+function makeWaterTex(){var cv=document.createElement('canvas');cv.width=cv.height=4;var g=cv.getContext('2d'),cols=['#2E9BD8','#3AA7E4','#2E9BD8','#5CBBEE','#3AA7E4','#2E9BD8','#3AA7E4','#2E9BD8','#2E9BD8','#5CBBEE','#2E9BD8','#3AA7E4','#3AA7E4','#2E9BD8','#5CBBEE','#2E9BD8'],i;for(i=0;i<16;i++){g.fillStyle=cols[i];g.fillRect(i%4,Math.floor(i/4),1,1)}
+  var t=new THREE.CanvasTexture(cv);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(60,60);return t}
+var wTex=makeWaterTex(),water=new THREE.Mesh(new THREE.PlaneGeometry(240,240),new THREE.MeshLambertMaterial({map:wTex}));water.rotation.x=-Math.PI/2;water.position.y=-0.55;scene.add(water);
+var sandTop=new THREE.MeshLambertMaterial({map:checker('#F3D58A','#EBC978',1,1)}),sandSide=mat('#C99A4B');
+var sandMat=[sandSide,sandSide,sandTop,sandSide,sandSide,sandSide];
+var pirate=new THREE.Group();
+(function(){var g=pirate;
+  bx(0.3,0.7,0.32,'#4B2E14',-0.2,0.35,0,g);bx(0.3,0.7,0.32,'#4B2E14',0.2,0.35,0,g);
+  bx(0.9,0.9,0.55,'#F8FAFC',0,1.15,0,g);bx(0.92,0.18,0.57,'#2563EB',0,0.95,0,g);bx(0.92,0.18,0.57,'#2563EB',0,1.35,0,g);
+  bx(0.25,0.75,0.28,'#1F2937',-0.6,1.1,0,g);bx(0.25,0.75,0.28,'#1F2937',0.6,1.1,0,g);
+  bx(0.55,0.5,0.5,'#FCD9A6',0,1.95,0,g);bx(0.58,0.16,0.54,'#DC2626',0,2.2,0,g);bx(0.14,0.12,0.06,'#111827',0.14,2.0,0.27,g);bx(0.06,0.1,0.05,'#111827',-0.13,2.0,0.26,g);
+  bx(1.1,0.18,0.9,'#111827',0,2.45,0,g);bx(0.7,0.35,0.7,'#111827',0,2.65,0,g);bx(0.25,0.25,0.06,'#F8FAFC',0,2.62,0.38,g)})();
+function makeCoin(){var g=new THREE.Group(),m=emi('#FACC15','#B45309');bx(0.85,0.85,0.14,m,0,0,0,g);bx(0.5,0.5,0.16,'#FDE68A',0,0,0,g);return g}
+function makeChest(){var g=new THREE.Group(),lid=new THREE.Group();bx(1.7,0.9,1.1,'#92400E',0,0.45,0,g);bx(1.75,0.16,1.15,'#FACC15',0,0.7,0,g);bx(0.3,0.9,1.15,'#FACC15',-0.6,0.45,0,g);bx(0.3,0.9,1.15,'#FACC15',0.6,0.45,0,g);
+  bx(1.7,0.5,1.1,'#92400E',0,0.25,0,lid);bx(1.75,0.12,1.15,'#FACC15',0,0.05,0,lid);lid.position.set(0,0.95,-0.55);lid.children.forEach(function(c){c.position.z+=0.55});g.add(lid);g.userData.lid=lid;
+  var gl=new THREE.PointLight(0xffd36a,0,9);gl.position.set(0,1.6,0);g.add(gl);g.userData.gl=gl;return g}
+function makeCrab(){var g=new THREE.Group(),m=mat('#EF4444');bx(1.3,0.5,1.0,m,0,0.45,0,g);bx(0.5,0.4,0.5,'#DC2626',-0.8,0.6,0.5,g);bx(0.5,0.4,0.5,'#DC2626',0.8,0.6,0.5,g);bx(0.2,0.3,0.2,'#111827',-0.25,0.85,0.4,g);bx(0.2,0.3,0.2,'#111827',0.25,0.85,0.4,g);
+  [-0.4,0,0.4].forEach(function(z){bx(0.8,0.1,0.12,'#B91C1C',-0.9,0.25,z-0.1,g);bx(0.8,0.1,0.12,'#B91C1C',0.9,0.25,z-0.1,g)});return g}
+function makePalm(){var g=new THREE.Group();bx(0.5,2.2,0.5,'#92400E',0,1.1,0,g);bx(0.45,1.2,0.45,'#92400E',0.2,2.7,0,g);
+  [[1.8,0],[-1.8,0],[0,1.8],[0,-1.8]].forEach(function(o){var l=bx(o[0]?1.9:0.5,0.18,o[1]?1.9:0.5,'#16A34A',o[0]*0.5+0.2,3.4,o[1]*0.5,g);l.rotation.z=o[0]?(o[0]>0?-0.3:0.3):0;l.rotation.x=o[1]?(o[1]>0?0.3:-0.3):0});bx(0.6,0.5,0.6,'#22C55E',0.2,3.5,0,g);return g}
+function hurtTime(){}
+function buildLevel(n){
+  var L=LV[n];S.L=L;clearLevel();
+  var rows=L.rows,nz=rows.length,nx=rows[0].length,r=rng(51+n);
+  scene.background.set('#7CC8F0');scene.fog.color.set('#A9DDF7');scene.fog.near=50;scene.fog.far=130;
+  S.coinsL=[];S.crabs=[];S.chest=null;S.nc=0;
+  for(var z=0;z<nz;z++)for(var x=0;x<nx;x++){var ch=rows[z][x],wx=x*C,wz=z*C;
+    if(ch!=='~'){
+      if(ch==='B'){bx(C,0.14,C,'#8B5A2B',wx,-0.1,wz,lvGroup);for(var q=-0.7;q<=0.8;q+=0.7)bx(C*0.95,0.06,0.5,'#A16F3A',wx,-0.02,wz+q,lvGroup);bx(0.12,0.9,0.12,'#5B3A1B',wx-0.9,0.35,wz-0.9,lvGroup);bx(0.12,0.9,0.12,'#5B3A1B',wx+0.9,0.35,wz+0.9,lvGroup)}
+      else{var m=new THREE.Mesh(new THREE.BoxGeometry(C,0.9,C),sandMat);m.position.set(wx,-0.45,wz);lvGroup.add(m)}}
+    if(ch==='P'){S.start={x:wx,z:wz}}
+    else if(ch==='M'){var c=makeCoin();c.position.set(wx,1.3,wz);lvGroup.add(c);S.coinsL.push({x:wx,z:wz,mesh:c,got:false});S.nc++}
+    else if(ch==='C'){var ch2=makeChest();ch2.position.set(wx,0,wz);ch2.rotation.y=Math.PI;lvGroup.add(ch2);S.chest={x:wx,z:wz,mesh:ch2,open:false}}
+    else if(ch==='K'){var k=makeCrab();k.position.set(wx,0,wz);lvGroup.add(k);S.crabs.push({x:wx,z:wz,mesh:k,dx:1,dz:0,last:'',ph:r()*6})}
+    else if(ch==='p'){var pm=makePalm();pm.position.set(wx,0,wz);pm.rotation.y=r()*6;lvGroup.add(pm)}}
+  scene.add(pirate);
+  S.p={x:S.start.x,z:S.start.z,ry:Math.PI,inv:0,bob:0,air:0,fall:0};S.coins=0;S.time=L.time;S.jcd=0;S.camx=S.start.x;S.camz=S.start.z;S.chT=0;
+}
+function hud(){setHud('Nivel '+(S.lv+1)+'/3','Tiempo '+Math.max(0,Math.ceil(S.time||0))+' s','Monedas '+(S.coins||0)+'/5',S.p&&S.p.air>0?'Saltando…':(S.jcd>0?'Salto recargando':'Salto listo'))}
+function newGame(){S={mode:'title',lv:0,t:0,msg:'',msgT:0,coins:0,time:0,jcd:0};logEl.innerHTML='';ev('Start del juego');ac('Variables: monedas = 0, nivel = 1');buildLevel(0);showOv('COFRE PIRATA','Pulsa Espacio o toca para empezar')}
+function loadLevel(n){S.lv=n;S.mode='play';buildLevel(n);hideOv();flash('Nivel '+(n+1)+' · '+S.L.name,2400);
+  ev('Load Scene "Nivel '+(n+1)+'"');ac('Instantiate Pirata, 5 monedas, cofre'+(S.crabs.length?', '+S.crabs.length+' cangrejo(s)':'')+'; cronómetro = '+S.L.time+' s')}
+function retry(){loadLevel(S.lv)}
+function toNext(){if(S.lv<2){S.mode='next';flash('¡Nivel superado!',2000);S.nextAt=S.t+2000;ac('Mostrar mensaje, esperar 2 s, Load Scene "Nivel '+(S.lv+2)+'"')}else{S.mode='won';ac('Load Scene "Victoria"');showOv('¡TESORO ENCONTRADO!','Has abierto el cofre en los 3 niveles','Pulsa Espacio para repetir')}}
+function over(t,w){S.mode='over';showOv(t,w,'Pulsa Espacio para reintentar este nivel')}
+function onSpace(){var p=S.p;if(p.air>0||S.jcd>0)return;p.air=0.7;ev('Input: tecla Espacio');co('¿Está en el suelo? SÍ');ac('Saltar: 0,7 s sin tocar el suelo')}
+function respawn(){var p=S.p;p.x=S.start.x;p.z=S.start.z;p.air=0;p.fall=0;ev('On Trigger Enter (Pirata ∩ Agua)');ac('Teleport al inicio');flash('¡Al agua! Vuelves al inicio',1200)}
+function update(dt){
+  S.t+=dt*1000;
+  if(S.mode==='next'&&S.t>=S.nextAt)loadLevel(S.lv+1);
+  if(S.mode!=='play')return;
+  var p=S.p;S.time-=dt;
+  if(S.time<=0){S.time=0;ev('Cronómetro = 0');co('¿Ha abierto el cofre? NO');ac('Mostrar Game Over');over('¡TIEMPO AGOTADO!','No llegaste al cofre a tiempo');return}
+  S.jcd=Math.max(0,S.jcd-dt);
+  var dx=(held.right?1:0)-(held.left?1:0),dz=(held.down?1:0)-(held.up?1:0),m=Math.hypot(dx,dz);
+  if(m>0){dx/=m;dz/=m;var sp=(p.air>0?7.5:5.5)*dt,nx=p.x+dx*sp,nz=p.z+dz*sp;if(canMove(nx,p.z,0.4))p.x=nx;if(canMove(p.x,nz,0.4))p.z=nz;
+    var ty=Math.atan2(dx,dz),df=ty-p.ry;while(df>Math.PI)df-=6.283;while(df<-Math.PI)df+=6.283;p.ry+=df*Math.min(1,14*dt);p.bob+=dt*11}
+  if(p.air>0){p.air-=dt;if(p.air<=0){p.air=0;S.jcd=0.25}}
+  if(p.air<=0&&waterAt(p.x,p.z)){respawn()}
+  S.coinsL.forEach(function(c){if(!c.got&&Math.hypot(c.x-p.x,c.z-p.z)<1.1){c.got=true;c.mesh.visible=false;S.coins++;ev('On Trigger Enter (Pirata ∩ Moneda)');ac('Destroy(Moneda), monedas = '+S.coins+'/5')}});
+  S.crabs.forEach(function(g){
+    var cx=Math.round(g.x/C),cz=Math.round(g.z/C),ccx=cx*C,ccz=cz*C,step=2.0*dt;
+    var near=Math.hypot(g.x-ccx,g.z-ccz)<=step*1.01+0.01,id=cx+','+cz;
+    if(near&&g.last!==id){g.last=id;
+      var opts=[[1,0],[-1,0],[0,1],[0,-1]].filter(function(v){var c=cellCh(cx+v[0],cz+v[1]);return land(cx+v[0],cz+v[1])&&c!=='p'});
+      var fwd=opts.filter(function(v){return !(v[0]===-g.dx&&v[1]===-g.dz)});if(fwd.length)opts=fwd;
+      var keep=opts.some(function(v){return v[0]===g.dx&&v[1]===g.dz});
+      if(!keep||Math.random()<0.4){var v=opts[Math.floor(Math.random()*opts.length)];if(v){g.x=ccx;g.z=ccz;g.dx=v[0];g.dz=v[1]}}}
+    g.x+=g.dx*step;g.z+=g.dz*step;
+    if(p.inv<=S.t&&p.air<=0&&Math.hypot(g.x-p.x,g.z-p.z)<1.2){p.inv=S.t+1500;S.time=Math.max(1,S.time-4);ev('On Trigger Enter (Cangrejo ∩ Pirata)');ac('Cronómetro − 4 s');flash('¡Cangrejo! −4 s',1000);
+      var a=Math.atan2(p.x-g.x,p.z-g.z),kx=p.x+Math.sin(a)*1.6,kz=p.z+Math.cos(a)*1.6;if(canMove(kx,p.z,0.4))p.x=kx;if(canMove(p.x,kz,0.4))p.z=kz}});
+  var c=S.chest;
+  if(c&&Math.hypot(c.x-p.x,c.z-p.z)<2.0){
+    if(S.coins>=5){ev('On Trigger Enter (Pirata ∩ Cofre)');co('¿Tiene 5 monedas? SÍ');ac('Abrir el cofre y parar el cronómetro');c.open=true;toNext()}
+    else if(S.t>S.chT){S.chT=S.t+2500;ev('On Trigger Enter (Pirata ∩ Cofre)');co('¿Tiene 5 monedas? NO ('+S.coins+'/5)');ac('El cofre sigue cerrado');flash('Faltan monedas: '+S.coins+'/5',1600)}}
+}
+function render(dt){
+  var p=S.p,t=S.t/1000;
+  var h=p.air>0?Math.sin(Math.PI*(1-p.air/0.7))*1.7:0;
+  pirate.position.set(p.x,h+Math.abs(Math.sin(p.bob))*0.1,p.z);pirate.rotation.y=p.ry;pirate.visible=!(p.inv>S.t&&Math.floor(S.t/90)%2);
+  S.coinsL.forEach(function(c){if(!c.got){c.mesh.rotation.y=t*3;c.mesh.position.y=1.3+Math.sin(t*3+c.x)*0.15}});
+  S.crabs.forEach(function(g){g.mesh.position.set(g.x,0,g.z);g.mesh.rotation.y=Math.atan2(g.dx,g.dz)+Math.PI/2*0+0;g.mesh.position.y=Math.abs(Math.sin(t*8+g.ph))*0.08});
+  if(S.chest){var lid=S.chest.mesh.userData.lid,tr=S.chest.open?-1.3:0;lid.rotation.x+=(tr-lid.rotation.x)*Math.min(1,5*dt);S.chest.mesh.userData.gl.intensity=S.chest.open?2.5:0}
+  wTex.offset.set((t*0.03)%1,(t*0.02)%1);water.position.x=((S.L.rows[0].length-1)*C)/2;water.position.z=((S.L.rows.length-1)*C)/2;
+  S.camx+=(p.x-S.camx)*Math.min(1,6*dt);S.camz+=(p.z-S.camz)*Math.min(1,6*dt);
+  cam.position.set(S.camx,21,S.camz+8.5);cam.lookAt(S.camx,0.4,S.camz-0.8);
+}
+'''
+build('cofre3d.html','Cofre Pirata','SALTAR<br>(Espacio)','Flechas o WASD para moverte · Espacio: saltar (sirve para cruzar charcos y canales de agua de una celda). Recoge las 5 monedas y abre el cofre antes de que se acabe el tiempo. Si caes al agua vuelves al inicio; los cangrejos te restan 4 segundos.','#7CC8F0',G)

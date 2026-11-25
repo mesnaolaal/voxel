@@ -1,0 +1,626 @@
+0|pertsona eta hidrante; kronometroa =
+1|· Salbatuak
+3|EKINTZA
+4|Ura
+5|SUHILTZAILE VOXEL
+6|BALDINTZA
+7|Kronometroa = 0
+8|Destroy(Sua), puntuak +1; geratzen diren suak =
+9|Destroy(Pertsona), salbatuak =
+10|Bi etxe erretzen eta bi pertsona
+11|GERTAERA
+12|Suak
+13|Su guztiak itzali dituzu
+14|Sugarrak 3 aldiz ukitu dituzu
+15|Input: Zuriunea (sakatuta)
+16|Instantiate Suhiltzailea,
+17|Ura bota mahukarekin
+18|Load Scene "GameOver"
+19|Load Scene "Maila
+20|Load Scene "Garaipena"
+21|Game Over erakutsi
+22|Mezua erakutsi, 2 s itxaron, Load Scene "Maila
+23|Maila
+24|Ez zenuen denborarik izan hiria salbatzeko
+25|On Particle Collision (Ura ∩ Sua)
+26|On Trigger Enter (Suhiltzailea ∩ Sugarra)
+27|On Trigger Enter (Suhiltzailea ∩ Pertsona)
+28|On Trigger Stay (Suhiltzailea ∩ Hidrantea)
+29|Kronometroa gelditu
+30|Sakatu Zuriunea edo ukitu hasteko
+31|Sakatu Zuriunea berriro saiatzeko
+32|Sakatu Zuriunea errepikatzeko
+33|Erreskatatu gabeko pertsonak geratzen dira
+34|Urik ez: joan hidrantera
+35|Jokoaren Start
+36|Suhiltzailea kamioira Teleport
+37|Denbora
+38|Hiru etxe erretzen: hidrantean birkargatu behar da
+39|Su hartutako etxe bat eta erreskatatu beharreko pertsona bat
+40|Aldagaiak: bizitzak = 3, ura = 100, salbatuak = 0
+41|ura → %100era birkargatzen
+42|bizitzak = bizitzak − 1 →
+43|HIRIA SALBU!
+44|Maila gainditu da!
+45|Pertsona erreskatatu da!
+46|DENBORA AMAITU DA!
+47|Urik ez! Joan hidrantera
+48|ERRE ZARA!
+49|Urik geratzen da? EZ
+50|Urik geratzen da? BAI (
+51|Suak edo pertsonak geratzen dira? BAI
+52|Su guztiak itzali eta pertsonak erreskatatu dira? EZ (falta dira
+53|Su guztiak itzali eta pertsonak erreskatatu dira? BAI
+54|Atea ireki
+55|ETXE SORGINDUA
+56|Destroy(Giltza) eta giltzak =
+57|Bi giltza eta patruilatzen duen mamu bat
+58|Esploratzailea ∩ Kalabaza-tranpa
+59|Giltzak falta dira:
+60|Mamua ∩ Esploratzailea
+61|Etxe sorgindutik atera zara
+62|Input: Zuriunea tekla
+63|Instantiate Esploratzailea,
+64|Atea itxita jarraitzen du
+65|Lanterna
+66|Lanterna ON:
+67|Lanterna prest
+68|Lanterna birkargatzen (
+69|Giltzak
+70|Mamuek 3 aldiz harrapatu zaituzte
+71|On Trigger Enter (
+72|On Trigger Enter (Esploratzailea ∩ Atea)
+73|Sakatu Zuriunea giltza hartzeko
+74|Esploratzailea sarrerara Teleport
+75|Hiru giltza, bi mamu eta kalabaza-tranpak
+76|Giltza bat eta tranpa bat dituen gela bat
+77|Aldagaiak: bizitzak = 3, giltzak = 0
+78|Bizitzak
+79|IHES EGIN DUZU!
+80|Giltza
+81|HARRAPATU ZAITUZTE!
+82|Giltzarik dago gertu? EZ
+83|Giltzarik dago gertu? BAI
+84|Giltza guztiak ditu? EZ (
+85|Giltza guztiak ditu? BAI (
+86|harkaitz eta Helmuga; kronometroa =
+87|/3 (itzuli)
+88|/3 · Bultzadak
+89|Bela doitu →
+90|Boiak
+91|3 ibilbideak osatu dituzu
+92|Bultzada ×1,45, 1,8 s-z
+93|Input: gezia ▲
+94|Instantiate Belaontzia, 3 boia,
+95|Boia itzali egiten da; boiak =
+96|Helmugak ez du balio
+97|Ez zinen garaiz helmugara iritsi
+98|On Trigger Enter (Belaontzia ∩ Boia)
+99|On Trigger Enter (Belaontzia ∩ Helmuga)
+100|On Trigger Enter (Belaontzia ∩ Harkaitza)
+101|Sakatu Zuriunea maila hau berriro saiatzeko
+102|VOXEL ERREGATA
+103|Harkaitzak bidean
+104|Boiak falta zaizkizu:
+105|Ekaitza: ur ilunak, harkaitz gehiago eta denbora gutxiago
+106|3 boia dituen aintzira lasai bat
+107|Aldagaiak: maila = 1, boiak = 0
+108|abiadura × 0,35
+109|Boia
+110|ERREGATA IRABAZI DUZU!
+111|Harkaitza!
+112|DENBORA AMAITU DA!
+113|Helmuga zeharkatu du 3 boiekin? EZ
+114|Bultzadarik geratzen da? EZ
+115|Bultzadarik geratzen da? BAI
+116|3 boiak ditu? EZ (
+117|3 boiak ditu? BAI
+118|Bela ondo orientatuta haizearekin?
+119|∩ Heroia)
+120|, zaindaria
+121|/5 · Slimeak
+122|Kutxa ireki
+123|Atea ireki (animazioa)
+124|Ezpata-animazioa eta kolpearen trigger-a
+125|Destroy(Zaindaria): garaitua!
+126|Destroy(Giltza) eta duGiltza = true
+127|Destroy(Slime); geratzen diren slimeak =
+128|TENPLU GALDUA
+129|Kutxa itxita jarraitzen du
+130|Zaindariak kutxa babesten du
+131|Heroia bihotzik gabe geratu da
+132|Tenpluaren sarrera
+133|Tenplura sartu
+134|Zaindaria
+135|Zaindaria
+136|Zaindariak bizitza 1 galtzen du →
+137|Tenplu galdua gainditu duzu
+138|Instantiate Heroia,
+139|Sarrera ez da irekitzen
+140|Giltza behar duzu sartzeko
+141|On Trigger Enter (Ezpata ∩ Zaindaria)
+142|On Trigger Enter (Ezpata ∩ Slime)
+143|On Trigger Enter (Heroia ∩
+144|On Trigger Enter (Heroia ∩ Bihotza)
+145|On Trigger Enter (Heroia ∩ Giltza)
+146|On Trigger Enter (Heroia ∩ Atea)
+147|Ate itxia: bilatu giltza
+148|Giltzaz itxitako ate batek banatutako gelak
+149|Slimeak
+150|Slime bat eta ezkutuko giltza bat dituen baso bat
+151|Harrizko zaindari bat eta bi slime
+152|Aldagaiak: bihotzak = 3, duGiltza = false
+153|bihotzak =
+154|bihotzak = bihotzak − 1 →
+155|JOKOA AMAITU DA!
+156|Zaindaria garaitu da!
+157|Giltza hartu duzu!
+158|ALTXORRA LORTU DUZU!
+159|Zaindaria garaitua? EZ
+160|Zaindaria garaitua? BAI
+161|Altxorrera iritsi da? BAI
+162|duGiltza? EZ
+163|duGiltza? BAI
+164|oztopo eta Helmuga
+165|Lau ate eta denbora gutxi
+166|Bi ate eta zuhaitz gehiago dituen eslaloma
+167|Eskiatzaileak atetik kanpo pasatzen da
+168|Eskiatzailea ∩ Elur-gizona
+169|Eskiatzailea ∩ Pinua
+170|3 mailak osatu dituzu
+171|Instantiate Eskiatzailea,
+172|Ateak ez du balio
+173|On Trigger Enter (Eskiatzailea ∩ Helmuga)
+174|On Trigger Enter (Eskiatzailea ∩ Atea)
+175|Ateak
+176|Denbora amaitu da
+177|Denbora-mugarik ez
+178|Ateak falta zaizkizu: pasatu berriro!
+179|3 aldiz talka egin duzu
+180|Falta zen atera Teleport
+181|Ate bat duen pista zabal bat
+182|ELUR HARANA
+183|Aldagaiak: bizitzak = 3, maila = 1
+184|ateak =
+185|LORTU DUZU!
+186|Atea
+187|Atetik salto egin da!
+188|Helmugara iritsi da? EZ
+189|Ate guztietatik pasa da? EZ (
+190|Ate guztietatik pasa da? BAI (
+191|armiarma eta Erlauntza
+192|Hurrengo maila kargatu
+193|Loreak falta dira:
+194|Loreak
+195|Lorategi guztiak polinizatu dituzu
+196|Input: Maius tekla
+197|Instantiate Erlea,
+198|ERLEEN LORATEGIA
+199|Armiarmek 3 aldiz harrapatu zaituzte
+200|Ez da ezer gertatzen
+201|On Trigger Enter (Erlea ∩ Erlauntza)
+202|On Trigger Enter (Armiarma ∩ Erlea)
+203|Lorea polinizatu, loreak =
+204|Lore batean pausatu
+205|Lorean pausatu (0,8 s)
+206|Pausatzen…
+207|Urmael bat, sei lore eta bi armiarma
+208|Gaueko lorategi bat hiru armiarmarekin
+209|Bi lore eta armiarma bat dituen lorategi txiki bat
+210|Aldagaiak: bizitzak = 3, loreak = 0
+211|Burrunba
+212|Burrunba prest
+213|Burrunba: 8 m baino gertuago dauden armiarmak ihes egiten dute 2,5 s-z
+214|HARRAPATUA!
+215|LORATEGIA POLINIZATUA!
+216|Armiarma bat! Bizitzak:
+217|Lorerik dago gertu? EZ
+218|Polinizatu gabeko lorerik dago azpian? BAI
+219|Lore guztiak polinizatuta? EZ (
+220|Lore guztiak polinizatuta? BAI
+221|bidearen hasieran
+222|dorrerako zuloak eta bidea; olatua hasteko
+223|∩ Dorrearen irismena)
+224|), txanponak +
+225|, txanponak =
+226|/3 · Gaztelua
+227|Bide zuzena eta hiru goblin
+228|Gaztelua konponduta
+229|Klik zulo batean
+230|Klik zulo batean: dorre bat eraiki · ← → zuloa aukeratu · Zuriunea: eraiki / hobetu · R: konpondu
+231|Klik dorre batean
+232|Eraiki (
+233|GAZTELUAREN DEFENTSA
+234|Gezia tiro egin gertuen dagoen dorreari
+235|Etsaiak
+236|Txanponak falta dira (balio du
+237|3 olatuei eutsi diezu
+238|Instantiate
+239|Instantiate Gaztelua (
+240|Instantiate Dorrea, txanponak =
+241|Dorrea gehienezkoan dago jada
+242|Etsaiak gazteluraino iritsi dira
+243|Hobetu (
+244|Dorrea hobetu: kaltea × 2, txanponak =
+245|Txanponak
+246|Goblin gehiago eta hiru dorre
+247|Ezin da konpondu
+248|Olatua
+249|Denbora pasatzen da (hurrengoa
+250|Gaztelua konpondu: bizitzak =
+251|R tekla
+252|Azken olatua amaitzen da
+253|Dorrea gehienezkoan
+254|Ogro nagusi bat, goblinez lagunduta
+255|Aldagaiak: txanponak = 150, gazteluaren bizitzak = 3
+256|Etsaiaren bizitza = 0
+257|gazteluaren bizitzak = bizitzak −
+258|GAZTELUA SUNTSITUTA!
+259|GAZTELUA SALBATUTA!
+260|Gazteluak bizitzak ditu? BAI (
+261|Txanpon nahikoa dago? BAI
+262|; kronometroa =
+263|Kutxa ireki eta kronometroa gelditu
+264|PIRATAREN KUTXA
+265|Putzuak bidean eta patruilatzen duen karramarro bat
+266|Kronometroa − 4 s
+267|Destroy(Txanpona), txanponak =
+268|Txanponak falta dira:
+269|3 mailetan kutxa ireki duzu
+270|Instantiate Pirata, 5 txanpon, kutxa
+271|Irla txikia, etsairik gabe
+272|Ez zinen garaiz kutxara iritsi
+273|On Trigger Enter (Karramarroa ∩ Pirata)
+274|On Trigger Enter (Pirata ∩ Ura)
+275|On Trigger Enter (Pirata ∩ Kutxa)
+276|On Trigger Enter (Pirata ∩ Txanpona)
+277|Jauzi: 0,7 s lurra ukitu gabe
+278|Jauzia prest
+279|Jauzia birkargatzen
+280|Hasierara Teleport
+281|Zubiz lotutako hiru irla eta bi karramarro
+282|Aldagaiak: txanponak = 0, maila = 1
+283|Uretara! Hasierara itzultzen zara
+284|Karramarroa! −4 s
+285|ALTXORRA AURKITU DA!
+286|Lurrean dago? BAI
+287|Kutxa ireki du? EZ
+288|5 txanpon ditu? EZ (
+289|5 txanpon ditu? BAI
+290|= bizitza − 1 →
+291|munstro, zuzi eta Kristala (ezkutua)
+292|Eraso: ezpata-animazioa (0,28 s)
+293|Kristal ezkutua
+294|Heroiak azken nagusia garaitu du
+295|Azken nagusia eta bi morroi
+296|Ezpata prest
+297|Ezpata birkargatzen
+298|Geziak: mugitu · Zuriunea: ezpatarekin eraso egin
+299|Instantiate Kristala hemen:
+300|NAGUSIAREN KOBAZULOA
+301|On Trigger Enter (Ezpata ∩
+302|On Trigger Enter (Heroia ∩ Kristala)
+303|Zure 3 bizitzak galdu dituzu
+304|Munstro guztiak garaitu dira
+305|Munstro bat duen kobazulo bat
+306|Horma bat erdian eta bi morroi
+307|nagusiaren tokia
+308|kobazuloa
+309|bizitza:
+310|KRISTALA LORTU DUZU!
+311|Hartu kristala!
+312|HEROIA GARAITUA!
+313|Ukitu zaituzte! Bizitzak:
+314|Guztiak garaituta daude? BAI
+315|T-Rex eta Habia
+316|Ikusita
+317|Korrika
+318|Korrika prest
+319|Korrika: abiadura × 1,6, 1,5 s-z
+320|DINO PARKEA
+321|Destroy(Arrautza), arrautzak =
+322|T-Rex-ak 3 aldiz harrapatu zaitu
+323|Dinoak arrautza guztiak habiara eraman ditu
+324|T-Rex-aren egoera = jazarpena
+325|Arrautzak falta dira:
+326|Geziak: mugitu · Maius: korrika egin
+327|Arrautzak
+328|Input: Zuriunea / Maius tekla
+329|Instantiate Dinoa,
+330|On Trigger Enter (Dinoa ∩ Arrautza)
+331|On Trigger Enter (Dinoa ∩ Habia)
+332|T-Rex-ak dinoa ikusten du
+333|T-Rex lotan duen oihaneko soilgune bat
+334|Patruilatzen duen T-Rex bat duen lokatz-zingira bat
+335|Laba eta bi T-Rex dituen sumendi bat
+336|Aldagaiak: bizitzak = 3, arrautzak = 0
+337|HARRAPATUA!
+338|Korrika!
+339|T-Rex-ak ukitu zaitu!
+340|ARRAUTZAK SALBU!
+341|Laba! Hasierara itzultzen zara
+342|Energia kargatuta? BAI
+343|Arrautza guztiak ditu? EZ (
+344|Arrautza guztiak ditu? BAI
+345|Kristalak
+346|Destroy(Asteroidea) eta Destroy(Laserra)
+347|Destroy(Kristala), kristalak =
+348|Bi ufo patruilatzen dute sektorean
+349|Espazio irekia eta asteroide bat
+350|Kristalak falta dira: saiatu berriro!
+351|3 sektoreetan planetara iritsi zara
+352|Instantiate Laserra aurrera
+353|Instantiate Ontzia,
+354|Laserra prest
+355|ESPAZIO MISIOA
+356|On Trigger Enter (Laserra ∩ Asteroidea)
+357|On Trigger Enter (Ontzia ∩ Kristala)
+358|On Trigger Enter (Ontzia ∩ Planeta)
+359|Planeta:
+360|Propultsorra ON
+361|Bizitzarik gabe geratu zara
+362|Asteroide-eremu bat
+363|Aldagaiak: bizitzak = 3, kristalak = 0
+364|Sektorearen hasierara itzuli (kristalak berrezarrita)
+365|MISIOA BETETA!
+366|ONTZIA SUNTSITUTA!
+367|Kristal guztiak ditu? EZ (
+368|Kristal guztiak ditu? BAI (
+369|Destroy(Giltza), giltzak =
+370|Bi teilatu, tartean zulo bat, eta bi robot
+371|Katu ninjak 3 teilatuetatik ihes egin du
+372|Teilatuan
+373|KATU NINJA
+374|Instantiate Katua,
+375|On Trigger Enter (Katua ∩ Kalea)
+376|On Trigger Enter (Katua ∩ Giltza)
+377|On Trigger Enter (Katua ∩ Irteera)
+378|On Trigger Enter (Robota ∩ Katua)
+379|Atea irekita
+380|Atea irekita (berde bihurtzen da)
+381|Ate itxia
+382|Maila berrabiarazi
+383|Jauzi: 0,6 s airean
+384|Hiru robot eta bi giltza
+385|Teilatu bat, robot bat eta giltza bat
+386|Aldagaiak: giltzak = 0, maila = 1
+387|Kalera erori zara! Hasierara itzultzen zara
+388|Robot batek harrapatu zaitu! Maila berrabiarazten da
+389|Gainetik salto egiten ari da? EZ
+390|Giltza guztiak ditu? BAI
+391|%, kolpeak =
+392|(guztizko par 9)
+393|kolpe (par
+394|kolpe, 2 s itxaron, Load Scene "Zuloa
+395|/3 · par
+396|; kolpeak = 0
+397|Bola errodatzen…
+398|Destroy(Bola), hurrengo zuloa kargatu
+399|Indarra
+400|Indarra: eutsi Zuriunea
+401|Indarrez kolpatu
+402|Kolpeak
+403|Zuloa
+404|1. zuloa: zuzena eta oztoporik gabe
+405|2. zuloa: harea eta urmael bat
+406|3. zuloa: biratzen diren hegalak dituen errota bat
+407|Input: Zuriunea askatu
+408|Instantiate Golf-jokalaria, Bola, Zuloa
+409|Bola uretara 3 aldiz erori da
+410|Load Scene "Zuloa
+411|MINIGOLF VOXEL
+412|Erakutsi
+413|On Trigger Enter (Bola ∩ Ura)
+414|On Trigger Enter (Bola ∩ Zuloa)
+415|Sakatu Zuriunea berriro jokatzeko
+416|Sakatu Zuriunea 1. zulotik berriro saiatzeko
+417|Kolpearen hasierara Teleport, kolpeak + 1, ura =
+418|Aldagaiak: kolpeak = 0, zuloa = 1
+419|Uretara! +1 kolpe
+420|Birdie!
+421|URA GEHIEGI!
+422|Eagle!
+423|Zuloa kolpe bakarrean!
+424|FIELA AMAITU DUZU!
+425|Zuloan erortzen da? BAI
+426|← → zuzendu · eutsi Zuriunea eta askatu kolpatzeko
+427|; tenporizadorea =
+428|Destroy(Oiloa), oiloak =
+429|Gaua da: bi azeri eta denbora gutxiago
+430|Oiloak
+431|3 mailetan oilo guztiak aurkitu dituzu
+432|Instantiate Nekazaria,
+433|BASERRI GALDUA
+434|Hesi gehiago, oilo bat gehiago eta azeri bat
+435|On Trigger Enter (Nekazaria ∩ Oiloa)
+436|On Trigger Enter (Azeria ∩ Nekazaria)
+437|Jauzi: 0,75 s lurra ukitu gabe (hesiak saltatzen ditu)
+438|Falta zitzaizkizun
+439|Tenporizadorea = 0
+440|Tenporizadorea − 5 s
+441|Hesiak dituen baserri bat
+442|Aldagaiak: oiloak = 0, maila = 1
+443|oiloak ==
+444|OILOAK SALBU!
+445|GAUAK JO DU!
+446|Azeri bat! −5 s
+447|Guztiak daude ukuiluan? BAI
+448|Oiloak falta dira? BAI (
+449|(eskuak =
+450|labean, osagaiak =
+451|labe, mahaia; errezeta:
+452|osagai; kronometroa =
+453|Hartu
+454|Tarta hartu (eskuak = tarta)
+455|Labearen kronometroa = 0
+456|Bi labe eta denbora oso gutxi
+457|Bi osagai
+458|Tarta entregatu eta kronometroa gelditu
+459|Hori ez da: orain dagokiona
+460|HAF
+461|3 tartak garaiz entregatu dituzu
+462|Labea libre
+463|Labea okupatuta
+464|Instantiate Sukaldaria,
+465|Instantiate Tarta labean
+466|Tarta ez zen mahaira iritsi
+467|Sartu
+468|Erakutsi "Labea okupatuta"
+469|Errore-mezua erakutsi
+470|GOZOTEGI ZOROA
+471|Errezeta
+472|Utzi
+473|Tarta utzi
+474|Osagai guztiak labean egin dira
+475|Hiru osagai ordenan
+476|Aldagaiak: osagaiak = 0, maila = 1
+477|hutsik
+478|URTEKO GOZOGILEA!
+479|Tarta prest! Hartu labetik
+480|Hurrengo osagaia da errezetan? EZ (dagokiona
+481|Hurrengo osagaia da errezetan? BAI (
+482|Erabilgarria den zerbaiten ondoan dago? EZ
+483|Mahaian dago tartarekin? BAI
+484|Mahaian dago? EZ
+485|Tarta entregatu du? EZ
+486|Tartarik prest dago? BAI
+487|Labea libre? EZ
+488|Eskuak hutsik ditu? BAI
+489|, marrazo 1
+490|Kobazuloa ireki eta hurrengo maila kargatu
+491|Hegatsa prest
+492|Hegatsa birkargatzen
+493|Destroy(Planktona), plankton =
+494|ARRAIN GOSETUA
+495|Esprintatu: abiadura × 1,8, 1 s-z
+496|Planktona falta da:
+497|3 mailetan kobazulora iritsi zara
+498|Instantiate Arraina,
+499|Kobazuloa itxita jarraitzen du
+500|On Trigger Enter (Arraina ∩ Kobazuloa)
+501|On Trigger Enter (Arraina ∩ Planktona)
+502|Planktona
+503|Marrazoa
+504|Arrezife lasai bat eta medusa bat
+505|Alga-baso bat eta bi medusa
+506|Etsai batek harrapatu zaitu
+507|Kobazulo ilun bat eta marrazo bat
+508|Aldagaiak: bizitzak = 3, plankton = 0
+509|ARRAINA SALBU DAGO!
+510|Esprinta!
+511|BIZITZARIK GABE!
+512|Hegatsa kargatuta? BAI
+513|Plankton guztia du? EZ (
+514|Plankton guztia du? BAI
+515|bidoi, Helmuga
+516|eta arerioa atzean
+517|, Arerio-autoa
+518|; denbora =
+519|Zu baino lehen zeharkatu du helmuga
+520|Kurbak, konoak eta olio-orban bat
+521|Gauez eta arerio-auto batekin
+522|Destroy(Bidoia), denbora = denbora + 5 s
+523|Arerioak helmuga zeharkatzen du
+524|Geziak: azeleratu, balaztatu eta biratu · Zuriunea: turboa
+525|3 zirkuituak irabazi dituzu
+526|Instantiate Autoa,
+527|Helmuga:
+528|Ez zinen helmugara iritsi
+529|On Trigger Enter (Autoa ∩ Olioa)
+530|On Trigger Enter (Autoa ∩ Konoa)
+531|On Trigger Enter (Autoa ∩ Gasolina)
+532|On Trigger Enter (Autoa ∩ Helmuga)
+533|RALLY VOXEL
+534|Denbora = 0
+535|Turboa
+536|Turboa: gehienezko abiadura ×1,5, 1,6 s-z
+537|Oztoporik gabeko zirkuitu obalatu bat
+538|Aldagaiak: denbora = 36, maila = 1
+539|abiadura = abiadura × 0,4; Destroy(Konoa)
+540|abiadura = abiadura × 0,55 eta irristatu
+541|Olioa!
+542|RALLYKO TXAPELDUNA!
+543|ARERIOAK IRABAZI DU!
+544|TURBOA!
+545|Jokalariak lehenago zeharkatu du? EZ
+546|Helmuga zeharkatu du? EZ
+547|Denbora > 0
+548|Turboa erabilgarri? BAI
+549|helburu-zona
+550|Kutxa bat izkinan
+551|Kutxak
+552|Azken mugimendua desegin
+553|Bi kutxa eta horma bat erdian
+554|Robotak kutxa bat bultzatzen du
+555|Geziak: mugitu (kutxak bultzatzen ditu) · Zuriunea: desegin
+556|Instantiate Robota,
+557|Kutxak lauki bat aurrera egiten du
+558|Kutxa berde bihurtzen da, kokatutako kutxak =
+559|Mugimenduak
+560|On Trigger Enter (Kutxa ∩ Helburua)
+561|ROBOT FABRIKA
+562|Kutxa guztiak kokatuta
+563|Kutxa guztiak beren lekuan daude
+564|Hiru helburu eta izkina arriskutsu bat
+565|Kutxa bat izkinan geratu da
+566|Gela txiki bat: kutxa bat eta helburu bat
+567|Aldagaiak: kokatutako kutxak = 0, maila = 1
+568|BILTEGIA ORDENATUTA!
+569|KUTXA TRABATUTA!
+570|Helburu batean dago? EZ
+571|kokatutako kutxak = guztira? BAI
+572|, lokatz-zuloa
+573|Esprinta
+574|Esprinta prest
+575|Esprintatu: gehienezko abiadura × 1,3, 1,5 s-z
+576|3 lasterketak irabazi dituzu
+577|Instantiate Atleta,
+578|On Trigger Enter (Atleta ∩ Lokatza)
+579|On Trigger Enter (Atleta ∩ Helmuga)
+580|On Trigger Enter (Atleta ∩ Hesia)
+581|Kronometroa gelditu:
+582|100 metroko pista zuzena, bi hesi eta arerio bat
+583|Postua
+584|Sakatu Zuriunea lasterketa hau berriro saiatzeko
+585|Arerioak helmuga zeharkatzen du
+586|Hesiaren gainetik salto egin (0,55 s airean)
+587|Hiru kale, hesi gehiago eta bi arerio
+588|Ur- eta lokatz-zulo bat pistaren erdian
+589|HESI VOXEL
+590|Aldagaiak: denbora = 0, maila = 1
+591|abiadura = abiadura × 0,45 (hesia bota da)
+592|gehienezko abiadura × 0,35 lokatzean dagoen bitartean
+593|Lokatza!
+594|HESIEN TXAPELDUNA!
+595|ARERIO BATEK IRABAZI DU!
+596|Hesia!
+597|Arerioak baino lehen iritsi da? BAI (
+598|Jokalariak lehenago iritsi da? EZ
+599|↑ edo → eutsi korrika egiteko · Zuriunea: salto egin
+600|slime, kaxoi eta atea
+601|· Zuriunea errepikatzeko
+603|Destroy(Kaxoia), puntuak +10
+604|Destroy(Slime), puntuak +100
+605|Gurutze-leherketa (irismena
+606|Leherketa ∩ Meatzaria
+607|JOKOA AMAITU DA
+608|Instantiate Dinamita + Timer 2 s
+609|Instantiate Meatzaria,
+610|DINAMITA LABIRINTOA
+611|Itxiagoa, bi slime
+612|On Trigger Enter (Leherketa ∩ Kaxoia)
+613|On Trigger Enter (Leherketa ∩ Slime)
+614|On Trigger Enter (Meatzaria ∩ Dinamita gehigarria)
+615|On Trigger Enter (Meatzaria ∩ Piztaile luzea)
+616|On Trigger Enter (Meatzaria ∩ Atea)
+617|Sakatu Zuriunea berriro jokatzeko
+618|Puntuak
+619|Slime ∩ Meatzaria
+620|Meatzaria hasierara Teleport
+621|Dinamitaren Timer amaitu da
+622|Labirinto txiki bat
+623|Slime bat pasabidean
+624|Aldagaiak: bizitzak = 3, puntuak = 0
+625|irismena =
+629|gehienezko dinamitak =
+630|meatzaria iritsi da eta bizirik jarraitzen du

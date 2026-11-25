@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gazteluaren Defentsa – simulazio jokagarria 3D</title>
+<style>
+:root{--bg:#F6F8FD;--card:#fff;--tx:#0F172A;--mut:#475569;--ac:#0F766E;--bd:#D8DEEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+h1{margin:0 0 4px;font-size:26px}
+.sub{color:var(--mut);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pill{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:999px;padding:3px 12px;font-weight:600;font-size:14px}
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#BFE6FF;aspect-ratio:16/10.5}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+#bn{position:absolute;left:0;right:0;top:14px;text-align:center;background:rgba(15,23,42,.78);color:#fff;font-weight:700;font-size:20px;padding:8px;display:none}
+#ov{position:absolute;inset:0;background:rgba(15,23,42,.72);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:16px}
+#ov b{font-size:34px;color:#FDE047}
+.pad{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0;gap:12px}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:6px}
+.dpad button,.bomb{border:1px solid var(--bd);background:#fff;border-radius:12px;font-size:20px;cursor:pointer;color:var(--tx)}
+.dpad button:active,.bomb:active{background:#CCFBF1}
+.bomb{width:120px;height:120px;border-radius:60px;background:#DBEAFE;border-color:#93C5FD;font-weight:700;font-size:14px}
+.help{color:var(--mut);font-size:14px;margin:10px 0 0}
+h2{font-size:16px;margin:0 0 8px}
+#log{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:6px;min-height:300px}
+#log li{border-left:4px solid var(--bd);padding:4px 8px;background:#F8FAFC;border-radius:0 8px 8px 0}
+.t{font-weight:700;font-size:11px;letter-spacing:.04em;margin-right:6px}
+.ev{border-color:#3B82F6!important}.ev .t{color:#1D4ED8}
+.co{border-color:#F59E0B!important}.co .t{color:#B45309}
+.ac{border-color:#10B981!important}.ac .t{color:#047857}
+.btn{margin-top:10px;background:var(--ac);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Gazteluaren Defentsa <span style="font-weight:400;color:#64748B;font-size:18px">· 3D</span></h1>
+  <p class="sub">Proiektu-adibidearen simulazio jokagarria 3D-n. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="hud"><span class="pill" id="hA"></span><span class="pill" id="hB"></span><span class="pill" id="hC"></span><span class="pill" id="hD"></span></div>
+      <div class="stage" id="stage" tabindex="0"><div id="bn"></div><div id="ov"></div></div>
+      <div class="pad">
+        <div class="dpad">
+          <span></span><button data-d="up" aria-label="Gora">▲</button><span></span>
+          <button data-d="left" aria-label="Ezkerrera">◀</button><button data-d="down" aria-label="Behera">▼</button><button data-d="right" aria-label="Eskuinera">▶</button>
+        </div>
+        <button class="bomb" id="bBomb">ERAIKI<br>(Zuriunea)</button>
+      </div>
+      <p class="help">Klik edo ukitu zuloa grisean: dorre bat eraiki (50). Klik dorre batean: hobetu (40). Teklatuarekin: ← → zuloa aukeratu, Zuriunea eraiki edo hobetu, R gaztelua konpondu (30). Garaitutako etsai bakoitzak txanponak ematen ditu. Gaztelura iristen bazaizkizu, bizitzak galtzen ditu.</p>
+    </div>
+    <div class="card">
+      <h2>Visual Scripting zuzenean</h2>
+      <ul id="log"></ul>
+      <button class="btn" id="bRestart">Partida berrabiarazi</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var VW=640,VH=420,C=2;
+var stage=document.getElementById('stage'),logEl=document.getElementById('log'),bn=document.getElementById('bn'),ov=document.getElementById('ov');
+function log(k,t,x){var li=document.createElement('li');li.className=k;li.innerHTML='<span class="t">'+t+'</span>'+x;logEl.insertBefore(li,logEl.firstChild);while(logEl.children.length>10)logEl.removeChild(logEl.lastChild)}
+function ev(t){log('ev','GERTAERA',t)}function co(t){log('co','BALDINTZA',t)}function ac(t){log('ac','EKINTZA',t)}
+function setHud(a,b,c,d){document.getElementById('hA').textContent=a;document.getElementById('hB').textContent=b;document.getElementById('hC').textContent=c;document.getElementById('hD').textContent=d}
+var renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.setSize(VW,VH,false);
+stage.insertBefore(renderer.domElement,stage.firstChild);
+var scene=new THREE.Scene();scene.background=new THREE.Color('#A5DBFF');scene.fog=new THREE.Fog('#BFE4FF',45,110);
+var cam=new THREE.PerspectiveCamera(42,VW/VH,0.1,400);
+var amb=new THREE.AmbientLight(0xffffff,0.85);scene.add(amb);
+var sun=new THREE.DirectionalLight(0xffffff,0.7);sun.position.set(-20,40,15);scene.add(sun);
+var lvGroup=null,mats={};
+function mat(c){return mats[c]||(mats[c]=new THREE.MeshLambertMaterial({color:c}))}
+function basic(c){var k='b'+c;return mats[k]||(mats[k]=new THREE.MeshBasicMaterial({color:c}))}
+function emi(c,e){var k=c+'|'+e;return mats[k]||(mats[k]=new THREE.MeshLambertMaterial({color:c,emissive:e}))}
+function bx(w,h,d,col,x,y,z,parent){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof col==='string'?mat(col):col);m.position.set(x,y,z);if(parent)parent.add(m);return m}
+function checker(c1,c2,rx,ry){var c=document.createElement('canvas');c.width=c.height=2;var g=c.getContext('2d');g.fillStyle=c1;g.fillRect(0,0,2,2);g.fillStyle=c2;g.fillRect(0,0,1,1);g.fillRect(1,1,1,1);var t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);return t}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function clearLevel(){if(lvGroup){scene.remove(lvGroup);lvGroup.traverse(function(o){if(o.geometry)o.geometry.dispose()})}lvGroup=new THREE.Group();scene.add(lvGroup)}
+function showOv(t,s,s2){ov.style.display='flex';ov.innerHTML='<b>'+t+'</b><span>'+s+'</span>'+(s2?'<span>'+s2+'</span>':'')}
+function hideOv(){ov.style.display='none'}
+var S=null,held={};
+function cellCh(cx,cz){var r=S.L.rows[cz];return r?r[cx]:undefined}
+function flash(txt,ms){S.msg=txt;S.msgT=S.t+(ms||1400)}
+
+amb.intensity=0.85;sun.intensity=0.7;
+var TITLE='GAZTELUAREN DEFENTSA';
+var COST=50,UPG=40,REP=30;
+var LV=[
+ {name:'Bide zuzena eta hiru goblin',hp:3,coins:150,path:[[-26,0],[26,0]],slots:[[-8,-4.5],[9,4.5]],
+  waves:[[0,1.5],[1,1.5],[2,1.5]].map(function(a){return {t:a[0]*2.2,k:'g'}})},
+ {name:'Goblin gehiago eta hiru dorre',hp:4,coins:150,path:[[-26,-8],[-10,-8],[-10,6],[8,6],[8,-8],[26,-8]],slots:[[-18,-3.5],[-1,-1],[17,-3.5]],
+  waves:(function(){var w=[];for(var i=0;i<10;i++)w.push({t:i*1.2,k:'g'});return w})()},
+ {name:'Ogro nagusi bat, goblinez lagunduta',hp:5,coins:150,path:[[-28,-10],[-10,-10],[-10,0],[12,0],[12,10],[26,10]],slots:[[-19,-5],[-1,-5],[1,5],[19,5]],
+  waves:(function(){var w=[];for(var i=0;i<7;i++)w.push({t:i*1.3,k:'g'});w.push({t:7*1.3+1,k:'o'});for(i=0;i<4;i++)w.push({t:7*1.3+3+i*1.2,k:'g'});return w})()}];
+var PREP=6;
+function lenOf(path){var s=0,i,seg=[];for(i=1;i<path.length;i++){var d=Math.hypot(path[i][0]-path[i-1][0],path[i][1]-path[i-1][1]);seg.push(d);s+=d}return {total:s,seg:seg}}
+function posAt(path,info,d){var i=0;while(i<info.seg.length-1&&d>info.seg[i]){d-=info.seg[i];i++}var a=path[i],b=path[i+1],t=Math.min(1,d/info.seg[i]);return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,Math.atan2(b[0]-a[0],b[1]-a[1])]}
+function makeGoblin(){var g=new THREE.Group();bx(0.9,0.9,0.7,'#16A34A',0,0.9,0,g);bx(0.8,0.7,0.7,'#22C55E',0,1.6,0.1,g);bx(0.5,0.25,0.2,'#22C55E',-0.6,1.7,0.1,g);bx(0.5,0.25,0.2,'#22C55E',0.6,1.7,0.1,g);bx(0.15,0.15,0.1,basic('#FDE047'),-0.2,1.7,0.5,g);bx(0.15,0.15,0.1,basic('#FDE047'),0.2,1.7,0.5,g);bx(0.3,0.7,0.3,'#15803D',-0.25,0.35,0,g);bx(0.3,0.7,0.3,'#15803D',0.25,0.35,0,g);bx(0.15,1.2,0.15,'#92400E',0.7,1.0,0.3,g);return g}
+function makeOgre(){var g=new THREE.Group();bx(2.4,2.2,1.8,'#65A30D',0,2.2,0,g);bx(1.6,1.4,1.4,'#84CC16',0,3.8,0.2,g);bx(0.4,0.7,0.4,'#F8FAFC',-0.6,4.8,0.4,g);bx(0.4,0.7,0.4,'#F8FAFC',0.6,4.8,0.4,g);bx(0.3,0.3,0.1,basic('#EF4444'),-0.4,4.0,0.95,g);bx(0.3,0.3,0.1,basic('#EF4444'),0.4,4.0,0.95,g);
+  bx(0.9,1.8,0.9,'#4D7C0F',-1.6,2.0,0,g);bx(0.9,1.8,0.9,'#4D7C0F',1.6,2.0,0,g);bx(0.9,1.2,0.9,'#3F6212',-0.6,0.6,0,g);bx(0.9,1.2,0.9,'#3F6212',0.6,0.6,0,g);bx(0.5,2.6,0.5,'#92400E',1.9,2.4,0.6,g);bx(1.0,0.9,1.0,'#78716C',1.9,3.9,0.6,g);return g}
+function makeTower(){var g=new THREE.Group();bx(2.4,1.4,2.4,'#94A3B8',0,0.7,0,g);bx(2.0,1.6,2.0,'#CBD5E1',0,2.2,0,g);bx(2.6,0.4,2.6,'#64748B',0,3.2,0,g);[-1,1].forEach(function(a){[-1,1].forEach(function(b){bx(0.5,0.6,0.5,'#64748B',a*1.0,3.6,b*1.0,g)})});
+  bx(0.6,0.9,0.6,'#92400E',0,3.7,0,g);bx(0.5,0.5,0.5,'#FCD9A6',0,4.4,0,g);bx(0.6,0.3,0.6,'#DC2626',0,4.8,0,g);var fl=bx(0.1,1.6,0.1,'#FACC15',1.0,4.6,1.0,g);bx(0.7,0.5,0.08,'#FACC15',1.35,5.1,1.0,g);g.userData.up=[fl];return g}
+function makeCastle(){var g=new THREE.Group();bx(5,3.6,5,'#CBD5E1',0,1.8,0,g);bx(5.6,0.5,5.6,'#94A3B8',0,3.8,0,g);[[-2.5,-2.5],[2.5,-2.5],[-2.5,2.5],[2.5,2.5]].forEach(function(o){bx(1.6,5,1.6,'#E2E8F0',o[0],2.5,o[1],g);bx(2.0,0.5,2.0,'#94A3B8',o[0],5.2,o[1],g);bx(1.5,1.4,1.5,'#DC2626',o[0],6.0,o[1],g)});
+  bx(1.8,2.6,0.3,'#78350F',0,1.3,2.6,g);bx(0.15,3.5,0.15,'#F8FAFC',0,6.2,0,g);bx(1.4,0.9,0.1,'#EF4444',0.75,7.5,0,g);return g}
+var grassT=checker('#6BCB4F','#62BE48',1,1),pathT=checker('#D6B77A','#CCAC6C',1,1),ray=new THREE.Raycaster();
+function buildLevel(n){
+  var L=LV[n];S.L=L;clearLevel();var r=rng(111+n*3),i;
+  scene.background.set('#BFE6FF');scene.fog.color.set('#D4EEFF');scene.fog.near=110;scene.fog.far=220;
+  var gm=new THREE.Mesh(new THREE.BoxGeometry(80,0.6,40),new THREE.MeshLambertMaterial({map:grassT}));grassT.repeat.set(40,20);gm.position.set(0,-0.3,0);lvGroup.add(gm);
+  var out=new THREE.Mesh(new THREE.PlaneGeometry(240,240),new THREE.MeshLambertMaterial({color:'#4FA43A'}));out.rotation.x=-Math.PI/2;out.position.set(0,-0.62,0);lvGroup.add(out);
+  S.info=lenOf(L.path);
+  // camino
+  for(i=1;i<L.path.length;i++){var a=L.path[i-1],b=L.path[i],ln=Math.hypot(b[0]-a[0],b[1]-a[1]),m=bx(ln+3.4,0.25,3.4,'#D6B77A',(a[0]+b[0])/2,0.05,(a[1]+b[1])/2,lvGroup);m.rotation.y=Math.atan2(b[1]-a[1],b[0]-a[0])*-1;bx(0.8,0.06,0.8,'#B8955A',a[0],0.2,a[1],lvGroup)}
+  var end=L.path[L.path.length-1],cs=makeCastle();cs.position.set(end[0]+3,0,end[1]);lvGroup.add(cs);S.castle=cs;S.cpos={x:end[0]+3,z:end[1]};
+  var st=L.path[0];bx(1.2,3,1.2,'#7F1D1D',st[0]-2,1.5,st[1]-2,lvGroup);bx(1.2,3,1.2,'#7F1D1D',st[0]-2,1.5,st[1]+2,lvGroup);bx(0.4,1.2,4.4,'#991B1B',st[0]-2,3.2,st[1],lvGroup);
+  // árboles decorativos
+  for(i=0;i<26;i++){var tx=(r()-0.5)*76,tz=(r()<0.5?-1:1)*(15+r()*4);bx(0.7,2.2,0.7,'#78350F',tx,1.1,tz,lvGroup);bx(2.6,2.2,2.6,'#16A34A',tx,3.0,tz,lvGroup)}
+  // huecos
+  S.slots=[];S.slotMeshes=[];L.slots.forEach(function(s,k){var d=new THREE.Group(),pl=bx(3.2,0.3,3.2,'#475569',0,0.2,0,d);bx(2.7,0.12,2.7,'#94A3B8',0,0.4,0,d);bx(1.2,0.1,0.35,'#FACC15',0,0.5,0,d);bx(0.35,0.1,1.2,'#FACC15',0,0.5,0,d);d.position.set(s[0],0,s[1]);lvGroup.add(d);pl.userData.slot=k;S.slotMeshes.push(pl);S.slots.push({x:s[0],z:s[1],tw:null,lv:0,cd:0,grp:d,ring:null})});
+  S.en=[];S.bolts=[];S.coins=L.coins;S.chp=L.hp;S.sel=0;S.next=0;S.clock=-PREP;S.killed=0;S.spawned=0;S.prevL=false;S.prevR=false;S.flashC=0;
+}
+function build(i){var s=S.slots[i];if(s.tw||S.coins<COST){return false}S.coins-=COST;s.tw=makeTower();s.tw.position.set(s.x,0.5,s.z);lvGroup.add(s.tw);s.lv=1;s.cd=0;ev('Klik zulo batean');co('Txanpon nahikoa dago? BAI');ac('Instantiate Dorrea, txanponak = '+S.coins);return true}
+function upgrade(i){var s=S.slots[i];if(!s.tw||s.lv>=2||S.coins<UPG)return false;S.coins-=UPG;s.lv=2;s.tw.scale.setScalar(1.15);ev('Klik dorre batean');co('Txanpon nahikoa dago? BAI');ac('Dorrea hobetu: kaltea × 2, txanponak = '+S.coins);return true}
+function hud(){var h='';for(var i=0;i<(S.L?S.L.hp:3);i++)h+=i<(S.chp||0)?'♥':'♡';var left=S.L?S.L.waves.length-(S.killed||0):0;
+  setHud('Maila '+(S.lv+1)+'/3 · Gaztelua '+h,'Txanponak '+(S.coins||0),S.clock<0?'Olatua '+Math.ceil(-S.clock)+' s':'Etsaiak '+left,S.slots&&S.slots[S.sel]?(S.slots[S.sel].tw?(S.slots[S.sel].lv<2?'Hobetu ('+UPG+')':'Dorrea gehienezkoan'):'Eraiki ('+COST+')'):'')}
+function newGame(){S={mode:'title',lv:0,t:0,msg:'',msgT:0};logEl.innerHTML='';ev('Jokoaren Start');ac('Aldagaiak: txanponak = 150, gazteluaren bizitzak = 3');buildLevel(0);showOv('GAZTELUAREN DEFENTSA','Sakatu Zuriunea edo ukitu hasteko','Klik zulo batean: dorre bat eraiki · ← → zuloa aukeratu · Zuriunea: eraiki / hobetu · R: konpondu')}
+function loadLevel(n){S.lv=n;S.mode='play';buildLevel(n);hideOv();flash('Maila '+(n+1)+' · '+S.L.name,2600);
+  ev('Load Scene "Maila '+(n+1)+'"');ac('Instantiate Gaztelua ('+S.L.hp+' bizitza), '+S.slots.length+' dorrerako zuloak eta bidea; olatua hasteko '+PREP+' s')}
+function retry(){loadLevel(S.lv)}
+function toNext(){if(S.lv<2){S.mode='next';flash('Maila gainditu da!',2000);S.nextAt=S.t+2000;ac('Mezua erakutsi, 2 s itxaron, Load Scene "Maila '+(S.lv+2)+'"')}else{S.mode='won';ac('Load Scene "Garaipena"');showOv('GAZTELUA SALBATUTA!','3 olatuei eutsi diezu','Sakatu Zuriunea errepikatzeko')}}
+function over(){S.mode='over';showOv('GAZTELUA SUNTSITUTA!','Etsaiak gazteluraino iritsi dira','Sakatu Zuriunea maila hau berriro saiatzeko')}
+function onSpace(){if(S.mode!=='play')return;var s=S.slots[S.sel];if(!s)return;if(!s.tw){if(!build(S.sel))flash('Txanponak falta dira (balio du '+COST+')',1000)}else if(s.lv<2){if(!upgrade(S.sel))flash('Txanponak falta dira (balio du '+UPG+')',1000)}else flash('Dorrea gehienezkoan dago jada',900)}
+function repair(){if(S.mode!=='play')return;if(S.coins>=REP&&S.chp<S.L.hp){S.coins-=REP;S.chp++;ev('R tekla');ac('Gaztelua konpondu: bizitzak = '+S.chp+', txanponak = '+S.coins);flash('Gaztelua konponduta',900)}else flash('Ezin da konpondu',900)}
+if(typeof window!=='undefined')window.addEventListener('keydown',function(e){if((e.key==='r'||e.key==='R')&&S&&S.mode==='play')repair()});
+if(renderer.domElement&&typeof renderer.domElement.addEventListener==='function')renderer.domElement.addEventListener('pointerdown',function(e){
+  if(!S||S.mode!=='play'||!S.slotMeshes)return;var rc=renderer.domElement.getBoundingClientRect(),nx=((e.clientX-rc.left)/rc.width)*2-1,ny=-((e.clientY-rc.top)/rc.height)*2+1;
+  ray.setFromCamera({x:nx,y:ny},cam);var hits=ray.intersectObjects(S.slotMeshes.concat(S.slots.filter(function(s){return s.tw}).map(function(s){return s.tw.children[0]})),false);
+  if(hits.length){var o=hits[0].object,k=o.userData.slot;if(k===undefined){S.slots.forEach(function(s,i){if(s.tw&&s.tw.children[0]===o)k=i})}if(k!==undefined){S.sel=k;onSpace()}}});
+function spawn(k){var m=k==='o'?makeOgre():makeGoblin(),p=S.L.path[0];m.position.set(p[0],0,p[1]);lvGroup.add(m);
+  var bar=bx(2,0.3,0.3,basic('#22C55E'),0,0,0,lvGroup);var e={k:k,d:0,hp:k==='o'?30:3,max:k==='o'?30:3,spd:k==='o'?1.6:3.3,mesh:m,bar:bar,x:p[0],z:p[1],dead:false,ph:Math.random()*6};S.en.push(e);S.spawned++;ev('Denbora pasatzen da (hurrengoa '+(k==='o'?'ogroa':'goblina')+')');ac('Instantiate '+(k==='o'?'Ogroa':'Goblina')+' bidearen hasieran')}
+function update(dt){
+  S.t+=dt*1000;
+  if(S.mode==='next'&&S.t>=S.nextAt)loadLevel(S.lv+1);
+  if(S.mode!=='play')return;
+  if(held.left&&!S.prevL){S.sel=(S.sel+S.slots.length-1)%S.slots.length}if(held.right&&!S.prevR){S.sel=(S.sel+1)%S.slots.length}S.prevL=held.left;S.prevR=held.right;
+  S.clock+=dt;
+  while(S.next<S.L.waves.length&&S.clock>=S.L.waves[S.next].t){spawn(S.L.waves[S.next].k);S.next++}
+  S.flashC=Math.max(0,S.flashC-dt);
+  S.en.forEach(function(e){if(e.dead)return;e.d+=e.spd*dt;if(e.d>=S.info.total){e.dead=true;e.mesh.visible=false;e.bar.visible=false;var dm=e.k==='o'?3:1;S.chp-=dm;S.killed++;S.flashC=0.5;ev('On Trigger Enter ('+(e.k==='o'?'Ogroa':'Goblina')+' ∩ Gaztelua)');ac('gazteluaren bizitzak = bizitzak − '+dm+' → '+Math.max(0,S.chp));if(S.chp<=0){ac('Load Scene "GameOver"');over()}return}
+    var p=posAt(S.L.path,S.info,e.d);e.x=p[0];e.z=p[1];e.ry=p[2]});
+  if(S.mode!=='play')return;
+  S.slots.forEach(function(s,i){if(!s.tw)return;s.cd-=dt;if(s.cd>0)return;var rng_=10,best=null,bd=1e9;S.en.forEach(function(e){if(e.dead)return;var d=Math.hypot(e.x-s.x,e.z-s.z);if(d<rng_&&e.d>(best?best.d:-1)){best=e;bd=d}});
+    if(best){s.cd=s.lv>1?0.5:0.75;S.bolts.push({x:s.x,y:4.4,z:s.z,t:best,dmg:s.lv>1?2:1,mesh:bx(0.35,0.35,0.9,'#FDE047',s.x,4.4,s.z,lvGroup)});if(!s.said){s.said=true;ev('On Trigger Enter ('+(best.k==='o'?'Ogroa':'Goblina')+' ∩ Dorrearen irismena)');ac('Gezia tiro egin gertuen dagoen dorreari')}}});
+  for(var i=S.bolts.length-1;i>=0;i--){var b=S.bolts[i],t=b.t;if(t.dead){lvGroup.remove(b.mesh);S.bolts.splice(i,1);continue}var dx=t.x-b.x,dy=1.5-b.y,dz=t.z-b.z,d=Math.hypot(dx,dy,dz),st=30*dt;
+    if(d<=st+0.3){t.hp-=b.dmg;lvGroup.remove(b.mesh);S.bolts.splice(i,1);if(t.hp<=0&&!t.dead){t.dead=true;t.mesh.visible=false;t.bar.visible=false;S.killed++;var gain=t.k==='o'?60:15;S.coins+=gain;ev('Etsaiaren bizitza = 0');ac('Destroy('+(t.k==='o'?'Ogroa':'Goblina')+'), txanponak + '+gain+' = '+S.coins)}}
+    else{b.x+=dx/d*st;b.y+=dy/d*st;b.z+=dz/d*st;b.mesh.position.set(b.x,b.y,b.z);b.mesh.rotation.y=Math.atan2(dx,dz)}}
+  if(S.mode==='play'&&S.next>=S.L.waves.length&&S.en.every(function(e){return e.dead})){ev('Azken olatua amaitzen da');co('Gazteluak bizitzak ditu? BAI ('+S.chp+')');ac('Hurrengo maila kargatu');toNext()}
+}
+function render(dt){
+  var t=S.t/1000;
+  S.en.forEach(function(e){if(e.dead)return;e.mesh.position.set(e.x,Math.abs(Math.sin(t*(e.k==='o'?4:9)+e.ph))*0.15,e.z);e.mesh.rotation.y=e.ry||0;var f=Math.max(0.01,e.hp/e.max);e.bar.scale.x=f;e.bar.position.set(e.x,e.k==='o'?6.2:2.6,e.z);e.bar.material=basic(f>0.5?'#22C55E':(f>0.25?'#FACC15':'#EF4444'))});
+  S.slots.forEach(function(s,i){s.grp.children[0].material=i===S.sel?basic('#FACC15'):mat('#475569');if(s.tw&&s.lv>1)s.tw.userData.up[0].visible=true;else if(s.tw)s.tw.userData.up[0].visible=false});
+  S.castle.position.x=S.cpos.x+(S.flashC>0?Math.sin(t*60)*0.25:0);
+  cam.position.set(0,52,34);cam.lookAt(0,0,0.5);
+}
+
+var KEYS={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
+function pressSpace(){if(S.mode==='title')loadLevel(0);else if(S.mode==='over'){if(typeof retry==='function')retry();else newGame()}else if(S.mode==='won')newGame();else if(S.mode==='play')onSpace()}
+window.addEventListener('keydown',function(e){
+  if(KEYS[e.key]){held[KEYS[e.key]]=true;e.preventDefault()}
+  else if(e.key==='Shift')held.shift=true;
+  else if(e.key===' '){e.preventDefault();held.space=true;if(!e.repeat)pressSpace()}});
+window.addEventListener('keyup',function(e){if(KEYS[e.key])held[KEYS[e.key]]=false;if(e.key==='Shift')held.shift=false;if(e.key===' ')held.space=false});
+document.querySelectorAll('.dpad button').forEach(function(b){var d=b.dataset.d;
+  function on(e){e.preventDefault();held[d]=true}function off(e){e.preventDefault();held[d]=false}
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off)});
+var bb=document.getElementById('bBomb');
+bb.addEventListener('pointerdown',function(e){e.preventDefault();held.space=true;pressSpace()});
+['pointerup','pointerleave','pointercancel'].forEach(function(n){bb.addEventListener(n,function(){held.space=false})});
+document.getElementById('bRestart').addEventListener('click',function(){newGame()});
+stage.addEventListener('pointerdown',function(){if(S.mode!=='play')pressSpace()});
+var last=performance.now();
+function loop(now){var dt=Math.min(50,now-last)/1000;last=now;update(dt);hud();render(dt);var txt=(S.msg&&S.t<S.msgT)?S.msg:(S.mode==='next'?'Maila gainditu da!':'');if(txt){bn.style.display='block';bn.textContent=txt}else bn.style.display='none';renderer.render(scene,cam);requestAnimationFrame(loop)}
+newGame();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

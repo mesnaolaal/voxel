@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La Granja Perdida – simulación jugable 3D</title>
+<style>
+:root{--bg:#F6F8FD;--card:#fff;--tx:#0F172A;--mut:#475569;--ac:#0F766E;--bd:#D8DEEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+h1{margin:0 0 4px;font-size:26px}
+.sub{color:var(--mut);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pill{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:999px;padding:3px 12px;font-weight:600;font-size:14px}
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#A5DBFF;aspect-ratio:16/10.5}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+#bn{position:absolute;left:0;right:0;top:14px;text-align:center;background:rgba(15,23,42,.78);color:#fff;font-weight:700;font-size:20px;padding:8px;display:none}
+#ov{position:absolute;inset:0;background:rgba(15,23,42,.72);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:16px}
+#ov b{font-size:34px;color:#FDE047}
+.pad{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0;gap:12px}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:6px}
+.dpad button,.bomb{border:1px solid var(--bd);background:#fff;border-radius:12px;font-size:20px;cursor:pointer;color:var(--tx)}
+.dpad button:active,.bomb:active{background:#CCFBF1}
+.bomb{width:120px;height:120px;border-radius:60px;background:#DBEAFE;border-color:#93C5FD;font-weight:700;font-size:14px}
+.help{color:var(--mut);font-size:14px;margin:10px 0 0}
+h2{font-size:16px;margin:0 0 8px}
+#log{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:6px;min-height:300px}
+#log li{border-left:4px solid var(--bd);padding:4px 8px;background:#F8FAFC;border-radius:0 8px 8px 0}
+.t{font-weight:700;font-size:11px;letter-spacing:.04em;margin-right:6px}
+.ev{border-color:#3B82F6!important}.ev .t{color:#1D4ED8}
+.co{border-color:#F59E0B!important}.co .t{color:#B45309}
+.ac{border-color:#10B981!important}.ac .t{color:#047857}
+.btn{margin-top:10px;background:var(--ac);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>La Granja Perdida <span style="font-weight:400;color:#64748B;font-size:18px">· 3D</span></h1>
+  <p class="sub">Simulación jugable en 3D del ejemplo de proyecto. A la derecha verás qué EVENTO → CONDICIÓN → ACCIÓN de Visual Scripting se dispara en cada momento.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="hud"><span class="pill" id="hA"></span><span class="pill" id="hB"></span><span class="pill" id="hC"></span><span class="pill" id="hD"></span></div>
+      <div class="stage" id="stage" tabindex="0"><div id="bn"></div><div id="ov"></div></div>
+      <div class="pad">
+        <div class="dpad">
+          <span></span><button data-d="up" aria-label="Arriba">▲</button><span></span>
+          <button data-d="left" aria-label="Izquierda">◀</button><button data-d="down" aria-label="Abajo">▼</button><button data-d="right" aria-label="Derecha">▶</button>
+        </div>
+        <button class="bomb" id="bBomb">SALTAR<br>(Espacio)</button>
+      </div>
+      <p class="help">Flechas o WASD para moverte · Espacio: saltar las vallas. Encuentra todas las gallinas antes de que anochezca. Los zorros te restan 5 segundos.</p>
+    </div>
+    <div class="card">
+      <h2>Visual Scripting en vivo</h2>
+      <ul id="log"></ul>
+      <button class="btn" id="bRestart">Reiniciar partida</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var VW=640,VH=420,C=2;
+var stage=document.getElementById('stage'),logEl=document.getElementById('log'),bn=document.getElementById('bn'),ov=document.getElementById('ov');
+function log(k,t,x){var li=document.createElement('li');li.className=k;li.innerHTML='<span class="t">'+t+'</span>'+x;logEl.insertBefore(li,logEl.firstChild);while(logEl.children.length>10)logEl.removeChild(logEl.lastChild)}
+function ev(t){log('ev','EVENTO',t)}function co(t){log('co','CONDICIÓN',t)}function ac(t){log('ac','ACCIÓN',t)}
+function setHud(a,b,c,d){document.getElementById('hA').textContent=a;document.getElementById('hB').textContent=b;document.getElementById('hC').textContent=c;document.getElementById('hD').textContent=d}
+var renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.setSize(VW,VH,false);
+stage.insertBefore(renderer.domElement,stage.firstChild);
+var scene=new THREE.Scene();scene.background=new THREE.Color('#A5DBFF');scene.fog=new THREE.Fog('#BFE4FF',45,110);
+var cam=new THREE.PerspectiveCamera(42,VW/VH,0.1,400);
+var amb=new THREE.AmbientLight(0xffffff,0.85);scene.add(amb);
+var sun=new THREE.DirectionalLight(0xffffff,0.7);sun.position.set(-20,40,15);scene.add(sun);
+var lvGroup=null,mats={};
+function mat(c){return mats[c]||(mats[c]=new THREE.MeshLambertMaterial({color:c}))}
+function basic(c){var k='b'+c;return mats[k]||(mats[k]=new THREE.MeshBasicMaterial({color:c}))}
+function emi(c,e){var k=c+'|'+e;return mats[k]||(mats[k]=new THREE.MeshLambertMaterial({color:c,emissive:e}))}
+function bx(w,h,d,col,x,y,z,parent){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof col==='string'?mat(col):col);m.position.set(x,y,z);if(parent)parent.add(m);return m}
+function checker(c1,c2,rx,ry){var c=document.createElement('canvas');c.width=c.height=2;var g=c.getContext('2d');g.fillStyle=c1;g.fillRect(0,0,2,2);g.fillStyle=c2;g.fillRect(0,0,1,1);g.fillRect(1,1,1,1);var t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);return t}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function clearLevel(){if(lvGroup){scene.remove(lvGroup);lvGroup.traverse(function(o){if(o.geometry)o.geometry.dispose()})}lvGroup=new THREE.Group();scene.add(lvGroup)}
+function showOv(t,s,s2){ov.style.display='flex';ov.innerHTML='<b>'+t+'</b><span>'+s+'</span>'+(s2?'<span>'+s2+'</span>':'')}
+function hideOv(){ov.style.display='none'}
+var S=null,held={};
+function cellCh(cx,cz){var r=S.L.rows[cz];return r?r[cx]:undefined}
+function flash(txt,ms){S.msg=txt;S.msgT=S.t+(ms||1400)}
+
+amb.intensity=0.85;sun.intensity=0.7;
+var TITLE='LA GRANJA PERDIDA';
+var LV=[
+ {name:'Una granja con vallas',time:35,night:false,rows:[
+  '###############',
+  '#G....V.......#',
+  '#.TT..V...H...#',
+  '#.....V.......#',
+  '#H....VVV.....#',
+  '#.............#',
+  '#..VVVV....H..#',
+  '#......T......#',
+  '#.E.....H.....#',
+  '###############']},
+ {name:'Más vallas, una gallina más y un zorro',time:40,night:false,rows:[
+  '#################',
+  '#G....V.....V...#',
+  '#.TT..V..H..V.H.#',
+  '#.....V..Z..V...#',
+  '#H....VVV.VVV...#',
+  '#...............#',
+  '#..VVVV....T..H.#',
+  '#......T........#',
+  '#.E...H......VV.#',
+  '#################']},
+ {name:'Es de noche: dos zorros y menos tiempo',time:30,night:true,rows:[
+  '#################',
+  '#G..V...V...V...#',
+  '#.T.V.H.V.H.V.H.#',
+  '#...V...V.Z.V...#',
+  '#.H.VV.VVV.VV...#',
+  '#...............#',
+  '#..VVVV..Z.T..H.#',
+  '#......T........#',
+  '#.E..........VV.#',
+  '#################']}];
+function ch(x,z){return cellCh(Math.round(x/C),Math.round(z/C))}
+function solidAt(x,z,h){var c=ch(x,z);return c===undefined||c==='#'||c==='T'||c==='E'||(c==='V'&&h<1.0)}
+function canMove(x,z,r,h){return !solidAt(x-r,z-r,h)&&!solidAt(x+r,z-r,h)&&!solidAt(x-r,z+r,h)&&!solidAt(x+r,z+r,h)}
+function walk(cx,cz){var c=cellCh(cx,cz);return c!==undefined&&'#TEV'.indexOf(c)<0}
+var farmer=new THREE.Group(),lamp=new THREE.PointLight(0xffd9a0,0,26);
+(function(){var g=farmer;
+  bx(0.3,0.7,0.32,'#1D4ED8',-0.2,0.35,0,g);bx(0.3,0.7,0.32,'#1D4ED8',0.2,0.35,0,g);
+  bx(0.95,0.95,0.6,'#2563EB',0,1.15,0,g);bx(0.95,0.3,0.62,'#DC2626',0,1.5,0,g);bx(0.14,0.5,0.05,'#FACC15',0.2,1.1,0.32,g);bx(0.14,0.5,0.05,'#FACC15',-0.2,1.1,0.32,g);
+  bx(0.25,0.8,0.28,'#DC2626',-0.62,1.1,0,g);bx(0.25,0.8,0.28,'#DC2626',0.62,1.1,0,g);
+  bx(0.55,0.5,0.5,'#FCD9A6',0,1.95,0,g);bx(0.1,0.1,0.05,'#111827',0.13,2.0,0.26,g);bx(0.1,0.1,0.05,'#111827',-0.13,2.0,0.26,g);
+  bx(1.5,0.12,1.5,'#FACC15',0,2.3,0,g);bx(0.7,0.35,0.7,'#EAB308',0,2.5,0,g);bx(0.72,0.1,0.72,'#B91C1C',0,2.38,0,g);
+  lamp.position.set(0,3,0);g.add(lamp)})();
+function makeHen(){var g=new THREE.Group();bx(0.9,0.8,1.1,'#FFFFFF',0,0.7,0,g);bx(0.5,0.6,0.5,'#FFFFFF',0,1.3,0.55,g);bx(0.14,0.25,0.3,'#DC2626',0,1.7,0.55,g);bx(0.2,0.14,0.3,'#F59E0B',0,1.3,0.9,g);bx(0.6,0.5,0.4,'#F3F4F6',0,0.9,-0.7,g);bx(0.1,0.1,0.05,'#111827',0.2,1.4,0.82,g);bx(0.1,0.1,0.05,'#111827',-0.2,1.4,0.82,g);bx(0.12,0.4,0.12,'#F59E0B',-0.2,0.2,0.1,g);bx(0.12,0.4,0.12,'#F59E0B',0.2,0.2,0.1,g);return g}
+function makeFox(){var g=new THREE.Group(),o='#EA580C';bx(0.9,0.8,1.7,o,0,0.8,0,g);bx(0.7,0.65,0.7,o,0,1.1,1.1,g);bx(0.3,0.3,0.4,'#1F2937',0,1.0,1.55,g);bx(0.2,0.3,0.15,o,-0.25,1.55,1.1,g);bx(0.2,0.3,0.15,o,0.25,1.55,1.1,g);
+  bx(0.2,0.2,0.05,'#111827',0.2,1.25,1.46,g);bx(0.2,0.2,0.05,'#111827',-0.2,1.25,1.46,g);bx(0.4,0.4,1.2,o,0,0.9,-1.4,g);bx(0.42,0.42,0.4,'#F8FAFC',0,0.9,-2.0,g);
+  [[-0.3,0.7],[0.3,0.7],[-0.3,-0.6],[0.3,-0.6]].forEach(function(p){bx(0.2,0.5,0.2,'#7C2D12',p[0],0.25,p[1],g)});return g}
+function makeTree(r){var g=new THREE.Group(),h=2.2+r()*1.4;bx(0.7,h,0.7,'#78350F',0,h/2,0,g);bx(2.4,1.6,2.4,'#16A34A',0,h+0.5,0,g);bx(1.7,1.2,1.7,'#22C55E',0,h+1.6,0,g);return g}
+function makeFence(vertical){var g=new THREE.Group();bx(0.25,1.3,0.25,'#92400E',-0.9,0.65,0,g);bx(0.25,1.3,0.25,'#92400E',0.9,0.65,0,g);bx(2.1,0.2,0.18,'#B45309',0,0.5,0,g);bx(2.1,0.2,0.18,'#B45309',0,1.0,0,g);return g}
+function makeBarn(){var g=new THREE.Group();bx(3.4,2.4,3.4,'#DC2626',0,1.2,0,g);bx(3.6,0.3,3.6,'#7F1D1D',0,2.5,0,g);var r=bx(3.7,1.2,2.0,'#991B1B',0,3.1,0,g);bx(1.4,1.7,0.1,'#FEF3C7',0,0.9,1.72,g);bx(1.5,0.2,0.12,'#7F1D1D',0,1.8,1.74,g);return g}
+var grassTop=checker('#6BCB4F','#62BE48',1,1),grassMat=[mat('#7A5230'),mat('#7A5230'),new THREE.MeshLambertMaterial({map:grassTop}),mat('#7A5230'),mat('#7A5230'),mat('#7A5230')];
+var out=new THREE.Mesh(new THREE.PlaneGeometry(260,260),new THREE.MeshLambertMaterial({color:'#4FA43A'}));out.rotation.x=-Math.PI/2;out.position.y=-0.92;scene.add(out);
+function buildLevel(n){
+  var L=LV[n];S.L=L;clearLevel();var rows=L.rows,nz=rows.length,nx=rows[0].length,r=rng(97+n*5);
+  S.hens=[];S.foxes=[];S.nh=0;S.got=0;
+  var bg=L.night?'#0A0F2E':'#A5DBFF';scene.background.set(bg);scene.fog.color.set(L.night?'#0A0F2E':'#BFE4FF');scene.fog.near=L.night?40:60;scene.fog.far=L.night?95:140;
+  amb.intensity=L.night?0.5:0.85;sun.intensity=L.night?0.3:0.7;lamp.intensity=L.night?1.4:0;
+  for(var z=0;z<nz;z++)for(var x=0;x<nx;x++){var c=rows[z][x],wx=x*C,wz=z*C;
+    if(c==='#'){var hh=bx(C,1.6,C,'#15803D',wx,0.8,wz,lvGroup);bx(C*0.8,0.5,C*0.8,'#16A34A',wx,1.7,wz,lvGroup)}
+    else{var m=new THREE.Mesh(new THREE.BoxGeometry(C,0.9,C),grassMat);m.position.set(wx,-0.45,wz);lvGroup.add(m)}
+    if(c==='G'){S.start={x:wx,z:wz}}
+    else if(c==='H'){var h=makeHen();h.position.set(wx,0,wz);h.rotation.y=r()*6;lvGroup.add(h);S.hens.push({x:wx,z:wz,mesh:h,got:false,ph:r()*6});S.nh++}
+    else if(c==='Z'){var f=makeFox();f.position.set(wx,0,wz);lvGroup.add(f);S.foxes.push({x:wx,z:wz,mesh:f,dx:1,dz:0,last:''})}
+    else if(c==='T'){var t=makeTree(r);t.position.set(wx,0,wz);lvGroup.add(t)}
+    else if(c==='E'){var b=makeBarn();b.position.set(wx,0,wz);lvGroup.add(b)}
+    else if(c==='V'){var f2=makeFence();f2.position.set(wx,0,wz);var left=cellCh(x-1,z)==='V'||cellCh(x+1,z)==='V';if(!left)f2.rotation.y=Math.PI/2;lvGroup.add(f2)}}
+  scene.add(farmer);
+  S.p={x:S.start.x,z:S.start.z,ry:Math.PI,inv:0,bob:0,air:0};S.time=L.time;S.jcd=0;S.camx=S.start.x;S.camz=S.start.z;
+}
+function hud(){var p=S.p;setHud('Nivel '+(S.lv+1)+'/3','Tiempo '+Math.max(0,Math.ceil(S.time||0))+' s','Gallinas '+(S.got||0)+'/'+(S.nh||0),p&&p.air>0?'Saltando…':(S.jcd>0?'Salto recargando':'Salto listo'))}
+function newGame(){S={mode:'title',lv:0,t:0,msg:'',msgT:0,time:0,jcd:0};logEl.innerHTML='';ev('Start del juego');ac('Variables: gallinas = 0, nivel = 1');buildLevel(0);showOv('LA GRANJA PERDIDA','Pulsa Espacio o toca para empezar')}
+function loadLevel(n){S.lv=n;S.mode='play';buildLevel(n);hideOv();flash('Nivel '+(n+1)+' · '+S.L.name,2400);
+  ev('Load Scene "Nivel '+(n+1)+'"');ac('Instantiate Granjera, '+S.nh+' gallinas'+(S.foxes.length?', '+S.foxes.length+' zorro(s)':'')+'; temporizador = '+S.L.time+' s')}
+function retry(){loadLevel(S.lv)}
+function toNext(){if(S.lv<2){S.mode='next';flash('¡Nivel superado!',2000);S.nextAt=S.t+2000;ac('Mostrar mensaje, esperar 2 s, Load Scene "Nivel '+(S.lv+2)+'"')}else{S.mode='won';ac('Load Scene "Victoria"');showOv('¡GALLINAS A SALVO!','Has encontrado todas las gallinas en los 3 niveles','Pulsa Espacio para repetir')}}
+function onSpace(){var p=S.p;if(p.air>0||S.jcd>0)return;p.air=0.75;ev('Input: tecla Espacio');co('¿Está en el suelo? SÍ');ac('Saltar: 0,75 s sin tocar el suelo (salta las vallas)')}
+function update(dt){
+  S.t+=dt*1000;
+  if(S.mode==='next'&&S.t>=S.nextAt)loadLevel(S.lv+1);
+  if(S.mode!=='play')return;
+  var p=S.p;S.time-=dt;
+  if(S.time<=0){S.time=0;ev('Temporizador = 0');co('¿Faltan gallinas? SÍ ('+S.got+'/'+S.nh+')');ac('Mostrar Game Over');S.mode='over';showOv('¡HA ANOCHECIDO!','Te faltaron '+(S.nh-S.got)+' gallina(s)','Pulsa Espacio para reintentar este nivel');return}
+  S.jcd=Math.max(0,S.jcd-dt);
+  var h=p.air>0?Math.sin(Math.PI*(1-p.air/0.75))*1.8:0;
+  var dx=(held.right?1:0)-(held.left?1:0),dz=(held.down?1:0)-(held.up?1:0),m=Math.hypot(dx,dz);
+  if(m>0){dx/=m;dz/=m;var sp=(p.air>0?8:5.5)*dt,nx=p.x+dx*sp,nz=p.z+dz*sp;if(canMove(nx,p.z,0.4,h))p.x=nx;if(canMove(p.x,nz,0.4,h))p.z=nz;
+    var ty=Math.atan2(dx,dz),df=ty-p.ry;while(df>Math.PI)df-=6.283;while(df<-Math.PI)df+=6.283;p.ry+=df*Math.min(1,14*dt);p.bob+=dt*11}
+  if(p.air>0){p.air-=dt;if(p.air<=0){p.air=0;S.jcd=0.2;if(solidAt(p.x,p.z,0)){var cx=Math.round(p.x/C)*C,cz=Math.round(p.z/C)*C;
+      var best=null;[[1,0],[-1,0],[0,1],[0,-1]].forEach(function(v){var a=Math.round(p.x/C)+v[0],b=Math.round(p.z/C)+v[1];if(walk(a,b)&&!best)best=[a*C,b*C]});if(best){p.x=best[0];p.z=best[1]}}}}
+  S.hens.forEach(function(g){if(!g.got&&Math.hypot(g.x-p.x,g.z-p.z)<1.2){g.got=true;g.mesh.visible=false;S.got++;ev('On Trigger Enter (Granjera ∩ Gallina)');ac('Destroy(Gallina), gallinas = '+S.got+'/'+S.nh)}});
+  if(S.got>=S.nh){ev('gallinas == '+S.nh);co('¿Están todas en el establo? SÍ');ac('Cargar el siguiente nivel');toNext();return}
+  S.foxes.forEach(function(g){
+    var cx=Math.round(g.x/C),cz=Math.round(g.z/C),ccx=cx*C,ccz=cz*C,step=2.4*dt;
+    var near=Math.hypot(g.x-ccx,g.z-ccz)<=step*1.01+0.01,id=cx+','+cz;
+    if(near&&g.last!==id){g.last=id;
+      var opts=[[1,0],[-1,0],[0,1],[0,-1]].filter(function(v){return walk(cx+v[0],cz+v[1])});
+      var fwd=opts.filter(function(v){return !(v[0]===-g.dx&&v[1]===-g.dz)});if(fwd.length)opts=fwd;
+      var keep=opts.some(function(v){return v[0]===g.dx&&v[1]===g.dz});
+      if(!keep||Math.random()<0.35){var v=opts[Math.floor(Math.random()*opts.length)];if(v){g.x=ccx;g.z=ccz;g.dx=v[0];g.dz=v[1]}}}
+    g.x+=g.dx*step;g.z+=g.dz*step;
+    if(p.inv<=S.t&&h<0.8&&Math.hypot(g.x-p.x,g.z-p.z)<1.3){p.inv=S.t+1500;S.time=Math.max(1,S.time-5);ev('On Trigger Enter (Zorro ∩ Granjera)');ac('Temporizador − 5 s');flash('¡Un zorro! −5 s',1000);
+      var a=Math.atan2(p.x-g.x,p.z-g.z),kx=p.x+Math.sin(a)*1.6,kz=p.z+Math.cos(a)*1.6;if(canMove(kx,p.z,0.4,0))p.x=kx;if(canMove(p.x,kz,0.4,0))p.z=kz}});
+}
+function render(dt){
+  var p=S.p,t=S.t/1000,h=p.air>0?Math.sin(Math.PI*(1-p.air/0.75))*1.8:0;
+  farmer.position.set(p.x,h+Math.abs(Math.sin(p.bob))*0.1,p.z);farmer.rotation.y=p.ry;farmer.visible=!(p.inv>S.t&&Math.floor(S.t/90)%2);
+  S.hens.forEach(function(g){if(!g.got)g.mesh.position.y=Math.abs(Math.sin(t*4+g.ph))*0.12});
+  S.foxes.forEach(function(g){g.mesh.position.set(g.x,Math.abs(Math.sin(t*9))*0.08,g.z);g.mesh.rotation.y=Math.atan2(g.dx,g.dz)});
+  if(!S.L.night){var k=Math.max(0,1-S.time/S.L.time);k=k*k;var c1=new THREE.Color('#A5DBFF'),c2=new THREE.Color('#F7A66B');c1.lerp(c2,k);scene.background.copy(c1);scene.fog.color.copy(c1);amb.intensity=0.85-0.3*k}
+  S.camx+=(p.x-S.camx)*Math.min(1,6*dt);S.camz+=(p.z-S.camz)*Math.min(1,6*dt);
+  cam.position.set(S.camx,22,S.camz+9);cam.lookAt(S.camx,0.4,S.camz-0.8);
+}
+
+var KEYS={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
+function pressSpace(){if(S.mode==='title')loadLevel(0);else if(S.mode==='over'){if(typeof retry==='function')retry();else newGame()}else if(S.mode==='won')newGame();else if(S.mode==='play')onSpace()}
+window.addEventListener('keydown',function(e){
+  if(KEYS[e.key]){held[KEYS[e.key]]=true;e.preventDefault()}
+  else if(e.key==='Shift')held.shift=true;
+  else if(e.key===' '){e.preventDefault();held.space=true;if(!e.repeat)pressSpace()}});
+window.addEventListener('keyup',function(e){if(KEYS[e.key])held[KEYS[e.key]]=false;if(e.key==='Shift')held.shift=false;if(e.key===' ')held.space=false});
+document.querySelectorAll('.dpad button').forEach(function(b){var d=b.dataset.d;
+  function on(e){e.preventDefault();held[d]=true}function off(e){e.preventDefault();held[d]=false}
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off)});
+var bb=document.getElementById('bBomb');
+bb.addEventListener('pointerdown',function(e){e.preventDefault();held.space=true;pressSpace()});
+['pointerup','pointerleave','pointercancel'].forEach(function(n){bb.addEventListener(n,function(){held.space=false})});
+document.getElementById('bRestart').addEventListener('click',function(){newGame()});
+stage.addEventListener('pointerdown',function(){if(S.mode!=='play')pressSpace()});
+var last=performance.now();
+function loop(now){var dt=Math.min(50,now-last)/1000;last=now;update(dt);hud();render(dt);var txt=(S.msg&&S.t<S.msgT)?S.msg:(S.mode==='next'?'¡Nivel superado!':'');if(txt){bn.style.display='block';bn.textContent=txt}else bn.style.display='none';renderer.render(scene,cam);requestAnimationFrame(loop)}
+newGame();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoxelArt · 20 proiektu-adibide (azken proiektua)</title>
+<style>
+:root{--bg:#F6F8FD;--card:#FFFFFF;--card2:#EEF2FB;--line:#D9E0F0;--tx:#14183A;--mut:#566089;--teal:#5EEAD4;--ac:#0F766E;--yel:#FDE047;--pink:#BE185D;--focus:#2563EB}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--ac)}
+header{padding:56px 24px 28px;max-width:1080px;margin:0 auto}
+.kicker{display:inline-block;background:var(--teal);color:#06231F;font-weight:800;letter-spacing:.12em;font-size:12px;padding:6px 14px;border-radius:99px}
+h1{font-size:clamp(34px,6vw,64px);line-height:1.02;margin:18px 0 12px;font-weight:900;letter-spacing:-.02em}
+h1 span{color:var(--ac)}
+.lead{color:var(--mut);font-size:18px;max-width:720px;margin:0}
+main{max-width:1080px;margin:0 auto;padding:8px 24px 80px}
+h2{font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin:44px 0 14px;display:flex;align-items:center;gap:12px}
+h2::after{content:"";flex:1;height:1px;background:var(--line)}
+.game{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 3px rgba(20,24,58,.07)}
+.game.open{border-color:var(--ac);box-shadow:0 4px 18px rgba(20,24,58,.10)}
+.head{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:16px;width:100%;padding:14px 18px;cursor:pointer}
+.head:hover{background:var(--card2)}
+.head:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
+.num{font-weight:900;font-size:14px;letter-spacing:.06em;border-radius:10px;min-width:58px;height:40px;display:grid;place-items:center;flex:none;padding:0 8px}
+.num.l1{background:#BBF7D0;color:#14532D}.num.l2{background:#FDE68A;color:#713F12}.num.l3{background:#FECACA;color:#7F1D1D}
+h2 small{font-size:13px;letter-spacing:0;text-transform:none;color:var(--mut);font-weight:500}
+.diff b{font-size:15px}
+.thumb{width:44px;height:60px;border-radius:8px;object-fit:cover;flex:none;background:var(--card2)}
+.ttl{flex:1;min-width:0}
+.ttl b{display:block;font-size:clamp(20px,3vw,26px);font-weight:800;letter-spacing:-.01em}
+.ttl small{display:block;color:var(--mut);font-size:14px;margin-top:2px}
+.chev{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--mut);display:grid;place-items:center;transition:transform .2s}
+.chev::before{content:"";width:8px;height:8px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:rotate(45deg) translate(-1px,-1px)}
+.game.open .chev{transform:rotate(180deg);border-color:var(--ac)}
+.game.open .chev::before{border-color:var(--ac)}
+.panel{display:none;padding:4px 18px 22px;border-top:1px solid var(--line)}
+.game.open .panel{display:block}
+.playtag{font-size:12px;font-weight:800;color:#0F766E;background:#CCFBF1;border:1px solid #5EEAD4;border-radius:99px;padding:2px 10px;margin-right:10px;white-space:nowrap}
+.play{display:inline-block;background:var(--teal);color:#06231F;font-weight:800;text-decoration:none;padding:11px 20px;border-radius:99px}
+.play:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 18px}
+.tab{all:unset;box-sizing:border-box;cursor:pointer;padding:9px 16px;border-radius:99px;border:1px solid var(--line);color:var(--mut);font-weight:700;font-size:14px}
+.tab:hover{color:var(--tx);border-color:var(--mut)}
+.tab[aria-selected=true]{background:var(--teal);color:#06231F;border-color:var(--teal)}
+.tab:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.view{display:none}.view.on{display:block}
+.sum{display:grid;grid-template-columns:260px 1fr;gap:26px;align-items:start}
+.sum img.cov{width:100%;height:auto;border-radius:12px;display:block;cursor:zoom-in}
+.tagline{font-size:20px;font-weight:700;margin:0 0 16px}
+.wl{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
+.box{background:var(--card2);border-radius:12px;padding:12px 14px}
+.box h4,.sec h4{margin:0 0 4px;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.win h4{color:#15803D}.lose h4{color:#B91C1C}
+.box p{margin:0}
+.sec{margin-top:20px}
+.sec h4{color:#B45309;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.chips li{background:var(--card2);border-radius:99px;padding:6px 13px;font-size:14px}
+.chips li b{color:var(--ac)}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.grid3 li{background:var(--card2);border-radius:12px;padding:12px 14px;font-size:15px}
+.grid3 li b{display:block;font-size:16px}
+.grid3 li span{color:var(--mut)}
+.rule i{font-style:normal;font-weight:800;color:var(--pink);font-size:12px;letter-spacing:.08em}
+.shot{display:block;max-width:100%;height:auto;border-radius:14px;cursor:zoom-in;margin:0 auto;border:1px solid var(--line)}
+.shot.poster{max-width:560px}
+.cap{color:var(--mut);font-size:14px;margin:10px 0 0;text-align:center}
+.lvls{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin:18px 0 0}
+.lvl{background:var(--card2);border-radius:12px;padding:12px 14px}
+.lvl h5{margin:0 0 6px;color:#B45309;font-size:13px;letter-spacing:.1em}
+.lvl p{margin:0 0 6px;font-size:15px}.lvl p span{display:block;font-size:11px;letter-spacing:.12em;color:var(--mut);font-weight:800}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:0;padding:0;list-style:none;counter-reset:s}
+.flow li{background:var(--card2);border-radius:12px;padding:12px 14px;font-size:15px;position:relative}
+.flow li i{display:block;font-style:normal;font-weight:800;font-size:12px;letter-spacing:.1em;color:var(--pink);margin-bottom:4px}
+.notes{color:var(--mut);font-size:14px;margin:12px 0 0;padding-left:18px}
+#lb{position:fixed;inset:0;background:rgba(5,8,20,.92);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;cursor:zoom-out}
+#lb.on{display:flex}
+#lb img{max-width:100%;max-height:100%;border-radius:10px}
+footer{max-width:1080px;margin:0 auto;padding:0 24px 56px;color:var(--mut);font-size:14px}
+@media(max-width:760px){
+ header{padding-top:36px}
+ .sum{grid-template-columns:1fr}.sum img.cov{max-width:260px}
+ .wl{grid-template-columns:1fr}
+ .thumb{display:none}
+ .head{padding:12px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.chev{transition:none}}
+</style>
+</head>
+<body>
+<header>
+ <span class="kicker">VOXELART · AZKEN PROIEKTUA</span>
+ <h1>20 bideojoku-ideia <span>voxelekin eginak</span></h1>
+ <p class="lead">Ikasleek entrega ditzaketen adibideak: joko bakoitzak bere azala, proiektu-posterra, jokoaren pantaila eta hiru maila ditu. Programatzeko errazenetik zailenera ordenatuta daude. Sakatu izenburu bat informazio guztia ikusteko.</p>
+</header>
+<main id="list" aria-label="Jokoen zerrenda"></main>
+<footer>MagicaVoxel + Unity Visual Scripting-ekin. Pertsonaia eta izen guztiak originalak dira.</footer>
+<div id="lb" role="dialog" aria-label="Irudi handitua"><img alt=""></div>
+<script>
+const GAMES = [
+ {
+  "n": 1,
+  "slug": "cofre-pirata",
+  "title": "Pirataren Kutxa",
+  "tag": "Pirata batek 5 txanpon bildu behar ditu denbora amaitu aino lehen, altxor-kutxa irekitzeko.",
+  "gana": "5 txanponekin, garaiz kutxara helduta.",
+  "pierde": "Denbora amaitzen bada edo uretara erortzen bada.",
+  "legend": [
+   "P · Pirata",
+   "M · Txanpona (5)",
+   "C · Kutxa (helmuga)",
+   "Ura (arriskua)"
+  ],
+  "powers": [
+   [
+    "Mugitu",
+    "geziekin"
+   ],
+   [
+    "Jauzi egin",
+    "ur-putzuen gainetik"
+   ]
+  ],
+  "models": [
+   [
+    "Pirata",
+    "Jokalariak kontrolatzen duen pertsonaia."
+   ],
+   [
+    "Txanpona",
+    "Bildu behar den objektua."
+   ],
+   [
+    "Kutxa",
+    "Mailaren helmuga."
+   ]
+  ],
+  "spells": [
+   [
+    "txanpon bat ukitzen du",
+    "desagertu egiten da eta puntu 1 gehitzen du"
+   ],
+   [
+    "ura ukitzen du",
+    "hasieran berriro agertzen da"
+   ],
+   [
+    "5 txanpon ditu eta kutxa ukitzen du",
+    "irekitzen da: garaipena!"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Irla txikia, etsairik gabe.",
+    "meta": "Txanpon guztiak bildu eta kutxa ireki.",
+    "pasa": "Kutxa irekitzen du"
+   },
+   {
+    "n": "2",
+    "nov": "Putzuak bidean eta patruilatzen duen karramarro bat.",
+    "meta": "Txanpon guztiak bildu eta kutxa ireki.",
+    "pasa": "Kutxa irekitzen du"
+   },
+   {
+    "n": "3",
+    "nov": "Zubiz lotutako hiru irla eta bi karramarro.",
+    "meta": "Zubiak zeharkatu eta kutxa ireki denbora gutxiagorekin.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: piratak kutxa ukitzen du"
+   ],
+   [
+    "Baldintza",
+    "Txanpon guztiak ditu?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: mugitu · Zuriunea: jauzi egin",
+  "lv": 1,
+  "lvname": "Erraza",
+  "why": "Txanponak biltzea, ura saihestea eta kutxara heltzea besterik ez dago."
+ },
+ {
+  "n": 4,
+  "slug": "granja-perdida",
+  "title": "Baserri Galdua",
+  "tag": "Nekazari batek ezkutatuta dituen 4 oiloak bilatzen ditu gaua jo baino lehen.",
+  "gana": "4 oiloak aurkituta.",
+  "pierde": "Gaua jotzen badu eta oilo bat falta bada.",
+  "legend": [
+   "G · Nekazaria",
+   "H · Oiloa (4)",
+   "V · Hesia (salto egiten da)",
+   "E · Ukuilua (extra)"
+  ],
+  "powers": [
+   [
+    "Mugitu",
+    "baserrian zehar"
+   ],
+   [
+    "Jauzi egin",
+    "hesien gainetik"
+   ]
+  ],
+  "models": [
+   [
+    "Nekazaria",
+    "Jokalariaren pertsonaia."
+   ],
+   [
+    "Oiloa",
+    "4 aurkitu behar dira."
+   ],
+   [
+    "Hesia",
+    "Salto egiten zaion oztopoa."
+   ]
+  ],
+  "spells": [
+   [
+    "oilo bat ukitzen du",
+    "jaso egiten da eta 1 gehitzen du"
+   ],
+   [
+    "segundo bat pasatzen da",
+    "tenporizadorea jaisten da"
+   ],
+   [
+    "zerora iristen da eta oiloak falta dira",
+    "maila berrabiarazten da"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Hesiak dituen baserri bat.",
+    "meta": "4 oiloak aurkitu gaua jo baino lehen.",
+    "pasa": "Guztiak ukuiluan"
+   },
+   {
+    "n": "2",
+    "nov": "Hesi gehiago, oilo bat gehiago eta patruilatzen duen azeri bat.",
+    "meta": "5 oiloak aurkitu.",
+    "pasa": "Guztiak ukuiluan"
+   },
+   {
+    "n": "3",
+    "nov": "Gaua da: bi azeri eta denbora gutxiago.",
+    "meta": "5 oiloak aurkitu denbora amaitu aino lehen.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: nekazaria ukuilura sartzen da"
+   ],
+   [
+    "Baldintza",
+    "Oilo guztiak ditu?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: mugitu · Zuriunea: jauzi egin",
+  "lv": 1,
+  "lvname": "Erraza",
+  "why": "Objektuak biltzea denbora-mugarekin, etsairik gabe."
+ },
+ {
+  "n": 8,
+  "slug": "regata-voxel",
+  "title": "Voxel Erregata",
+  "tag": "Belaontzi batek 3 boiak inguratu eta helmuga zeharkatu behar ditu, harkaitzei ihes eginez.",
+  "gana": "3 boiak inguratuta eta garaiz helmuga zeharkatuta.",
+  "pierde": "Denbora amaitzen bada.",
+  "legend": [
+   "V · Belaontzia (jokalaria)",
+   "B · Boia (3)",
+   "R · Harkaitza",
+   "M · Helmuga",
+   "Itsasoa"
+  ],
+  "powers": [
+   [
+    "Biratu",
+    "lema"
+   ],
+   [
+    "Orientatu",
+    "bela haizearekin"
+   ],
+   [
+    "Bultzada",
+    "(extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Belaontzia",
+    "Jokalariak kontrolatzen duen ontzia."
+   ],
+   [
+    "Boia",
+    "Ibilbidea markatzen du."
+   ],
+   [
+    "Harkaitza",
+    "Itsasoko oztopoa."
+   ]
+  ],
+  "spells": [
+   [
+    "ontziak boia baten ondotik pasatzen da",
+    "boia itzali egiten da eta 1 gehitzen du"
+   ],
+   [
+    "harkaitz batekin talka egiten du",
+    "abiadura galtzen du"
+   ],
+   [
+    "helmuga zeharkatzen du 3 boiekin",
+    "erlojua gelditzen da: garaipena!"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "3 boia dituen aintzira lasai bat.",
+    "meta": "3 boiak inguratu eta helmuga zeharkatu.",
+    "pasa": "Helmuga zeharkatzen du"
+   },
+   {
+    "n": "2",
+    "nov": "Harkaitzak bidean.",
+    "meta": "Boiak inguratu harkaitzekin talka egin gabe.",
+    "pasa": "Helmuga zeharkatzen du"
+   },
+   {
+    "n": "3",
+    "nov": "Ekaitza: ur ilunak, harkaitz gehiago eta denbora gutxiago.",
+    "meta": "Ibilbidea amaitu denbora bukatu aino lehen.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: belaontziak helmuga zeharkatzen du"
+   ],
+   [
+    "Baldintza",
+    "3 boiak inguratu ditu?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: lema biratu · Zuriunea: bela doitu",
+  "lv": 1,
+  "lvname": "Erraza",
+  "why": "3 boietatik pasatu eta helmuga zeharkatu; harkaitzak ez dira mugitzen."
+ },
+ {
+  "n": 5,
+  "slug": "rally-voxel",
+  "title": "Rally Voxel",
+  "tag": "Rally-ko auto batek zirkuitua amaitu behar du denbora bukatu aino lehen, konoei eta olio-orbanei ihes eginez.",
+  "gana": "Denbora amaitu aino lehen helmuga zeharkatuta.",
+  "pierde": "Denbora amaitzen bada.",
+  "legend": [
+   "C · Autoa",
+   "N · Konoa",
+   "A · Olio-orbana",
+   "G · Gasolina (+5 s)",
+   "M · Helmuga",
+   "Errepidea"
+  ],
+  "powers": [
+   [
+    "Azeleratu eta balaztatu",
+    "Biratu"
+   ],
+   [
+    "ezkerrera eta eskuinera",
+    "Turboa"
+   ]
+  ],
+  "models": [
+   [
+    "Autoa",
+    "Jokalariak kontrolatzen duen ibilgailua."
+   ],
+   [
+    "Konoa",
+    "Errepideko oztopoa."
+   ],
+   [
+    "Gasolina",
+    "Denbora gehigarria ematen duen bidoia."
+   ]
+  ],
+  "spells": [
+   [
+    "gasolina-bidoi bat ukitzen du",
+    "desagertu egiten da eta 5 segundo gehitzen ditu"
+   ],
+   [
+    "kono bat edo olio-orban bat ukitzen du",
+    "autoak abiadura galtzen du"
+   ],
+   [
+    "helmuga zeharkatzen du denbora amaitu aino lehen",
+    "erlojua gelditzen da: garaipena!"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Oztoporik gabeko zirkuitu obalatu bat.",
+    "meta": "Helmugara heldu denbora amaitu aino lehen.",
+    "pasa": "Helmuga zeharkatzen du"
+   },
+   {
+    "n": "2",
+    "nov": "Kurbak, konoak eta olio-orban bat.",
+    "meta": "Garaiz helmugara heldu, oztopoei ihes eginez.",
+    "pasa": "Helmuga zeharkatzen du"
+   },
+   {
+    "n": "3",
+    "nov": "Gauez eta arerio-auto batekin.",
+    "meta": "Arerioa baino lehen helmugara heldu.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: autoak helmuga zeharkatzen du"
+   ],
+   [
+    "Baldintza",
+    "Garaiz iritsi da?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: azeleratu, balaztatu eta biratu · Zuriunea: turboa",
+  "lv": 1,
+  "lvname": "Erraza",
+  "why": "Auto bat zirkuitu batean mugitu, oztopo finkoekin eta kronometro batekin."
+ },
+ {
+  "n": 15,
+  "slug": "valle-nevado",
+  "title": "Elur Harana",
+  "tag": "Eskiatzaile batek mendia jaisten du ateetatik pasatuz eta zuhaitzei ihes eginez.",
+  "gana": "Ate guztietatik pasata eta helmugara helduta.",
+  "pierde": "Zuhaitz batekin 3 aldiz talka egiten badu.",
+  "legend": [
+   "E · Eskiatzailea (jokalaria)",
+   "P · Pinua",
+   "S · Eslalom-atea",
+   "M · Elur-gizona",
+   "F · Helmuga",
+   "Elurra"
+  ],
+  "powers": [
+   [
+    "Eskiatu",
+    "geziekin"
+   ],
+   [
+    "Balaztatu",
+    "zuriune-teklarekin"
+   ],
+   [
+    "Turboa",
+    "maldetan (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Eskiatzailea",
+    "Mendia jaisten du."
+   ],
+   [
+    "Pinua",
+    "Ihes egin beharreko oztopoa."
+   ],
+   [
+    "Atea",
+    "Makilen artetik pasatu behar da."
+   ]
+  ],
+  "spells": [
+   [
+    "makilen artetik pasatzen da",
+    "ate 1 gehitzen du"
+   ],
+   [
+    "zuhaitz batekin talka egiten du",
+    "bizitza 1 galtzen du"
+   ],
+   [
+    "helmuga zeharkatzen du",
+    "kronometroa gelditzen da"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Ate bat duen pista zabal bat.",
+    "meta": "Atetik pasatu eta helmugara heldu.",
+    "pasa": "Helmuga zeharkatzen du"
+   },
+   {
+    "n": "2",
+    "nov": "Bi ate eta zuhaitz gehiago dituen eslaloma.",
+    "meta": "Ate guztietatik pasatu talka egin gabe.",
+    "pasa": "Helmuga zeharkatzen du"
+   },
+   {
+    "n": "3",
+    "nov": "Lau ate eta denbora gutxi dituen jaitsiera bat.",
+    "meta": "Eslaloma amaitu denbora bukatu aino lehen.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: eskiatzaileak helmuga zeharkatzen du"
+   ],
+   [
+    "Baldintza",
+    "Ate guztietatik pasa da?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: eskiatu · Zuriunea: balaztatu",
+  "lv": 1,
+  "lvname": "Erraza",
+  "why": "Pista batean jaitsi ateetatik pasatuz; zuhaitzak oztopo geldiak dira."
+ },
+ {
+  "n": 10,
+  "slug": "mision-espacial",
+  "title": "Espazio Misioa",
+  "tag": "Espazio-ontzi batek kristalak biltzen ditu eta planetara heltzen da, asteroideei ihes eginez.",
+  "gana": "Kristal guztiak bilduta eta planetara helduta.",
+  "pierde": "3 bizitzak galtzen baditu.",
+  "legend": [
+   "N · Ontzia (jokalaria)",
+   "C · Kristala",
+   "A · Asteroidea",
+   "P · Planeta (helmuga)",
+   "Espazioa"
+  ],
+  "powers": [
+   [
+    "Mugitu",
+    "lau norabidetan"
+   ],
+   [
+    "Azeleratu",
+    "propultsorra (extra)"
+   ],
+   [
+    "Tiro egin",
+    "asteroideei (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Ontzia",
+    "Jokalariak kontrolatzen duen ontzia."
+   ],
+   [
+    "Kristala",
+    "Guztiak bildu behar dira."
+   ],
+   [
+    "Asteroidea",
+    "Ihes egin beharreko arriskua."
+   ]
+  ],
+  "spells": [
+   [
+    "kristal bat ukitzen du",
+    "desagertu egiten da eta puntu 1 gehitzen du"
+   ],
+   [
+    "asteroide batekin talka egiten du",
+    "bizitza 1 galtzen du"
+   ],
+   [
+    "kristal guztiak ditu eta planeta ukitzen du",
+    "hurrengo maila kargatzen da"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Espazio irekia eta asteroide bat.",
+    "meta": "3 kristalak bildu eta planeta ukitu.",
+    "pasa": "Planeta ukitzen du"
+   },
+   {
+    "n": "2",
+    "nov": "Asteroide-eremu bat.",
+    "meta": "Kristalak bildu bizitzarik galdu gabe.",
+    "pasa": "Planeta ukitzen du"
+   },
+   {
+    "n": "3",
+    "nov": "Bi ufo patruilatzen dute sektorean.",
+    "meta": "Ufoei ihes egin eta planetara heldu.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: ontziak planeta ukitzen du"
+   ],
+   [
+    "Baldintza",
+    "Kristal guztiak bildu ditu?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: ontzia mugitu",
+  "lv": 2,
+  "lvname": "Ertaina",
+  "why": "Mugimendu librea, asteroideak eta ufo mugikorrak eta bizitza-sistema bat."
+ },
+ {
+  "n": 9,
+  "slug": "pez-hambriento",
+  "title": "Arrain Gosetua",
+  "tag": "Arrain txiki batek planktona jan eta kobazulora heldu behar du, marrazoei eta medusei ihes eginez.",
+  "gana": "Plankton guztia jan eta kobazulora helduta.",
+  "pierde": "3 bizitzak galtzen baditu.",
+  "legend": [
+   "P · Arraina (jokalaria)",
+   "C · Planktona",
+   "M · Medusa",
+   "T · Marrazoa",
+   "K · Koralak",
+   "G · Algak",
+   "E · Kobazuloa (irteera)"
+  ],
+  "powers": [
+   [
+    "Igeri egin",
+    "lau norabidetan"
+   ],
+   [
+    "Esprintatu",
+    "hegatsarekin (extra)"
+   ],
+   [
+    "Ezkutatu",
+    "algen artean (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Arraina",
+    "Jokalariak kontrolatzen duen arrain txikia."
+   ],
+   [
+    "Marrazoa",
+    "Patruilatzen duen etsaia."
+   ],
+   [
+    "Medusa",
+    "Uretan flotatzen duen arriskua."
+   ]
+  ],
+  "spells": [
+   [
+    "planktona ukitzen du",
+    "desagertu egiten da eta puntu 1 gehitzen du"
+   ],
+   [
+    "marrazo bat edo medusa bat ukitzen du",
+    "bizitza 1 galtzen du"
+   ],
+   [
+    "plankton guztia du eta kobazuloa ukitzen du",
+    "bidea irekitzen da: garaipena!"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Arrezife lasai bat eta medusa bat.",
+    "meta": "Plankton guztia jan eta kobazulora heldu.",
+    "pasa": "Kobazulora sartzen da"
+   },
+   {
+    "n": "2",
+    "nov": "Alga-baso bat eta bi medusa.",
+    "meta": "Plankton guztia jan bizitzarik galdu gabe.",
+    "pasa": "Kobazulora sartzen da"
+   },
+   {
+    "n": "3",
+    "nov": "Kobazulo ilun bat eta marrazo bat.",
+    "meta": "Marrazoari ihes egin eta kobazulotik atera.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: arraina kobazulora sartzen da"
+   ],
+   [
+    "Baldintza",
+    "Plankton guztia jan du?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: igeri egin · Zuriunea: esprintatu",
+  "lv": 2,
+  "lvname": "Ertaina",
+  "why": "Patruilatzen duten etsaiak, plankton-kontagailu bat eta 3 bizitza."
+ },
+ {
+  "n": 19,
+  "slug": "jardin-abejas",
+  "title": "Erleen Lorategia",
+  "tag": "Erle bat lorategian zehar hegan egiten du, lore guztiak polinizatzen ditu eta erlauntzera itzultzen da, armiarmei ihes eginez.",
+  "gana": "Lore guztiak polinizatuta eta erlauntzera itzulita.",
+  "pierde": "Armiarma batek 3 aldiz harrapatzen badu.",
+  "legend": [
+   "B · Erlea (jokalaria)",
+   "F · Lorea",
+   "A · Armiarma",
+   "H · Erlauntza",
+   "Urmaela"
+  ],
+  "powers": [
+   [
+    "Hegan egin",
+    "geziekin"
+   ],
+   [
+    "Pausatu",
+    "lore batean, polinizatzeko"
+   ],
+   [
+    "Burrunba",
+    "armiarmak izutzen ditu (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Erlea",
+    "Jokalariaren polinizatzailea."
+   ],
+   [
+    "Lorea",
+    "Guztiak polinizatu behar dira."
+   ],
+   [
+    "Armiarma",
+    "Patruilatzen duen etsaia."
+   ]
+  ],
+  "spells": [
+   [
+    "lore batean pausatzen da",
+    "polinizatu egiten du eta 1 gehitzen du"
+   ],
+   [
+    "armiarma bat ukitzen du",
+    "bizitza 1 galtzen du"
+   ],
+   [
+    "erlauntzera itzultzen da lore guztiekin",
+    "hurrengo maila kargatzen da"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Bi lore eta armiarma bat dituen lorategi txiki bat.",
+    "meta": "2 loreak polinizatu eta erlauntzera itzuli.",
+    "pasa": "Erlauntzera itzultzen da"
+   },
+   {
+    "n": "2",
+    "nov": "Urmael bat, sei lore eta bi armiarma.",
+    "meta": "Loreak polinizatu armiarmak ukitu gabe.",
+    "pasa": "Erlauntzera itzultzen da"
+   },
+   {
+    "n": "3",
+    "nov": "Gaueko lorategi bat hiru armiarmarekin.",
+    "meta": "Lore guztiak polinizatu eta ihes egin.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: erlea erlauntzera itzultzen da"
+   ],
+   [
+    "Baldintza",
+    "Lore guztiak polinizatu ditu?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: hegan egin · Zuriunea: pausatu",
+  "lv": 2,
+  "lvname": "Ertaina",
+  "why": "Loreak polinizatu, patruilatzen duten armiarmak eta bizitzak."
+ },
+ {
+  "n": 7,
+  "slug": "vallas-voxel",
+  "title": "Hesi Voxel",
+  "tag": "Atleta batek 100 metroak korrika egiten ditu hesiak salto eginez, bere arerioak baino lehen helmugara iristeko.",
+  "gana": "Bi arerioak baino lehen helmuga zeharkatuta.",
+  "pierde": "Arerio bat lehenago helmugara iristen bada.",
+  "legend": [
+   "A · Atleta (jokalaria)",
+   "R · Arerioa",
+   "V · Hesia",
+   "M · Helmuga",
+   "Pista",
+   "Belarra"
+  ],
+  "powers": [
+   [
+    "Korrika egin",
+    "geziekin"
+   ],
+   [
+    "Jauzi egin",
+    "hesien gainetik"
+   ],
+   [
+    "Esprintatu",
+    "(extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Atleta",
+    "Jokalariak kontrolatzen duen korrikalaria."
+   ],
+   [
+    "Hesia",
+    "Salto egin beharreko oztopoa."
+   ],
+   [
+    "Helmuga",
+    "Iristeko lerroa duen arkua."
+   ]
+  ],
+  "spells": [
+   [
+    "salto egiteko tekla sakatzen du",
+    "atletak hesiaren gainetik salto egiten du"
+   ],
+   [
+    "hesi bat ukitzen du",
+    "une batez abiadura galtzen du"
+   ],
+   [
+    "helmuga zeharkatzen du",
+    "kronometroa gelditzen da eta bere postua erakusten da"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "100 metroko pista zuzena, bi hesi eta arerio bat.",
+    "meta": "Helmuga lehenengo zeharkatu.",
+    "pasa": "Helmuga zeharkatzen du"
+   },
+   {
+    "n": "2",
+    "nov": "Hiru kale, hesi gehiago eta bi arerio.",
+    "meta": "Helmuga lehenengo zeharkatu.",
+    "pasa": "Helmuga zeharkatzen du"
+   },
+   {
+    "n": "3",
+    "nov": "Ur- eta lokatz-zulo bat pistaren erdian.",
+    "meta": "Zulotik salto egin eta arerioei irabazi.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: atletak helmuga zeharkatzen du"
+   ],
+   [
+    "Baldintza",
+    "Lehena iritsi da?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: korrika egin · Zuriunea: salto egin",
+  "lv": 2,
+  "lvname": "Ertaina",
+  "why": "Hesiak salto egin eta ordenagailuak kontrolatutako arerioekin lehiatu."
+ },
+ {
+  "n": 2,
+  "slug": "gato-ninja",
+  "title": "Katu Ninja",
+  "tag": "Katu ninja batek robot zaintzaileei ihes egiten die teilatuko irteera-atera iristeko.",
+  "gana": "Giltzarekin, robot batek ukitu gabe atera helduta.",
+  "pierde": "Robot batek katua ukitzen badu.",
+  "legend": [
+   "G · Katu ninja",
+   "R · Robota (patruila)",
+   "L · Giltza",
+   "S · Irteera (helmuga)",
+   "C · Kutxa"
+  ],
+  "powers": [
+   [
+    "Mugitu",
+    "teilatuetatik"
+   ],
+   [
+    "Jauzi egin",
+    "teilatuen artean"
+   ],
+   [
+    "Ezkutatu",
+    "kutxaren atzean (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Katu ninja",
+    "Jokalariaren pertsonaia."
+   ],
+   [
+    "Robota",
+    "Patruilatzen duen etsaia."
+   ],
+   [
+    "Giltza eta atea",
+    "Mailaren objektua eta helmuga."
+   ],
+   [
+    "Kutxa",
+    "Ezkutalekua eta plataforma."
+   ]
+  ],
+  "spells": [
+   [
+    "denbora pasatzen da",
+    "robot bakoitzak alde batetik bestera patruilatzen du"
+   ],
+   [
+    "robot batek katua ukitzen du",
+    "maila berrabiarazten da"
+   ],
+   [
+    "katuak giltza hartzen du",
+    "atea irekitzen da"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Teilatu bat, robot bat eta giltza bat.",
+    "meta": "Giltza hartu eta atera heldu.",
+    "pasa": "Atea zeharkatzen du"
+   },
+   {
+    "n": "2",
+    "nov": "Bi teilatu, tartean zulo bat, eta bi robot.",
+    "meta": "Zulotik salto egin, giltza hartu eta atera heldu.",
+    "pasa": "Atea zeharkatzen du"
+   },
+   {
+    "n": "3",
+    "nov": "Hiru robot eta bi giltza.",
+    "meta": "2 giltzak hartu eta atea ireki.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: katuak atea ukitzen du"
+   ],
+   [
+    "Baldintza",
+    "Giltza guztiak ditu?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: mugitu · Zuriunea: jauzi egin",
+  "lv": 2,
+  "lvname": "Ertaina",
+  "why": "Patruilatzen duten robotak, giltza bat eta irekitzen den ate bat."
+ },
+ {
+  "n": 6,
+  "slug": "templo-perdido",
+  "title": "Tenplu Galdua",
+  "tag": "Heroi batek tenplu bat arakatzen du, giltza hartzen du eta altxorraren atea irekitzen du.",
+  "gana": "Giltza hartuta, atea irekita eta altxorrera helduta.",
+  "pierde": "Heroiak bihotzik gabe geratzen bada.",
+  "legend": [
+   "H · Heroia",
+   "L · Giltza",
+   "S · Slime (etsaia)",
+   "P · Ate itxia",
+   "T · Altxorra",
+   "C · Bihotz gehigarria"
+  ],
+  "powers": [
+   [
+    "Mugitu",
+    "templuan zehar"
+   ],
+   [
+    "Eraso egin",
+    "ezpatarekin"
+   ],
+   [
+    "Ireki",
+    "atea giltzarekin"
+   ]
+  ],
+  "models": [
+   [
+    "Heroia",
+    "Templuan arakatzen duen pertsonaia."
+   ],
+   [
+    "Slime",
+    "Gelan mugitzen den etsaia."
+   ],
+   [
+    "Atea",
+    "Heroiak giltza badu, irekitzen da."
+   ]
+  ],
+  "spells": [
+   [
+    "giltza bat ukitzen du",
+    "desagertu egiten da eta inbentarioan gordetzen da"
+   ],
+   [
+    "slime batek heroia ukitzen du",
+    "heroiak bihotz 1 galtzen du"
+   ],
+   [
+    "atea ukitzen du eta giltza du",
+    "atea irekitzen da"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Slime bat eta ezkutuko giltza bat dituen baso bat.",
+    "meta": "Giltza hartu eta templuaren sarrerara heldu.",
+    "pasa": "Templuan sartzen da"
+   },
+   {
+    "n": "2",
+    "nov": "Giltzaz itxitako ate batek banatutako gelak.",
+    "meta": "Atea giltzarekin ireki eta altxorrera heldu.",
+    "pasa": "Atea irekitzen du"
+   },
+   {
+    "n": "3",
+    "nov": "Harrizko zaindari bat eta bi slime.",
+    "meta": "Zaindaria garaitu (5 kolpe) eta azken kutxa ireki.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: heroiak mailaren irteera zeharkatzen du"
+   ],
+   [
+    "Baldintza",
+    "Mailaren helburua bete du?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: mugitu · Zuriunea: ezpata",
+  "lv": 2,
+  "lvname": "Ertaina",
+  "why": "Giltza, atea eta etsaiak: elkar gurutzatzen diren hainbat arau."
+ },
+ {
+  "n": 12,
+  "slug": "casa-encantada",
+  "title": "Etxe Sorgindua",
+  "tag": "Esploratzaile batek etxe sorgindunaren giltzak bilatzen ditu eta atea irekitzen du, mamuei ihes eginez.",
+  "gana": "3 giltzak bilduta eta atea irekita.",
+  "pierde": "Mamu batek 3 aldiz harrapatzen badu.",
+  "legend": [
+   "E · Esploratzailea (jokalaria)",
+   "F · Mamua",
+   "L · Giltza (3)",
+   "C · Kalabaza-tranpa",
+   "P · Azken atea"
+  ],
+  "powers": [
+   [
+    "Mugitu",
+    "gelatan zehar"
+   ],
+   [
+    "Hartu",
+    "giltzak eta objektuak"
+   ],
+   [
+    "Linterna",
+    "mamuak izutzen ditu (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Esploratzailea",
+    "Jokalariak kontrolatzen duen ausarta."
+   ],
+   [
+    "Mamua",
+    "Etxean patruilatzen du."
+   ],
+   [
+    "Giltza",
+    "Azken atea irekitzen du."
+   ]
+  ],
+  "spells": [
+   [
+    "giltza bat ukitzen du",
+    "inbentarioan gordetzen du"
+   ],
+   [
+    "mamu bat ukitzen du",
+    "bizitza 1 galtzen du"
+   ],
+   [
+    "atea ukitzen du 3 giltzekin",
+    "atea irekitzen da: garaipena!"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Giltza bat eta tranpa bat dituen gela bat.",
+    "meta": "Giltza hartu eta atea ireki.",
+    "pasa": "Atea irekitzen du"
+   },
+   {
+    "n": "2",
+    "nov": "Bi giltza eta patruilatzen duen mamu bat.",
+    "meta": "Giltzak hartu mamuak harrapatu gabe.",
+    "pasa": "Atea irekitzen du"
+   },
+   {
+    "n": "3",
+    "nov": "Hiru giltza, bi mamu eta kalabaza-tranpak.",
+    "meta": "3 giltzak bildu eta ihes egin.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: esploratzaileak atea irekitzen du"
+   ],
+   [
+    "Baldintza",
+    "Giltza guztiak ditu?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: mugitu · Zuriunea: hartu",
+  "lv": 2,
+  "lvname": "Ertaina",
+  "why": "3 giltzako inbentarioa, patruilatzen duten mamuak eta kalabaza-tranpak."
+ },
+ {
+  "n": 16,
+  "slug": "dino-parque",
+  "title": "Dino Parkea",
+  "tag": "Dinosauro txiki batek arrautzak biltzen ditu eta habiara eramaten ditu, T-Rex-ari ihes eginez.",
+  "gana": "3 arrautzak habiara eramanda, harrapatu gabe.",
+  "pierde": "T-Rex-ak 3 aldiz harrapatzen badu.",
+  "legend": [
+   "D · Dinoa (jokalaria)",
+   "T · T-Rex",
+   "H · Arrautza (3)",
+   "N · Habia",
+   "P · Palmondoa",
+   "Lokatza"
+  ],
+  "powers": [
+   [
+    "Mugitu",
+    "oihanean zehar"
+   ],
+   [
+    "Korrika egin",
+    "une batez (extra)"
+   ],
+   [
+    "Ezkutatu",
+    "palmondoen atzean (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Dinoa",
+    "Jokalariaren dinosauro txikia."
+   ],
+   [
+    "T-Rex",
+    "Patruilatzen duen etsaia."
+   ],
+   [
+    "Arrautza",
+    "Habiara eraman behar dira."
+   ]
+  ],
+  "spells": [
+   [
+    "arrautza bat ukitzen du",
+    "jaso egiten du eta 1 gehitzen du"
+   ],
+   [
+    "T-Rex-ak ukitzen du",
+    "bizitza 1 galtzen du"
+   ],
+   [
+    "habiara iristen da arrautzekin",
+    "hurrengo maila kargatzen da"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "T-Rex lotan duen oihaneko soilgune bat.",
+    "meta": "2 arrautza habiara eraman.",
+    "pasa": "Habiara iristen da"
+   },
+   {
+    "n": "2",
+    "nov": "Patruilatzen duen T-Rex bat duen lokatz-zingira bat.",
+    "meta": "3 arrautzak bildu ikusi gabe.",
+    "pasa": "Habiara iristen da"
+   },
+   {
+    "n": "3",
+    "nov": "Laba eta bi T-Rex dituen sumendi bat.",
+    "meta": "Habiara heldu arrautzekin, labari ihes eginez.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: dinoa habiara iristen da"
+   ],
+   [
+    "Baldintza",
+    "Arrautza guztiak ditu?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: mugitu · Maius: korrika egin",
+  "lv": 2,
+  "lvname": "Ertaina",
+  "why": "Arrautzak, patruilatzen duen T-Rex bat eta lur mota desberdinak."
+ },
+ {
+  "n": 14,
+  "slug": "minigolf-voxel",
+  "title": "Minigolf Voxel",
+  "tag": "Golf-jokalari batek bola zuloan sartu behar du ahalik eta kolpe gutxienekin.",
+  "gana": "Bola zuloan sartuta, kolpe gutxitan.",
+  "pierde": "Bola uretara 3 aldiz erortzen bada.",
+  "legend": [
+   "G · Golf-jokalaria (jokalaria)",
+   "B · Bola",
+   "H · Zuloa eta bandera",
+   "M · Errota",
+   "Harea",
+   "Ura"
+  ],
+  "powers": [
+   [
+    "Zuzendu",
+    "geziekin"
+   ],
+   [
+    "Kolpatu",
+    "indar handiagoz edo txikiagoz"
+   ],
+   [
+    "Errebotatu",
+    "hormetan (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Golf-jokalaria",
+    "Bola kolpatzen duen jokalaria."
+   ],
+   [
+    "Bola",
+    "Zuloan sartu behar da."
+   ],
+   [
+    "Errota",
+    "Hegalak dituen oztopoa."
+   ]
+  ],
+  "spells": [
+   [
+    "kolpatu sakatzen du",
+    "bola irteten da eta kolpe 1 gehitzen du"
+   ],
+   [
+    "bolak ura ukitzen du",
+    "hasierara itzultzen da"
+   ],
+   [
+    "bola zuloan erortzen da",
+    "hurrengo zuloa kargatzen da"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "1. zuloa: zuzena eta oztoporik gabe.",
+    "meta": "Bola zuloan sartu 3 kolpetan edo gutxiagotan.",
+    "pasa": "Bola zuloan sartzen da"
+   },
+   {
+    "n": "2",
+    "nov": "2. zuloa: harea eta urmael bat.",
+    "meta": "Ura inguratu eta bola sartu.",
+    "pasa": "Bola zuloan sartzen da"
+   },
+   {
+    "n": "3",
+    "nov": "3. zuloa: biratzen diren hegalak dituen errota bat.",
+    "meta": "Bola hegalen artetik pasatu.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: bola zuloan erortzen da"
+   ],
+   [
+    "Baldintza",
+    "Zenbat kolpe ditu?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: zuzendu · Zuriunea: kolpatu",
+  "lv": 2,
+  "lvname": "Ertaina",
+  "why": "Bolaren fisika, kolpearen indarra, errebotak eta kolpe-kontaketa."
+ },
+ {
+  "n": 11,
+  "slug": "bombero-voxel",
+  "title": "Suhiltzaile Voxel",
+  "tag": "Suhiltzaile batek hiriko suak itzaltzen ditu eta pertsonak erreskatatzen ditu denbora amaitu aino lehen.",
+  "gana": "Su guztiak itzalita eta pertsonak erreskatatuta.",
+  "pierde": "Denbora amaitzen bada.",
+  "legend": [
+   "B · Suhiltzailea (jokalaria)",
+   "F · Sua",
+   "C · Erreskatatu beharreko hiritarra",
+   "H · Hidrantea",
+   "K · Etxea",
+   "Kalea"
+  ],
+  "powers": [
+   [
+    "Mugitu",
+    "hirian zehar"
+   ],
+   [
+    "Ura bota",
+    "mahukarekin"
+   ],
+   [
+    "Birkargatu",
+    "hidrantean (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Suhiltzailea",
+    "Jokalariak kontrolatzen duen heroia."
+   ],
+   [
+    "Sua",
+    "Urarekin itzali behar da."
+   ],
+   [
+    "Etxea",
+    "Erre daitekeen eraikina."
+   ]
+  ],
+  "spells": [
+   [
+    "suari ura botatzen dio",
+    "sua itzali egiten da eta puntu 1 gehitzen du"
+   ],
+   [
+    "sugar bat ukitzen du",
+    "bizitza 1 galtzen du"
+   ],
+   [
+    "pertsona bat ukitzen du",
+    "erreskatatu egiten du eta salbatu 1 gehitzen du"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Su hartutako etxe bat eta erreskatatu beharreko pertsona bat.",
+    "meta": "Suak itzali eta pertsona erreskatatu.",
+    "pasa": "Su guztiak itzaltzen ditu"
+   },
+   {
+    "n": "2",
+    "nov": "Bi etxe erretzen eta bi pertsona.",
+    "meta": "Dena itzali eta bi pertsonak erreskatatu.",
+    "pasa": "Su guztiak itzaltzen ditu"
+   },
+   {
+    "n": "3",
+    "nov": "Hiru etxe erretzen: ura hidrantean birkargatu behar da.",
+    "meta": "Su guztiak itzali denbora amaitu aino lehen.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: suhiltzaileak azken sua itzaltzen du"
+   ],
+   [
+    "Baldintza",
+    "Suren bat edo erreskatatu gabeko pertsonaren bat geratzen da?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: mugitu · Zuriunea: ura bota",
+  "lv": 3,
+  "lvname": "Zaila",
+  "why": "Gastatzen den ura, suak, erreskatatu beharreko pertsonak eta hidrantean birkargatzea."
+ },
+ {
+  "n": 17,
+  "slug": "robot-fabrica",
+  "title": "Robot Fabrika",
+  "tag": "Robot batek fabrikako kutxak zona horietaraino bultzatzen ditu, biltegia ordenatzeko.",
+  "gana": "Kutxa guztiak zona horien gainean utzita.",
+  "pierde": "Kutxa bat izkinan trabatuta uzten badu.",
+  "legend": [
+   "R · Robota (jokalaria)",
+   "C · Kutxa",
+   "X · Helburu-zona",
+   "O · Kokatutako kutxa",
+   "# · Horma",
+   "Zorua"
+  ],
+  "powers": [
+   [
+    "Mugitu",
+    "lau norabidetan"
+   ],
+   [
+    "Bultzatu",
+    "kutxak"
+   ],
+   [
+    "Desegin",
+    "azken mugimendua (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Robota",
+    "Jokalariak kontrolatzen duen langilea."
+   ],
+   [
+    "Kutxa",
+    "Bultzatu baino ezin da egin."
+   ],
+   [
+    "Kokatutako kutxa",
+    "Dagoeneko bere lekuan dago."
+   ]
+  ],
+  "spells": [
+   [
+    "kutxa bat bultzatzen du",
+    "kutxak lauki bat aurrera egiten du"
+   ],
+   [
+    "kutxa zona horira iristen da",
+    "berde bihurtzen da eta 1 gehitzen du"
+   ],
+   [
+    "kutxa guztiak kokatuta daude",
+    "hurrengo maila kargatzen da"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Gela txiki bat: kutxa bat eta helburu bat.",
+    "meta": "Kutxa zona horiraino bultzatu.",
+    "pasa": "Kutxa guztiak kokatuta"
+   },
+   {
+    "n": "2",
+    "nov": "Bi kutxa eta horma bat erdian.",
+    "meta": "Bi kutxak beren helburuetan kokatu.",
+    "pasa": "Kutxa guztiak kokatuta"
+   },
+   {
+    "n": "3",
+    "nov": "Hiru helburu eta izkina arriskutsu bat.",
+    "meta": "Hiru kutxak ordenatu, trabatu gabe.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: azken kutxa bere helburura iristen da"
+   ],
+   [
+    "Baldintza",
+    "Kutxa guztiak beren lekuan daude?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: robota mugitu (kutxak bultzatzen ditu)",
+  "lv": 3,
+  "lvname": "Zaila",
+  "why": "Lauki bidezko mugimendua eta bultzatzen diren kutxak: taulako logika programatu behar da."
+ },
+ {
+  "n": 3,
+  "slug": "cueva-del-jefe",
+  "title": "Nagusiaren Kobazuloa",
+  "tag": "Heroi batek kobazulo bat zeharkatzen du eta munstro bat garaitzen du kristala lortzeko.",
+  "gana": "Munstroari 3 aldiz kolpe eginda eta kristala hartuta.",
+  "pierde": "Munstroak 3 aldiz ukitzen badu.",
+  "legend": [
+   "H · Heroia",
+   "J · Munstro nagusia",
+   "C · Kristala (helmuga)",
+   "A · Zuzia"
+  ],
+  "powers": [
+   [
+    "Mugitu",
+    "kobazuloan zehar"
+   ],
+   [
+    "Eraso egin",
+    "ezpatarekin"
+   ]
+  ],
+  "models": [
+   [
+    "Heroia",
+    "Jokalariaren pertsonaia."
+   ],
+   [
+    "Munstroa",
+    "Kobazuloko nagusia."
+   ],
+   [
+    "Kristala",
+    "Saria eta mailaren helmuga."
+   ]
+  ],
+  "spells": [
+   [
+    "heroia mugitzen da",
+    "munstroak jarraitzen dio"
+   ],
+   [
+    "munstroak heroia ukitzen du",
+    "heroiak bizitza 1 galtzen du"
+   ],
+   [
+    "munstroak 3 kolpe jasotzen ditu",
+    "kristala agertzen da"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Munstro bat duen kobazulo bat.",
+    "meta": "3 aldiz kolpatu eta kristala hartu.",
+    "pasa": "Kristala hartzen du"
+   },
+   {
+    "n": "2",
+    "nov": "Horma bat erdian eta bi morroi.",
+    "meta": "Bi morroiak garaitu eta kristala hartu.",
+    "pasa": "Kristala hartzen du"
+   },
+   {
+    "n": "3",
+    "nov": "Azken nagusia eta bi morroi.",
+    "meta": "Nagusia garaitu (5 kolpe) eta kristala hartu.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: heroiak kristala ukitzen du"
+   ],
+   [
+    "Baldintza",
+    "Munstro guztiak garaitu dira?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: mugitu · Zuriunea: eraso egin",
+  "lv": 3,
+  "lvname": "Zaila",
+  "why": "Munstro baten aurkako borroka: etsaiaren bizitza, erasoak eta kaltea."
+ },
+ {
+  "n": 13,
+  "slug": "pasteleria-loca",
+  "title": "Gozotegi Zoroa",
+  "tag": "Sukaldari batek osagaiak ordenan biltzen ditu, labera eramaten ditu eta tarta garaiz entregatzen du.",
+  "gana": "Osagai guztiekin tarta garaiz entregatuta.",
+  "pierde": "Denbora amaitzen bada.",
+  "legend": [
+   "C · Sukaldaria (jokalaria)",
+   "H · Arrautza",
+   "A · Irina",
+   "F · Marrubia",
+   "O · Labea",
+   "T · Entrega-mahaia"
+  ],
+  "powers": [
+   [
+    "Mugitu",
+    "sukaldean zehar"
+   ],
+   [
+    "Hartu eta utzi",
+    "osagaiak"
+   ],
+   [
+    "Korrika egin",
+    "presaz (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Sukaldaria",
+    "Jokalariak kontrolatzen duen sukaldaria."
+   ],
+   [
+    "Osagaiak",
+    "Arrautza, irina eta marrubia."
+   ],
+   [
+    "Tarta",
+    "Azken eskaera."
+   ]
+  ],
+  "spells": [
+   [
+    "osagai bat ukitzen du",
+    "eskuetan daramatza"
+   ],
+   [
+    "osagaia labean sartzen du",
+    "eskaerari 1 gehitzen dio"
+   ],
+   [
+    "dena du eta mahaira iristen da",
+    "tarta entregatzen du: garaipena!"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Bi osagai dituen errezeta soil bat.",
+    "meta": "2 osagai labera eraman eta tarta entregatu.",
+    "pasa": "Tarta entregatzen du"
+   },
+   {
+    "n": "2",
+    "nov": "Hiru osagai, ordenan.",
+    "meta": "Osagaiak errezetaren ordenan sartu.",
+    "pasa": "Tarta entregatzen du"
+   },
+   {
+    "n": "3",
+    "nov": "Bi labe eta denbora oso gutxi.",
+    "meta": "Tarta entregatu erlojua amaitu aino lehen.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: sukaldariak tarta entregatzen du"
+   ],
+   [
+    "Baldintza",
+    "Osagai guztiak labean daude?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: mugitu · Zuriunea: hartu / utzi",
+  "lv": 3,
+  "lvname": "Zaila",
+  "why": "Osagaiak ordenan, labearen erabilera eta kronometroarekin entregatzea."
+ },
+ {
+  "n": 20,
+  "slug": "laberinto-dinamita",
+  "title": "Dinamita Labirintoa",
+  "tag": "Meatzari batek dinamita jartzen du kaxoien artean bidea irekitzeko, slimeak garaitzen ditu eta irteerako atera heltzen da.",
+  "gana": "Kaxoiak apurtuta eta irteerako atera helduta.",
+  "pierde": "3 bizitzak galtzen baditu.",
+  "legend": [
+   "M · Meatzaria (jokalaria)",
+   "D · Dinamita",
+   "C · Kaxoia (apurtzen da)",
+   "S · Slime (etsaia)",
+   "# · Zutabea (ez da apurtzen)",
+   "P · Irteerako atea"
+  ],
+  "powers": [
+   [
+    "Mugitu",
+    "labirintoan zehar"
+   ],
+   [
+    "Dinamita jarri",
+    "zuriune-teklarekin"
+   ],
+   [
+    "Irismen handiagoa",
+    "objektu gehigarriekin (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Meatzaria",
+    "Jokalariak kontrolatzen duen heroia."
+   ],
+   [
+    "Dinamita",
+    "3 segundora lehertzen da."
+   ],
+   [
+    "Slime",
+    "Bakarrik ibiltzen den etsaia."
+   ]
+  ],
+  "spells": [
+   [
+    "dinamita jarri sakatzen du",
+    "dinamita agertzen da eta 3 s-ko atzerako kontaketa hasten da"
+   ],
+   [
+    "dinamita lehertzen da",
+    "inguruko kaxoiak eta slimeak apurtzen ditu, gurutze-formara"
+   ],
+   [
+    "sugarra edo slime bat ukitzen du",
+    "bizitza 1 galtzen du"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Labirinto txiki bat, kaxoi gutxirekin eta etsairik gabe.",
+    "meta": "Bidea blokeatzen duen kaxoia apurtu eta atera heldu.",
+    "pasa": "Atera heltzen da"
+   },
+   {
+    "n": "2",
+    "nov": "Kaxoi gehiago eta pasabidean ibiltzen den slime bat.",
+    "meta": "Slimea dinamitarekin garaitu eta atera heldu.",
+    "pasa": "Atera heltzen da"
+   },
+   {
+    "n": "3",
+    "nov": "Labirinto itxiago bat bi slimerekin.",
+    "meta": "Bidea ireki, zure leherketak harrapatu gabe.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: meatzariak atea ukitzen du"
+   ],
+   [
+    "Baldintza",
+    "Bidea ireki du eta bizirik jarraitzen du?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Geziak: mugitu · Zuriunea: dinamita jarri",
+  "lv": 3,
+  "lvname": "Zaila",
+  "why": "Atzerako kontaketa duten bonbak, gurutze-formako leherketa, apurtzen diren kaxoiak eta etsaiak."
+ },
+ {
+  "n": 18,
+  "slug": "defensa-castillo",
+  "title": "Gazteluaren Defentsa",
+  "tag": "Jokalariak dorreak jartzen ditu bidean zehar, etsaiak gazteluraino iritsi aurretik moteltzeko.",
+  "gana": "Etsaien 3 olatuei bizirik eutsita.",
+  "pierde": "Etsaiek gaztelua suntsitzen badute.",
+  "legend": [
+   "T · Dorrea (jokalariak jartzen du)",
+   "C · Gaztelua",
+   "G · Goblina",
+   "O · Ogroa",
+   "s · Dorrearentzako zuloa",
+   "Bidea"
+  ],
+  "powers": [
+   [
+    "Eraiki",
+    "dorreak txanponekin"
+   ],
+   [
+    "Hobetu",
+    "dorrearen kaltea (extra)"
+   ],
+   [
+    "Konpondu",
+    "gaztelua (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Dorrea",
+    "Inguruko etsaiei tiro egiten die."
+   ],
+   [
+    "Goblina",
+    "Etsai azkarra eta ahula."
+   ],
+   [
+    "Gaztelua",
+    "Babestu behar da."
+   ]
+  ],
+  "spells": [
+   [
+    "etsai bat dorrearen irismenean sartzen da",
+    "dorreak tiro egiten du"
+   ],
+   [
+    "etsai bat gaztelura iristen da",
+    "gazteluak bizitza 1 galtzen du"
+   ],
+   [
+    "azken olatua amaitzen da",
+    "hurrengo maila kargatzen da"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Bide zuzena eta hiru goblin.",
+    "meta": "Etsaiak moteldu gaztelura iritsi aurretik.",
+    "pasa": "Olatua amaitzen da"
+   },
+   {
+    "n": "2",
+    "nov": "Goblin gehiago eta hiru dorre.",
+    "meta": "Bigarren olatuari bizirik eutsi.",
+    "pasa": "Olatua amaitzen da"
+   },
+   {
+    "n": "3",
+    "nov": "Ogro nagusi bat, goblinez lagunduta.",
+    "meta": "Ogroa garaitu lau dorrerekin.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Gertaera",
+    "Trigger-ean sartzean: gazteluak olatuari bizirik eusten dio"
+   ],
+   [
+    "Baldintza",
+    "Etsairik geratzen da bizirik?"
+   ],
+   [
+    "Ekintza",
+    "Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron"
+   ],
+   [
+    "Ekintza",
+    "Hurrengo mailako eszena kargatu"
+   ]
+  ],
+  "notes": [
+   "Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.",
+   "Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.",
+   "Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da."
+  ],
+  "hint": "Klik zulo batean: dorre bat eraiki",
+  "lv": 3,
+  "lvname": "Zaila",
+  "why": "Etsai-olatuak, tiro egiten duten dorreak, txanponak eta gazteluaren bizitza."
+ }
+];
+const TABS0 = [['res','Laburpena'],['pos','Posterra'],['pan','Jokoaren pantaila'],['niv','Mailak']];
+const SIMS = {
+ 'laberinto-dinamita':['../sims/eu/laberinto.html','Ikuspegi isometrikoa'],
+ 'valle-nevado':['../sims/eu/valle3d.html','3D-n'],
+ 'casa-encantada':['../sims/eu/casa3d.html','3D-n'],
+ 'bombero-voxel':['../sims/eu/bombero3d.html','3D-n'],
+ 'templo-perdido':['../sims/eu/templo3d.html','3D-n'],
+ 'regata-voxel':['../sims/eu/regata3d.html','3D-n'],
+ 'cofre-pirata':['../sims/eu/cofre3d.html','3D-n'],
+ 'mision-espacial':['../sims/eu/espacio3d.html','3D-n'],
+ 'pasteleria-loca':['../sims/eu/pasteleria3d.html','3D-n'],
+ 'granja-perdida':['../sims/eu/granja3d.html','3D-n'],
+ 'rally-voxel':['../sims/eu/rally3d.html','3D-n'],
+ 'pez-hambriento':['../sims/eu/pez3d.html','3D-n'],
+ 'jardin-abejas':['../sims/eu/abejas3d.html','3D-n'],
+ 'vallas-voxel':['../sims/eu/vallas3d.html','3D-n'],
+ 'gato-ninja':['../sims/eu/gato3d.html','3D-n'],
+ 'dino-parque':['../sims/eu/dino3d.html','3D-n'],
+ 'minigolf-voxel':['../sims/eu/golf3d.html','3D-n'],
+ 'robot-fabrica':['../sims/eu/robot3d.html','3D-n'],
+ 'cueva-del-jefe':['../sims/eu/cueva3d.html','3D-n'],
+ 'defensa-castillo':['../sims/eu/castillo3d.html','3D-n']};
+const tabsOf = g => SIMS[g.slug] ? TABS0.concat([['jug','▶ Jokatu']]) : TABS0;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const img = (g,k) => 'img/' + g.slug + '-' + k + '.webp';
+
+function view(g, id){
+  const L = g.levels, F = g.flow;
+  const res = `
+   <div class="sum">
+    <img class="cov" loading="lazy" width="640" height="880" src="${img(g,'portada')}" alt="Azala: ${esc(g.title)}" data-zoom>
+    <div>
+     <p class="tagline">${esc(g.tag)}</p>
+     <p class="diff"><b>Zailtasuna: ${esc(g.lvname)}.</b> ${esc(g.why)}</p>
+     <div class="wl"><div class="box win"><h4>Irabazten da</h4><p>${esc(g.gana)}</p></div><div class="box lose"><h4>Galtzen da</h4><p>${esc(g.pierde)}</p></div></div>
+     <div class="sec"><h4>Pertsonaiak eta objektuak</h4><ul class="chips">${g.legend.map(x=>{const m=x.split(' · ');return m.length>1?`<li><b>${esc(m[0])}</b> ${esc(m.slice(1).join(' · '))}</li>`:`<li>${esc(x)}</li>`}).join('')}</ul></div>
+     <div class="sec"><h4>Nire ahalmenak</h4><ul class="chips">${g.powers.map(p=>`<li><b>${esc(p[0])}</b> ${esc(p[1])}</li>`).join('')}</ul></div>
+    </div>
+   </div>
+   <div class="sec"><h4>MagicaVoxel-en sortzen dut</h4><ul class="grid3">${g.models.map(m=>`<li><b>${esc(m[0])}</b><span>${esc(m[1])}</span></li>`).join('')}</ul></div>
+   <div class="sec"><h4>Unity-n (Visual Scripting) programatzen dut</h4><ul class="grid3">${g.spells.map(s=>`<li class="rule"><i>NOIZ</i> ${esc(s[0])}<br><i>ORDUAN</i> ${esc(s[1])}</li>`).join('')}</ul></div>`;
+  const pos = `<img class="shot poster" loading="lazy" width="720" height="1320" src="${img(g,'poster')}" alt="Proiektuaren posterra: ${esc(g.title)}" data-zoom><p class="cap">Ikasleek horrela azalduko lukete beren proiektu-fitxan. Sakatu irudia handitzeko.</p>`;
+  const pan = `<img class="shot" loading="lazy" width="960" height="540" src="${img(g,'pantalla')}" alt="Jokoaren pantaila: ${esc(g.title)}" data-zoom><p class="cap">Kontrolak: ${esc(g.hint)}</p>`;
+  const niv = `<img class="shot" loading="lazy" width="1280" height="920" src="${img(g,'niveles')}" alt="Hiru mailak: ${esc(g.title)}" data-zoom>
+   <div class="lvls">${L.map(l=>`<div class="lvl"><h5>${l.n}. MAILA</h5><p><span>BERRIKUNTZA</span>${esc(l.nov)}</p><p><span>HELBURUA</span>${esc(l.meta)}</p>${l.pasa?`<p><span>GAINDITZEKO</span>${esc(l.pasa)}</p>`:''}</div>`).join('')}</div>
+   <div class="sec"><h4>Nola pasatzen da hurrengo mailara? (Visual Scripting)</h4><ol class="flow">${F.map(f=>`<li><i>${esc(f[0]).toUpperCase()}</i>${esc(f[1])}</li>`).join('')}</ol><ul class="notes">${g.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul></div>`;
+  const s = SIMS[g.slug];
+  const jug = s ? `<div class="sec"><h4>Simulazio jokagarria (${esc(s[1])})</h4><p class="tagline">Probatu jokoa ikasleek irudikatuko luketen bezala: ${esc(g.tag)}</p><p class="cap">Kontrolak: ${esc(g.hint)}. Simulazioan, eskuineko panelak zuzenean erakusten du Visual Scripting-eko zein GERTAERA, BALDINTZA eta EKINTZA aktibatzen den.</p><p><a class="play" href="${s[0]}" target="_blank" rel="noopener">▶ Ireki simulazio jokagarria</a></p></div>` : '';
+  return {res,pos,pan,niv,jug};
+}
+
+function row(g){
+  const id = g.slug, v = view(g,id);
+  return `<article class="game" id="${id}">
+   <button class="head" aria-expanded="false" aria-controls="p-${id}">
+    <span class="num l${g.lv}" role="img" aria-label="Zailtasuna: ${g.lvname}">${'★'.repeat(g.lv)}</span>
+    <img class="thumb" loading="lazy" width="44" height="60" src="${img(g,'portada')}" alt="">
+    <span class="ttl"><b>${esc(g.title)}</b><small>${esc(g.tag)}</small></span>
+    ${SIMS[g.slug]?'<span class="playtag">▶ Jokagarria</span>':''}<span class="chev" aria-hidden="true"></span>
+   </button>
+   <div class="panel" id="p-${id}" role="region" aria-label="Informazioa: ${esc(g.title)}">
+    <div class="tabs" role="group" aria-label="Atalak">${tabsOf(g).map((t,i)=>`<button class="tab" data-t="${t[0]}" aria-selected="${i==0}">${t[1]}</button>`).join('')}</div>
+    ${tabsOf(g).map((t,i)=>`<div class="view${i==0?' on':''}" data-v="${t[0]}">${v[t[0]]}</div>`).join('')}
+   </div>
+  </article>`;
+}
+
+const TIERS = [[1, "Erraza", "Objektuak bildu eta helmugara heldu, bakarrik mugitzen diren etsairik gabe."], [2, "Ertaina", "Bakarrik mugitzen diren etsaiak, bizitzak edo hainbat arau aldi berean."], [3, "Zaila", "Elkarri lotutako arau asko: tenporizadoreak, sekuentziak, borrokak edo olatuak."]];
+const list = document.getElementById('list');
+list.innerHTML = TIERS.map(t => `<h2>${esc(t[1])} <small>${esc(t[2])}</small></h2>` + GAMES.filter(g => g.lv === t[0]).map(row).join('')).join('');
+
+function setOpen(art, open, scroll){
+  art.classList.toggle('open', open);
+  art.querySelector('.head').setAttribute('aria-expanded', open);
+  if (open && scroll) setTimeout(()=>art.scrollIntoView({block:'start'}), 30);
+}
+function openOnly(id, scroll){
+  document.querySelectorAll('.game.open').forEach(a => { if (a.id !== id) setOpen(a,false); });
+  const a = document.getElementById(id);
+  if (a) setOpen(a, true, scroll);
+}
+list.addEventListener('click', e => {
+  const h = e.target.closest('.head');
+  if (h){
+    const a = h.parentElement, was = a.classList.contains('open');
+    if (was){ setOpen(a,false); history.replaceState(null,'',location.pathname+location.search); }
+    else { openOnly(a.id, true); history.replaceState(null,'','#'+a.id); }
+    return;
+  }
+  const t = e.target.closest('.tab');
+  if (t){
+    const a = t.closest('.game');
+    a.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x===t));
+    a.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.dataset.v === t.dataset.t));
+    return;
+  }
+  const z = e.target.closest('[data-zoom]');
+  if (z){ const lb = document.getElementById('lb'); lb.querySelector('img').src = z.src; lb.querySelector('img').alt = z.alt; lb.classList.add('on'); }
+});
+const lb = document.getElementById('lb');
+lb.addEventListener('click', () => lb.classList.remove('on'));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('on'); });
+if (location.hash && document.getElementById(location.hash.slice(1))) openOnly(location.hash.slice(1), true);
+</script>
+</body>
+</html>

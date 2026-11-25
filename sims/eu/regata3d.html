@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voxel Erregata – simulazio jokagarria 3D</title>
+<style>
+:root{--bg:#F6F8FD;--card:#fff;--tx:#0F172A;--mut:#475569;--ac:#0F766E;--bd:#D8DEEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+h1{margin:0 0 4px;font-size:26px}
+.sub{color:var(--mut);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pill{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:999px;padding:3px 12px;font-weight:600;font-size:14px}
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#7CC8F0;aspect-ratio:16/10.5}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+#bn{position:absolute;left:0;right:0;top:14px;text-align:center;background:rgba(15,23,42,.78);color:#fff;font-weight:700;font-size:20px;padding:8px;display:none}
+#ov{position:absolute;inset:0;background:rgba(15,23,42,.72);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:16px}
+#ov b{font-size:34px;color:#FDE047}
+.pad{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0;gap:12px}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:6px}
+.dpad button,.bomb{border:1px solid var(--bd);background:#fff;border-radius:12px;font-size:20px;cursor:pointer;color:var(--tx)}
+.dpad button:active,.bomb:active{background:#CCFBF1}
+.bomb{width:120px;height:120px;border-radius:60px;background:#DBEAFE;border-color:#93C5FD;font-weight:700;font-size:14px}
+.help{color:var(--mut);font-size:14px;margin:10px 0 0}
+h2{font-size:16px;margin:0 0 8px}
+#log{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:6px;min-height:300px}
+#log li{border-left:4px solid var(--bd);padding:4px 8px;background:#F8FAFC;border-radius:0 8px 8px 0}
+.t{font-weight:700;font-size:11px;letter-spacing:.04em;margin-right:6px}
+.ev{border-color:#3B82F6!important}.ev .t{color:#1D4ED8}
+.co{border-color:#F59E0B!important}.co .t{color:#B45309}
+.ac{border-color:#10B981!important}.ac .t{color:#047857}
+.btn{margin-top:10px;background:var(--ac);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Voxel Erregata <span style="font-weight:400;color:#64748B;font-size:18px">· 3D</span></h1>
+  <p class="sub">Proiektu-adibidearen simulazio jokagarria 3D-n. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="hud"><span class="pill" id="hA"></span><span class="pill" id="hB"></span><span class="pill" id="hC"></span><span class="pill" id="hD"></span></div>
+      <div class="stage" id="stage" tabindex="0"><div id="bn"></div><div id="ov"></div></div>
+      <div class="pad">
+        <div class="dpad">
+          <span></span><button data-d="up" aria-label="Gora">▲</button><span></span>
+          <button data-d="left" aria-label="Ezkerrera">◀</button><button data-d="down" aria-label="Behera">▼</button><button data-d="right" aria-label="Eskuinera">▶</button>
+        </div>
+        <button class="bomb" id="bBomb">BELA<br>(Zuriunea)</button>
+      </div>
+      <p class="help">◀ ▶ lema · Zuriunea: bela doitu (estua → erdia → askea) · ▲ bultzada (3 maila bakoitzeko). Ontziaren gaineko geziak hurrengo boia erakusten du. Belak errendimendu handiagoa du haizearen angeluarekin bat badator (mastako banderak haizea nondik datorren adierazten du): haizearen aurka, estua; alboan, erdia; haizea popatik, askea. Inguratu 3 boiak, saihestu harkaitzak eta zeharkatu helmuga garaiz.</p>
+    </div>
+    <div class="card">
+      <h2>Visual Scripting zuzenean</h2>
+      <ul id="log"></ul>
+      <button class="btn" id="bRestart">Partida berrabiarazi</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var VW=640,VH=420;
+var stage=document.getElementById('stage'),logEl=document.getElementById('log'),bn=document.getElementById('bn'),ov=document.getElementById('ov');
+function log(k,t,x){var li=document.createElement('li');li.className=k;li.innerHTML='<span class="t">'+t+'</span>'+x;logEl.insertBefore(li,logEl.firstChild);while(logEl.children.length>10)logEl.removeChild(logEl.lastChild)}
+function ev(t){log('ev','GERTAERA',t)}function co(t){log('co','BALDINTZA',t)}function ac(t){log('ac','EKINTZA',t)}
+function setHud(a,b,c,d){document.getElementById('hA').textContent=a;document.getElementById('hB').textContent=b;document.getElementById('hC').textContent=c;document.getElementById('hD').textContent=d}
+var renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.setSize(VW,VH,false);
+stage.insertBefore(renderer.domElement,stage.firstChild);
+var scene=new THREE.Scene();scene.background=new THREE.Color('#7CC8F0');scene.fog=new THREE.Fog('#A9DDF7',60,190);
+var cam=new THREE.PerspectiveCamera(62,VW/VH,0.1,400);
+var amb=new THREE.AmbientLight(0xffffff,0.85);scene.add(amb);
+var sun=new THREE.DirectionalLight(0xffffff,0.75);sun.position.set(-30,50,20);scene.add(sun);
+var lvGroup=null,mats={};
+function mat(c){return mats[c]||(mats[c]=new THREE.MeshLambertMaterial({color:c}))}
+function basic(c){var k='b'+c;return mats[k]||(mats[k]=new THREE.MeshBasicMaterial({color:c}))}
+function emi(c,e){var k=c+'|'+e;return mats[k]||(mats[k]=new THREE.MeshLambertMaterial({color:c,emissive:e}))}
+function bx(w,h,d,col,x,y,z,parent){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof col==='string'?mat(col):col);m.position.set(x,y,z);if(parent)parent.add(m);return m}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function checker(c1,c2,rx,ry){var c=document.createElement('canvas');c.width=c.height=2;var g=c.getContext('2d');g.fillStyle=c1;g.fillRect(0,0,2,2);g.fillStyle=c2;g.fillRect(0,0,1,1);g.fillRect(1,1,1,1);var t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);return t}
+function waterTex(a,b,c){var cv=document.createElement('canvas');cv.width=cv.height=4;var g=cv.getContext('2d'),cols=[a,b,a,c,b,a,b,a,a,c,a,b,b,a,c,a],i;for(i=0;i<16;i++){g.fillStyle=cols[i];g.fillRect(i%4,Math.floor(i/4),1,1)}
+  var t=new THREE.CanvasTexture(cv);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(150,150);return t}
+var wTexDay=waterTex('#2E9BD8','#3AA7E4','#5CBBEE'),wTexStorm=waterTex('#1E3A4F','#25475F','#35607D');
+var water=new THREE.Mesh(new THREE.PlaneGeometry(600,600),new THREE.MeshLambertMaterial({map:wTexDay}));water.rotation.x=-Math.PI/2;scene.add(water);
+// velero
+var boat=new THREE.Group(),sailPivot=new THREE.Group(),flag=new THREE.Group();
+(function(){var g=boat;
+  bx(1.7,0.6,3.6,'#F8FAFC',0,0.4,0.3,g);bx(1.2,0.6,1.2,'#F8FAFC',0,0.4,-1.9,g);bx(0.6,0.55,0.8,'#F8FAFC',0,0.42,-2.7,g);bx(1.75,0.14,3.65,'#DC2626',0,0.62,0.3,g);bx(1.3,0.1,3.1,'#B45309',0,0.72,0.3,g);
+  bx(0.18,6,0.18,'#78350F',0,3.7,-0.5,g);bx(0.12,0.12,3.0,'#78350F',0,1.2,-0.5,g);
+  sailPivot.position.set(0,1.2,-0.5);g.add(sailPivot);
+  bx(0.07,4.3,2.7,'#F8FAFC',0,2.35,1.35,sailPivot);bx(0.09,0.5,0.9,'#DC2626',0,3.9,1.2,sailPivot);
+  bx(0.07,2.8,1.5,'#FDE68A',0,1.9,-1.6,g).rotation.y=0;
+  bx(0.1,0.1,0.9,'#78350F',0,0.5,2.3,g);
+  bx(0.5,0.5,0.5,'#FCD9A6',0.0,1.15,0.9,g);bx(0.6,0.5,0.5,'#2563EB',0,0.8,0.9,g)})();
+scene.add(boat);
+(function(){bx(0.04,0.5,1.4,basic('#EF4444'),0,0,0.7,flag);flag.position.y=0;scene.add(flag)})();
+var arrow=new THREE.Group();bx(0.5,0.4,1.8,basic('#FDE047'),0,0,0,arrow);bx(1.3,0.4,0.6,basic('#FDE047'),0,0,-1.1,arrow);scene.add(arrow);
+function makeBuoy(){var g=new THREE.Group(),m1=emi('#EF4444','#7F1D1D'),m2=mat('#F8FAFC');
+  bx(1.8,0.8,1.8,m1,0,0.2,0,g);bx(1.4,0.8,1.4,m2,0,1.0,0,g);bx(1.2,0.8,1.2,m1,0,1.8,0,g);bx(0.9,0.8,0.9,m2,0,2.6,0,g);
+  var l=bx(0.7,0.7,0.7,basic('#FDE047'),0,3.4,0,g);g.userData.l=l;g.userData.body=[g.children[0],g.children[2]];
+  var ring=new THREE.Mesh(new THREE.RingGeometry(3.2,3.6,24),new THREE.MeshBasicMaterial({color:0xFDE047,transparent:true,opacity:0.5,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=0.2;g.add(ring);g.userData.ring=ring;return g}
+function makeRock(r){var g=new THREE.Group(),m=mat('#4B5563');
+  bx(3.2,1.6,3.0,m,0,0.4,0,g);bx(2.0,1.8,2.2,'#6B7280',0.3,1.3,0.2,g);bx(1.2,1.2,1.4,'#374151',-0.8,1.6,-0.4,g);
+  var f=new THREE.Mesh(new THREE.RingGeometry(2.0,3.3,16),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.5,side:THREE.DoubleSide}));f.rotation.x=-Math.PI/2;f.position.y=0.1;g.add(f);g.userData.f=f;g.rotation.y=r*6;return g}
+function makeIsland(){var g=new THREE.Group();bx(10,1.2,10,'#FDE68A',0,0.2,0,g);bx(7,1.2,7,'#FCD34D',0,1.0,0,g);bx(0.6,4.5,0.6,'#92400E',0,3.5,0,g);bx(4,0.4,0.8,'#16A34A',0,6,0,g);bx(0.8,0.4,4,'#16A34A',0,6.2,0,g);bx(3,0.4,0.8,'#22C55E',0,6.5,0.4,g);return g}
+// lluvia
+var NR=700,rainPos=new Float32Array(NR*3);for(var i=0;i<NR;i++){rainPos[i*3]=(Math.random()-0.5)*60;rainPos[i*3+1]=Math.random()*30;rainPos[i*3+2]=(Math.random()-0.5)*60}
+var rainGeo=new THREE.BufferGeometry();rainGeo.setAttribute('position',new THREE.BufferAttribute(rainPos,3));
+var rain=new THREE.Points(rainGeo,new THREE.PointsMaterial({color:0xBFD9F2,size:2,sizeAttenuation:false,fog:false}));rain.frustumCulled=false;rain.visible=false;scene.add(rain);
+// niveles
+var LV=[
+ {name:'3 boia dituen aintzira lasai bat',time:55,len:170,storm:false,buoys:[[8,-40],[-10,-85],[6,-130]],rocks:[]},
+ {name:'Harkaitzak bidean',time:55,len:190,storm:false,buoys:[[10,-45],[-12,-95],[8,-145]],rocks:[[2,-24],[-7,-60],[2,-72],[11,-98],[-5,-112],[10,-128],[-9,-150],[2,-165],[-3,-8]]},
+ {name:'Ekaitza: ur ilunak, harkaitz gehiago eta denbora gutxiago',time:45,len:205,storm:true,buoys:[[14,-50],[-14,-105],[12,-160]],rocks:[[0,-25],[8,-38],[-9,-62],[3,-78],[-3,-95],[-18,-108],[6,-120],[-8,-135],[20,-142],[1,-150],[-5,-172],[8,-182],[-12,-190],[13,-198]]}];
+var S=null,held={};
+function wrap(a){while(a>Math.PI)a-=6.2832;while(a<-Math.PI)a+=6.2832;return a}
+function clearLevel(){if(lvGroup){scene.remove(lvGroup);lvGroup.traverse(function(o){if(o.geometry)o.geometry.dispose()})}lvGroup=new THREE.Group();scene.add(lvGroup)}
+function buildLevel(n){
+  var L=LV[n];S.L=L;clearLevel();var r=rng(41+n*9),i;
+  var st=L.storm;scene.background.set(st?'#2B3445':'#7CC8F0');scene.fog.color.set(st?'#2B3445':'#A9DDF7');scene.fog.near=st?35:60;scene.fog.far=st?110:190;
+  amb.intensity=st?0.5:0.85;sun.intensity=st?0.3:0.75;water.material.map=st?wTexStorm:wTexDay;water.material.needsUpdate=true;rain.visible=st;
+  S.buoys=[];S.rocks=[];
+  L.buoys.forEach(function(b){var g=makeBuoy();g.position.set(b[0],0,b[1]);lvGroup.add(g);S.buoys.push({x:b[0],z:b[1],mesh:g,got:false})});
+  L.rocks.forEach(function(q){var g=makeRock(r());g.position.set(q[0],0,q[1]);lvGroup.add(g);S.rocks.push({x:q[0],z:q[1],mesh:g,cd:0})});
+  // meta
+  var fz=-L.len;[-14,14].forEach(function(x){var pst=new THREE.Group();bx(1.2,10,1.2,'#DC2626',0,5,0,pst);bx(2.2,1.2,2.2,'#F8FAFC',0,0.5,0,pst);pst.position.set(x,0,fz);lvGroup.add(pst)});
+  var bm=new THREE.Mesh(new THREE.BoxGeometry(29,1.6,0.5),new THREE.MeshLambertMaterial({map:checker('#111827','#F8FAFC',18,1)}));bm.position.set(0,9.2,fz);lvGroup.add(bm);
+  for(var x=-12;x<=12;x+=4)bx(0.8,0.8,0.8,basic('#38BDF8'),x,0.4,fz,lvGroup);
+  // salida
+  [-6,6].forEach(function(x){bx(0.8,0.8,0.8,basic('#F8FAFC'),x,0.4,2,lvGroup)});
+  // islas decorativas
+  for(i=0;i<9;i++){var isl=makeIsland();isl.position.set((i%2?1:-1)*(62+r()*25),0,10-i*(L.len+40)/8);isl.scale.setScalar(1+r()*1.2);lvGroup.add(isl)}
+  S.p={x:0,z:0,th:0,v:0,inv:0};S.W=L.storm?-2.1:-2.3;S.trim=1;S.imp=0;S.impLeft=3;S.time=L.time;S.nb=0;S.camTh=0;S.hitCd=0;S.flash=0;S.upPrev=false;S.cx=0;S.cz=11;
+}
+function trimName(i){return['estua','erdia','askea'][i]}
+function hud(){var p=S.p;var tw=Math.abs(wrap(p.th-S.W)),opt=tw<1.05?0:(tw<2.1?1:2);
+  setHud('Maila '+(S.lv+1)+'/3','Denbora '+Math.max(0,Math.ceil(S.time||0))+' s','Boiak '+S.nb+'/3 · Bultzadak '+S.impLeft,'Bela: '+trimName(S.trim)+(S.trim===opt?' ✓':' (ideal: '+trimName(opt)+')'))}
+function showOv(t,s,s2){ov.style.display='flex';ov.innerHTML='<b>'+t+'</b><span>'+s+'</span>'+(s2?'<span>'+s2+'</span>':'')}
+function hideOv(){ov.style.display='none'}
+function newGame(){S={mode:'title',lv:0,t:0,msg:'',msgT:0,nb:0,impLeft:3,time:0,p:{x:0,z:0,th:0,v:0,inv:0},trim:1,W:-2.3};logEl.innerHTML='';ev('Jokoaren Start');ac('Aldagaiak: maila = 1, boiak = 0');buildLevel(0);showOv('VOXEL ERREGATA','Sakatu Zuriunea edo ukitu hasteko')}
+function loadLevel(n){S.lv=n;S.mode='play';buildLevel(n);hideOv();S.msg='Maila '+(n+1)+' · '+S.L.name;S.msgT=S.t+2600;
+  ev('Load Scene "Maila '+(n+1)+'"');ac('Instantiate Belaontzia, 3 boia, '+S.rocks.length+' harkaitz eta Helmuga; kronometroa = '+S.L.time+' s')}
+function retry(){loadLevel(S.lv)}
+function toNext(){if(S.lv<2){S.mode='next';S.msg='Maila gainditu da!';S.msgT=S.t+2000;S.nextAt=S.t+2000;ac('Mezua erakutsi, 2 s itxaron, Load Scene "Maila '+(S.lv+2)+'"')}else{S.mode='won';ac('Load Scene "Garaipena"');showOv('ERREGATA IRABAZI DUZU!','3 ibilbideak osatu dituzu','Sakatu Zuriunea errepikatzeko')}}
+function over(t,w){S.mode='over';showOv(t,w,'Sakatu Zuriunea maila hau berriro saiatzeko')}
+function onSpace(){S.trim=(S.trim+1)%3;var p=S.p,tw=Math.abs(wrap(p.th-S.W)),opt=tw<1.05?0:(tw<2.1?1:2);
+  ev('Input: Zuriunea tekla');ac('Bela doitu → '+trimName(S.trim));co('Bela ondo orientatuta haizearekin? '+(S.trim===opt?'BAI':'EZ (egokiena: '+trimName(opt)+')'))}
+function update(dt){
+  S.t+=dt*1000;
+  if(S.mode==='next'&&S.t>=S.nextAt)loadLevel(S.lv+1);
+  if(S.mode!=='play')return;
+  var p=S.p,L=S.L;
+  S.time-=dt;if(S.time<=0){S.time=0;ev('Kronometroa = 0');co('Helmuga zeharkatu du 3 boiekin? EZ');ac('Game Over erakutsi');over('DENBORA AMAITU DA!','Ez zinen garaiz helmugara iritsi');return}
+  if(L.storm)S.W=-2.1+0.5*Math.sin(S.t/6000);
+  var steer=(held.right?1:0)-(held.left?1:0);
+  p.th+=steer*(0.3+Math.min(p.v,9)*0.07)*dt;
+  if(held.up&&!S.upPrev&&S.mode==='play'){S.upPrev=true;ev('Input: gezia ▲');if(S.impLeft>0&&S.imp<=0){co('Bultzadarik geratzen da? BAI');S.impLeft--;S.imp=1.8;ac('Bultzada ×1,45, 1,8 s-z')}else co('Bultzadarik geratzen da? EZ')}
+  if(!held.up)S.upPrev=false;
+  S.imp=Math.max(0,S.imp-dt);S.hitCd=Math.max(0,S.hitCd-dt);S.flash=Math.max(0,S.flash-dt);
+  var tw=Math.abs(wrap(p.th-S.W)),opt=tw<1.05?0:(tw<2.1?1:2),eff=1-0.25*Math.abs(S.trim-opt);
+  var pol=tw<0.52?0.1:(tw<1.57?0.1+0.9*(tw-0.52)/1.05:(tw<2.62?1.0-0.1*(tw-1.57)/1.05:0.9-0.15*(tw-2.62)/0.52));
+  var tgt=9.5*pol*eff*(S.imp>0?1.45:1);
+  p.v+=(tgt-p.v)*Math.min(1,0.9*dt);
+  p.x+=Math.sin(p.th)*p.v*dt;p.z-=Math.cos(p.th)*p.v*dt;
+  if(p.x>46)p.x=46;if(p.x<-46)p.x=-46;if(p.z>14)p.z=14;
+  S.buoys.forEach(function(b){if(!b.got&&Math.hypot(b.x-p.x,b.z-p.z)<3.8){b.got=true;S.nb++;b.mesh.userData.l.material=mat('#6B7280');b.mesh.userData.body.forEach(function(m){m.material=mat('#9CA3AF')});b.mesh.userData.ring.visible=false;ev('On Trigger Enter (Belaontzia ∩ Boia)');ac('Boia itzali egiten da; boiak = '+S.nb+'/3');S.msg='Boia '+S.nb+'/3!';S.msgT=S.t+1000}});
+  S.rocks.forEach(function(q){var d=Math.hypot(q.x-p.x,q.z-p.z);if(d<2.7&&S.hitCd<=0){S.hitCd=1.2;p.v*=0.35;var a=Math.atan2(p.x-q.x,p.z-q.z);p.x+=Math.sin(a)*1.5;p.z+=Math.cos(a)*1.5;S.flash=0.3;ev('On Trigger Enter (Belaontzia ∩ Harkaitza)');ac('abiadura × 0,35');S.msg='Harkaitza!';S.msgT=S.t+800}});
+  if(p.z<=-L.len){
+    if(Math.abs(p.x)<13.5){ev('On Trigger Enter (Belaontzia ∩ Helmuga)');
+      if(S.nb>=3){co('3 boiak ditu? BAI');ac('Kronometroa gelditu');toNext();return}
+      else if(S.t>(S.fT||0)){S.fT=S.t+2500;co('3 boiak ditu? EZ ('+S.nb+'/3)');ac('Helmugak ez du balio');S.msg='Boiak falta zaizkizu: '+S.nb+'/3 (itzuli)';S.msgT=S.t+2200;p.z=-L.len+4;p.v*=0.3}}
+    else{p.z=-L.len+0.5;p.v*=0.5}}
+}
+function render(dt){
+  var p=S.p,t=S.t/1000,st=S.L.storm;
+  boat.position.set(p.x,Math.sin(t*(st?2.2:1.4))*(st?0.35:0.14),p.z);boat.rotation.y=-p.th;boat.rotation.z=(S.W&&Math.sin(wrap(S.W-p.th))>0?-1:1)*Math.min(0.28,p.v*0.03)+Math.sin(t*(st?2:1.3))*(st?0.08:0.03);
+  var a=wrap(S.W-p.th),tr=[0.25,0.7,1.2][S.trim],tp=-(a>=0?1:-1)*tr;sailPivot.rotation.y+=(tp-sailPivot.rotation.y)*Math.min(1,6*dt);
+  flag.position.set(p.x,6.9,p.z);flag.rotation.y=-S.W+0.0;
+  water.position.set(Math.floor(p.x/4)*4,0,Math.floor(p.z/4)*4);water.material.map.offset.set((t*0.02)%1,(t*0.015)%1);
+  S.buoys.forEach(function(b){b.mesh.position.y=Math.sin(t*2+b.x)*0.25;if(!b.got)b.mesh.userData.l.visible=Math.floor(t*3)%2===0;if(!b.got)b.mesh.userData.ring.scale.setScalar(1+0.12*Math.sin(t*4))});
+  S.rocks.forEach(function(q){q.mesh.userData.f.scale.setScalar(1+0.08*Math.sin(t*2+q.x))});
+  // flecha hacia objetivo
+  var tg=S.buoys.filter(function(b){return !b.got}).sort(function(a,b){return Math.hypot(a.x-p.x,a.z-p.z)-Math.hypot(b.x-p.x,b.z-p.z)})[0],tx,tz;
+  if(tg){tx=tg.x;tz=tg.z}else{tx=0;tz=-S.L.len}
+  arrow.position.set(p.x,8.2+Math.sin(t*4)*0.25,p.z);arrow.rotation.y=Math.atan2(-(tx-p.x),-(tz-p.z))+Math.PI;arrow.visible=S.mode==='play';
+  // cámara
+  S.camTh+=wrap(p.th-S.camTh)*Math.min(1,3*dt);
+  var fx=Math.sin(S.camTh),fz=-Math.cos(S.camTh);
+  cam.position.set(p.x-fx*12,6.2,p.z-fz*12);cam.lookAt(p.x+fx*9,1.2,p.z+fz*9);
+  var fov=60+Math.min(14,p.v*0.9)+(S.imp>0?5:0);if(Math.abs(cam.fov-fov)>0.05){cam.fov+=(fov-cam.fov)*Math.min(1,4*dt);cam.updateProjectionMatrix()}
+  if(st){for(var i=0;i<NR;i++){var y=rainPos[i*3+1]-28*dt;if(y<0)y+=30;rainPos[i*3+1]=y}rainGeo.attributes.position.needsUpdate=true;rain.position.set(p.x,2,p.z-14);
+    if(Math.random()<0.004)S.light=0.18;if(S.light>0){S.light-=dt;amb.intensity=2.2}else amb.intensity=0.5}
+  var txt=(S.msg&&S.t<S.msgT)?S.msg:(S.mode==='next'?'Maila gainditu da!':'');
+  if(txt){bn.style.display='block';bn.textContent=txt}else bn.style.display='none';
+  renderer.render(scene,cam);
+}
+var KEYS={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
+function pressSpace(){if(S.mode==='title')loadLevel(0);else if(S.mode==='over')retry();else if(S.mode==='won')newGame();else if(S.mode==='play')onSpace()}
+window.addEventListener('keydown',function(e){
+  if(KEYS[e.key]){held[KEYS[e.key]]=true;e.preventDefault()}
+  else if(e.key===' '){e.preventDefault();if(!e.repeat)pressSpace()}});
+window.addEventListener('keyup',function(e){if(KEYS[e.key])held[KEYS[e.key]]=false});
+document.querySelectorAll('.dpad button').forEach(function(b){var d=b.dataset.d;
+  function on(e){e.preventDefault();held[d]=true}function off(e){e.preventDefault();held[d]=false}
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off)});
+document.getElementById('bBomb').addEventListener('pointerdown',function(e){e.preventDefault();pressSpace()});
+document.getElementById('bRestart').addEventListener('click',function(){newGame()});
+stage.addEventListener('pointerdown',function(){if(S.mode!=='play')pressSpace()});
+var last=performance.now();
+function loop(now){var dt=Math.min(50,now-last)/1000;last=now;update(dt);hud();render(dt);requestAnimationFrame(loop)}
+newGame();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nagusiaren Kobazuloa – simulazio jokagarria 3D</title>
+<style>
+:root{--bg:#F6F8FD;--card:#fff;--tx:#0F172A;--mut:#475569;--ac:#0F766E;--bd:#D8DEEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+h1{margin:0 0 4px;font-size:26px}
+.sub{color:var(--mut);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pill{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:999px;padding:3px 12px;font-weight:600;font-size:14px}
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#0B0A12;aspect-ratio:16/10.5}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+#bn{position:absolute;left:0;right:0;top:14px;text-align:center;background:rgba(15,23,42,.78);color:#fff;font-weight:700;font-size:20px;padding:8px;display:none}
+#ov{position:absolute;inset:0;background:rgba(15,23,42,.72);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:16px}
+#ov b{font-size:34px;color:#FDE047}
+.pad{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0;gap:12px}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:6px}
+.dpad button,.bomb{border:1px solid var(--bd);background:#fff;border-radius:12px;font-size:20px;cursor:pointer;color:var(--tx)}
+.dpad button:active,.bomb:active{background:#CCFBF1}
+.bomb{width:120px;height:120px;border-radius:60px;background:#DBEAFE;border-color:#93C5FD;font-weight:700;font-size:14px}
+.help{color:var(--mut);font-size:14px;margin:10px 0 0}
+h2{font-size:16px;margin:0 0 8px}
+#log{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:6px;min-height:300px}
+#log li{border-left:4px solid var(--bd);padding:4px 8px;background:#F8FAFC;border-radius:0 8px 8px 0}
+.t{font-weight:700;font-size:11px;letter-spacing:.04em;margin-right:6px}
+.ev{border-color:#3B82F6!important}.ev .t{color:#1D4ED8}
+.co{border-color:#F59E0B!important}.co .t{color:#B45309}
+.ac{border-color:#10B981!important}.ac .t{color:#047857}
+.btn{margin-top:10px;background:var(--ac);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Nagusiaren Kobazuloa <span style="font-weight:400;color:#64748B;font-size:18px">· 3D</span></h1>
+  <p class="sub">Proiektu-adibidearen simulazio jokagarria 3D-n. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="hud"><span class="pill" id="hA"></span><span class="pill" id="hB"></span><span class="pill" id="hC"></span><span class="pill" id="hD"></span></div>
+      <div class="stage" id="stage" tabindex="0"><div id="bn"></div><div id="ov"></div></div>
+      <div class="pad">
+        <div class="dpad">
+          <span></span><button data-d="up" aria-label="Gora">▲</button><span></span>
+          <button data-d="left" aria-label="Ezkerrera">◀</button><button data-d="down" aria-label="Behera">▼</button><button data-d="right" aria-label="Eskuinera">▶</button>
+        </div>
+        <button class="bomb" id="bBomb">ERASO<br>(Zuriunea)</button>
+      </div>
+      <p class="help">Geziak edo WASD mugitzeko · Zuriunea: ezpatarekin kolpatu begiratzen duzun tokira. Munstroek jarraitzen zaituzte: garaitu (nagusiak kolpe gehiago jasaten ditu) eta hartu kristala. 3 bizitza dituzu.</p>
+    </div>
+    <div class="card">
+      <h2>Visual Scripting zuzenean</h2>
+      <ul id="log"></ul>
+      <button class="btn" id="bRestart">Partida berrabiarazi</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var VW=640,VH=420,C=2;
+var stage=document.getElementById('stage'),logEl=document.getElementById('log'),bn=document.getElementById('bn'),ov=document.getElementById('ov');
+function log(k,t,x){var li=document.createElement('li');li.className=k;li.innerHTML='<span class="t">'+t+'</span>'+x;logEl.insertBefore(li,logEl.firstChild);while(logEl.children.length>10)logEl.removeChild(logEl.lastChild)}
+function ev(t){log('ev','GERTAERA',t)}function co(t){log('co','BALDINTZA',t)}function ac(t){log('ac','EKINTZA',t)}
+function setHud(a,b,c,d){document.getElementById('hA').textContent=a;document.getElementById('hB').textContent=b;document.getElementById('hC').textContent=c;document.getElementById('hD').textContent=d}
+var renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.setSize(VW,VH,false);
+stage.insertBefore(renderer.domElement,stage.firstChild);
+var scene=new THREE.Scene();scene.background=new THREE.Color('#A5DBFF');scene.fog=new THREE.Fog('#BFE4FF',45,110);
+var cam=new THREE.PerspectiveCamera(42,VW/VH,0.1,400);
+var amb=new THREE.AmbientLight(0xffffff,0.85);scene.add(amb);
+var sun=new THREE.DirectionalLight(0xffffff,0.7);sun.position.set(-20,40,15);scene.add(sun);
+var lvGroup=null,mats={};
+function mat(c){return mats[c]||(mats[c]=new THREE.MeshLambertMaterial({color:c}))}
+function basic(c){var k='b'+c;return mats[k]||(mats[k]=new THREE.MeshBasicMaterial({color:c}))}
+function emi(c,e){var k=c+'|'+e;return mats[k]||(mats[k]=new THREE.MeshLambertMaterial({color:c,emissive:e}))}
+function bx(w,h,d,col,x,y,z,parent){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof col==='string'?mat(col):col);m.position.set(x,y,z);if(parent)parent.add(m);return m}
+function checker(c1,c2,rx,ry){var c=document.createElement('canvas');c.width=c.height=2;var g=c.getContext('2d');g.fillStyle=c1;g.fillRect(0,0,2,2);g.fillStyle=c2;g.fillRect(0,0,1,1);g.fillRect(1,1,1,1);var t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);return t}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function clearLevel(){if(lvGroup){scene.remove(lvGroup);lvGroup.traverse(function(o){if(o.geometry)o.geometry.dispose()})}lvGroup=new THREE.Group();scene.add(lvGroup)}
+function showOv(t,s,s2){ov.style.display='flex';ov.innerHTML='<b>'+t+'</b><span>'+s+'</span>'+(s2?'<span>'+s2+'</span>':'')}
+function hideOv(){ov.style.display='none'}
+var S=null,held={};
+function cellCh(cx,cz){var r=S.L.rows[cz];return r?r[cx]:undefined}
+function flash(txt,ms){S.msg=txt;S.msgT=S.t+(ms||1400)}
+
+amb.intensity=0.5;sun.intensity=0.25;
+var TITLE='NAGUSIAREN KOBAZULOA';
+var LV=[
+ {name:'Munstro bat duen kobazulo bat',rows:[
+  '#############',
+  '#A.........A#',
+  '#...........#',
+  '#.H.......J.#',
+  '#...........#',
+  '#...........#',
+  '#...........#',
+  '#A#########A#']},
+ {name:'Horma bat erdian eta bi morroi',rows:[
+  '###############',
+  '#A...........A#',
+  '#.H.....#.....#',
+  '#.......#..m..#',
+  '#...m...#.....#',
+  '#.......#.....#',
+  '#.............#',
+  '#.............#',
+  '#A###########A#']},
+ {name:'Azken nagusia eta bi morroi',rows:[
+  '###############',
+  '#A...........A#',
+  '#.....#...m...#',
+  '#.....#.......#',
+  '#.H...#...J...#',
+  '#.....#.......#',
+  '#.....#...m...#',
+  '#.............#',
+  '#A###########A#']}];
+function ch(x,z){return cellCh(Math.round(x/C),Math.round(z/C))}
+function solidAt(x,z){var c=ch(x,z);return c===undefined||c==='#'||c==='A'}
+function canMove(x,z,r){return !solidAt(x-r,z-r)&&!solidAt(x+r,z-r)&&!solidAt(x-r,z+r)&&!solidAt(x+r,z+r)}
+function walk(cx,cz){var c=cellCh(cx,cz);return c!==undefined&&c!=='#'&&c!=='A'}
+var hero=new THREE.Group(),swordG,shield;
+(function(){var g=hero;
+  bx(0.34,0.8,0.36,'#1E3A8A',-0.22,0.4,0,g);bx(0.34,0.8,0.36,'#1E3A8A',0.22,0.4,0,g);bx(1.0,1.1,0.6,'#3B82F6',0,1.35,0,g);bx(1.02,0.2,0.62,'#92400E',0,0.95,0,g);bx(0.28,0.9,0.3,'#3B82F6',-0.65,1.3,0,g);
+  bx(0.7,0.65,0.65,'#FCD9A6',0,2.3,0,g);bx(0.78,0.4,0.72,'#94A3B8',0,2.6,0,g);bx(0.14,0.5,0.1,'#EF4444',0,3.0,0,g);bx(0.12,0.12,0.06,'#111827',0.17,2.3,0.34,g);bx(0.12,0.12,0.06,'#111827',-0.17,2.3,0.34,g);
+  shield=bx(0.12,0.9,0.7,'#FACC15',-0.85,1.3,0.2,g);
+  swordG=new THREE.Group();swordG.position.set(0.7,1.3,0.3);bx(0.28,0.28,0.9,'#3B82F6',0,0,0,swordG);bx(0.18,0.18,1.8,'#E5E7EB',0,0,1.3,swordG);bx(0.7,0.14,0.14,'#FACC15',0,0,0.5,swordG);g.add(swordG)})();
+function makeBoss(){var g=new THREE.Group(),c='#7C3AED';bx(2.8,2.4,2.4,c,0,2.2,0,g);bx(1.8,1.5,1.7,'#8B5CF6',0,4.0,0.3,g);bx(0.4,1.0,0.4,'#E5E7EB',-0.7,5.0,0.4,g);bx(0.4,1.0,0.4,'#E5E7EB',0.7,5.0,0.4,g);bx(0.4,0.4,0.15,basic('#FDE047'),-0.5,4.2,1.2,g);bx(0.4,0.4,0.15,basic('#FDE047'),0.5,4.2,1.2,g);bx(1.2,0.3,0.15,'#111827',0,3.6,1.2,g);
+  bx(0.8,2.0,0.8,'#6D28D9',-1.8,2.2,0.3,g);bx(0.8,2.0,0.8,'#6D28D9',1.8,2.2,0.3,g);bx(1.0,0.8,1.0,'#4C1D95',-1.8,0.9,0.4,g);bx(1.0,0.8,1.0,'#4C1D95',1.8,0.9,0.4,g);bx(0.9,1.1,0.9,'#4C1D95',-0.8,0.5,0,g);bx(0.9,1.1,0.9,'#4C1D95',0.8,0.5,0,g);return g}
+function makeMinion(){var g=new THREE.Group(),c='#16A34A';bx(1.4,1.1,1.2,c,0,1.1,0,g);bx(1.0,0.9,0.9,'#22C55E',0,2.0,0.2,g);bx(0.25,0.5,0.25,'#DCFCE7',-0.35,2.6,0.2,g);bx(0.25,0.5,0.25,'#DCFCE7',0.35,2.6,0.2,g);bx(0.25,0.25,0.1,basic('#FDE047'),-0.25,2.1,0.7,g);bx(0.25,0.25,0.1,basic('#FDE047'),0.25,2.1,0.7,g);
+  bx(0.4,0.9,0.4,c,-0.5,0.4,0,g);bx(0.4,0.9,0.4,c,0.5,0.4,0,g);return g}
+function makeCrystal(){var g=new THREE.Group();var m=new THREE.Mesh(new THREE.OctahedronGeometry(1.1,0),new THREE.MeshLambertMaterial({color:'#67E8F9',emissive:'#0891B2'}));m.scale.y=1.5;m.position.y=2;g.add(m);var l=new THREE.PointLight(0x67e8f9,1.4,14);l.position.y=2;g.add(l);bx(1.6,0.4,1.6,'#57534E',0,0.2,0,g);return g}
+var rockTex=checker('#57534E','#4B4642',1,1);
+function buildLevel(n){
+  var L=LV[n];S.L=L;clearLevel();var rows=L.rows,nz=rows.length,nx=rows[0].length,r=rng(23+n*7);
+  scene.background.set('#0B0A12');scene.fog.color.set('#0B0A12');scene.fog.near=45;scene.fog.far=95;
+  S.mon=[];S.cry=null;S.torch=0;S.heroStart=null;
+  var fl=new THREE.Mesh(new THREE.BoxGeometry(nx*C,0.4,nz*C),new THREE.MeshLambertMaterial({map:rockTex}));rockTex.repeat.set(nx,nz);fl.position.set((nx-1)*C/2,-0.2,(nz-1)*C/2);lvGroup.add(fl);
+  for(var z=0;z<nz;z++)for(var x=0;x<nx;x++){var c=rows[z][x],wx=x*C,wz=z*C;
+    if(c==='#'||c==='A'){var hh=3.2+r()*1.4;bx(C,hh,C,'#3F3A36',wx,hh/2,wz,lvGroup);bx(C*0.8,0.8,C*0.8,'#57534E',wx+(r()-0.5)*0.3,hh+0.2,wz,lvGroup)}
+    if(c==='A'){var t=new THREE.Group();bx(0.3,1.6,0.3,'#78350F',0,0,0,t);bx(0.7,0.7,0.7,emi('#FB923C','#EA580C'),0,1.1,0,t);if(S.torch++%2===0){var pl=new THREE.PointLight(0xffa24d,1.2,18);pl.position.set(0,1.4,0);t.add(pl)}var side=z===0?1:-1;t.position.set(wx,2.4,wz+(z===0?C/2+0.2:(z===nz-1?-C/2-0.2:0)));if(x===0||x===nx-1)t.position.set(wx+(x===0?C/2+0.2:-C/2-0.2),2.4,wz);lvGroup.add(t)}
+    if(c==='H'){S.hs={x:wx,z:wz}}
+    else if(c==='J'){var j=makeBoss(),hp=n===0?3:5;j.position.set(wx,0,wz);lvGroup.add(j);S.mon.push({x:wx,z:wz,hp:hp,max:hp,mesh:j,boss:true,rad:2.0,spd:n===0?3.0:3.3,stun:0,flash:0,kx:0,kz:0,ry:0,dead:0,tx:wx,tz:wz})}
+    else if(c==='m'){var m=makeMinion();m.position.set(wx,0,wz);lvGroup.add(m);S.mon.push({x:wx,z:wz,hp:2,max:2,mesh:m,boss:false,rad:1.1,spd:3.6,stun:0,flash:0,kx:0,kz:0,ry:0,dead:0,tx:wx,tz:wz})}
+    else if(c==='.'&&r()<0.12){bx(0.6,0.5,0.6,'#6B635C',wx+(r()-0.5)*1.2,0.25,wz+(r()-0.5)*1.2,lvGroup)}}
+  scene.add(hero);
+  S.p={x:S.hs.x,z:S.hs.z,ry:0,inv:0,bob:0,sw:0,swc:0,hit:false,kx:0,kz:0,fx:0,fz:1};S.lives=3;S.camx=(nx-1)*C/2;S.camz=(nz-1)*C/2;S.zoomY=Math.max(nx*1.7,nz*2.5)+4;S.dist=null;S.dcell='';S.clear=false;
+}
+function hud(){var h='';for(var i=0;i<3;i++)h+=i<(S.lives||0)?'♥':'♡';var alive=S.mon?S.mon.filter(function(m){return m.hp>0}).length:0;
+  setHud('Maila '+(S.lv+1)+'/3 · '+h,'Etsaiak '+alive,S.cry?'Hartu kristala!':'Kristal ezkutua',S.p&&S.p.swc>0?'Ezpata birkargatzen':'Ezpata prest')}
+function newGame(){S={mode:'title',lv:0,t:0,msg:'',msgT:0,lives:3};logEl.innerHTML='';ev('Jokoaren Start');ac('Aldagaiak: bizitzak = 3, maila = 1');buildLevel(0);showOv('NAGUSIAREN KOBAZULOA','Sakatu Zuriunea edo ukitu hasteko','Geziak: mugitu · Zuriunea: ezpatarekin eraso egin')}
+function loadLevel(n){S.lv=n;S.mode='play';buildLevel(n);hideOv();flash('Maila '+(n+1)+' · '+S.L.name,2600);
+  ev('Load Scene "Maila '+(n+1)+'"');ac('Instantiate Heroia, '+S.mon.length+' munstro, zuzi eta Kristala (ezkutua)')}
+function retry(){loadLevel(S.lv)}
+function toNext(){if(S.lv<2){S.mode='next';flash('Maila gainditu da!',2000);S.nextAt=S.t+2000;ac('Mezua erakutsi, 2 s itxaron, Load Scene "Maila '+(S.lv+2)+'"')}else{S.mode='won';ac('Load Scene "Garaipena"');showOv('KRISTALA LORTU DUZU!','Heroiak azken nagusia garaitu du','Sakatu Zuriunea errepikatzeko')}}
+function over(){S.mode='over';showOv('HEROIA GARAITUA!','Zure 3 bizitzak galdu dituzu','Sakatu Zuriunea maila hau berriro saiatzeko')}
+function onSpace(){var p=S.p;if(p.swc>0)return;p.sw=0.28;p.swc=0.5;p.hit=false;ev('Input: Zuriunea tekla');ac('Eraso: ezpata-animazioa (0,28 s)')}
+function bfsField(cx,cz){var W=S.L.rows[0].length,Hh=S.L.rows.length,d=[],i,j;for(j=0;j<Hh;j++){d.push([]);for(i=0;i<W;i++)d[j].push(1e9)}
+  var q=[[cx,cz]];d[cz][cx]=0;while(q.length){var c=q.shift();[[1,0],[-1,0],[0,1],[0,-1]].forEach(function(v){var a=c[0]+v[0],b=c[1]+v[1];if(walk(a,b)&&d[b][a]>1e8){d[b][a]=d[c[1]][c[0]]+1;q.push([a,b])}})}return d}
+function los(ax,az,bx_,bz){var n=Math.ceil(Math.hypot(bx_-ax,bz-az)/0.5);for(var i=1;i<n;i++){var t=i/n;if(solidAt(ax+(bx_-ax)*t,az+(bz-az)*t))return false}return true}
+function update(dt){
+  S.t+=dt*1000;
+  if(S.mode==='next'&&S.t>=S.nextAt)loadLevel(S.lv+1);
+  if(S.mode!=='play')return;
+  var p=S.p;p.swc=Math.max(0,p.swc-dt);
+  var dx=(held.right?1:0)-(held.left?1:0),dz=(held.down?1:0)-(held.up?1:0),m=Math.hypot(dx,dz);
+  p.kx*=Math.max(0,1-6*dt);p.kz*=Math.max(0,1-6*dt);
+  if(m>0){dx/=m;dz/=m;p.fx=dx;p.fz=dz;var sp=5.6*dt;var nx=p.x+dx*sp+p.kx*dt,nz=p.z+dz*sp+p.kz*dt;if(canMove(nx,p.z,0.5))p.x=nx;if(canMove(p.x,nz,0.5))p.z=nz;p.bob+=dt*11}
+  else{var nx2=p.x+p.kx*dt,nz2=p.z+p.kz*dt;if(canMove(nx2,p.z,0.5))p.x=nx2;if(canMove(p.x,nz2,0.5))p.z=nz2}
+  var ty=Math.atan2(p.fx,p.fz),df=ty-p.ry;while(df>Math.PI)df-=6.283;while(df<-Math.PI)df+=6.283;p.ry+=df*Math.min(1,16*dt);
+  if(p.sw>0){p.sw-=dt;if(!p.hit&&p.sw<0.2){p.hit=true;S.mon.forEach(function(g){if(g.hp<=0)return;var d=Math.hypot(g.x-p.x,g.z-p.z),reach=2.6+g.rad;if(d<reach){var a=Math.atan2(g.x-p.x,g.z-p.z),da=a-p.ry;while(da>Math.PI)da-=6.283;while(da<-Math.PI)da+=6.283;
+      if(Math.abs(da)<1.25||d<g.rad+0.8){g.hp--;g.flash=0.25;g.stun=0.75;g.kx=Math.sin(a)*9;g.kz=Math.cos(a)*9;ev('On Trigger Enter (Ezpata ∩ '+(g.boss?'Munstroa':'Morroia')+')');ac('bizitza: '+(g.boss?'munstroa':'morroia')+' = bizitza − 1 → '+g.hp);
+        if(g.hp<=0){g.dead=0.6;ac('Destroy('+(g.boss?'Munstroa':'Morroia')+')')}}}})}}
+  // campo de distancias hacia el héroe
+  var hc=Math.round(p.x/C)+','+Math.round(p.z/C);if(hc!==S.dcell){S.dcell=hc;S.dist=bfsField(Math.round(p.x/C),Math.round(p.z/C))}
+  S.mon.forEach(function(g){
+    if(g.hp<=0){g.dead=Math.max(0,g.dead-dt);return}
+    g.stun=Math.max(0,g.stun-dt);g.flash=Math.max(0,g.flash-dt);g.kx*=Math.max(0,1-7*dt);g.kz*=Math.max(0,1-7*dt);
+    var nx=g.x+g.kx*dt,nz=g.z+g.kz*dt;if(canMove(nx,g.z,g.rad*0.6))g.x=nx;if(canMove(g.x,nz,g.rad*0.6))g.z=nz;
+    if(g.stun<=0){var tx=p.x,tz=p.z;
+      if(!los(g.x,g.z,p.x,p.z)){var cx=Math.round(g.x/C),cz=Math.round(g.z/C),best=null,bd=S.dist[cz]?S.dist[cz][cx]:1e9;[[1,0],[-1,0],[0,1],[0,-1]].forEach(function(v){var a=cx+v[0],b=cz+v[1];if(walk(a,b)&&S.dist[b][a]<bd){bd=S.dist[b][a];best=[a*C,b*C]}});if(best){tx=best[0];tz=best[1]}}
+      var a=Math.atan2(tx-g.x,tz-g.z),sp=g.spd*dt,mr=g.rad*0.6,nx3=g.x+Math.sin(a)*sp,nz3=g.z+Math.cos(a)*sp;if(canMove(nx3,g.z,mr))g.x=nx3;if(canMove(g.x,nz3,mr))g.z=nz3;g.ry=Math.atan2(p.x-g.x,p.z-g.z)}
+    if(p.inv<=S.t&&g.stun<=0&&Math.hypot(g.x-p.x,g.z-p.z)<g.rad+0.7){p.inv=S.t+1900;S.lives--;ev('On Trigger Enter ('+(g.boss?'Munstroa':'Morroia')+' ∩ Heroia)');ac('bizitzak = bizitzak − 1 → '+S.lives);flash('Ukitu zaituzte! Bizitzak: '+S.lives,1100);var a2=Math.atan2(p.x-g.x,p.z-g.z);p.kx=Math.sin(a2)*16;p.kz=Math.cos(a2)*16;g.stun=0.5;
+      if(S.lives<=0){ac('Load Scene "GameOver"');over()}}});
+  if(S.mode!=='play')return;
+  if(!S.cry&&S.mon.every(function(g){return g.hp<=0})){var last=S.mon[S.mon.length-1];var bs=S.mon.filter(function(g){return g.boss})[0]||last;var cr=makeCrystal();cr.position.set(bs.x,0,bs.z);lvGroup.add(cr);S.cry={x:bs.x,z:bs.z,mesh:cr};ev('Munstro guztiak garaitu dira');ac('Instantiate Kristala hemen: '+(bs.boss?'nagusiaren tokia':'kobazuloa'))}
+  if(S.cry&&Math.hypot(S.cry.x-p.x,S.cry.z-p.z)<1.8){ev('On Trigger Enter (Heroia ∩ Kristala)');co('Guztiak garaituta daude? BAI');ac('Hurrengo maila kargatu');toNext()}
+}
+function render(dt){
+  var p=S.p,t=S.t/1000;
+  hero.position.set(p.x,Math.abs(Math.sin(p.bob))*0.08,p.z);hero.rotation.y=p.ry;hero.visible=!(p.inv>S.t&&Math.floor(S.t/90)%2);
+  swordG.rotation.x=p.sw>0?-1.4+Math.sin((0.28-p.sw)/0.28*Math.PI)*0.2+((0.28-p.sw)/0.28)*2.2:0;swordG.rotation.y=p.sw>0?-0.6+((0.28-p.sw)/0.28)*1.2:0;
+  S.mon.forEach(function(g){var s=g.hp>0?1:Math.max(0.01,g.dead/0.6);g.mesh.scale.setScalar(s);g.mesh.position.set(g.x,g.hp>0?Math.abs(Math.sin(t*(g.boss?4:8)+g.x))*0.1:0,g.z);g.mesh.rotation.y=g.ry;
+    g.mesh.traverse(function(o){if(o.material&&o.material.emissive&&!o.material.isMeshBasicMaterial){}});g.mesh.visible=g.hp>0||g.dead>0;g.mesh.rotation.z=g.flash>0?Math.sin(t*60)*0.15:0});
+  if(S.cry){S.cry.mesh.rotation.y=t*1.5}
+  var nx=S.L.rows[0].length,nz=S.L.rows.length,cx=(nx-1)*C/2,cz=(nz-1)*C/2;
+  S.camx+=(cx-S.camx)*Math.min(1,6*dt);S.camz+=(cz-S.camz)*Math.min(1,6*dt);
+  cam.position.set(S.camx,S.zoomY,S.camz+S.zoomY*0.42);cam.lookAt(S.camx,0.4,S.camz+0.2);
+}
+
+var KEYS={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
+function pressSpace(){if(S.mode==='title')loadLevel(0);else if(S.mode==='over'){if(typeof retry==='function')retry();else newGame()}else if(S.mode==='won')newGame();else if(S.mode==='play')onSpace()}
+window.addEventListener('keydown',function(e){
+  if(KEYS[e.key]){held[KEYS[e.key]]=true;e.preventDefault()}
+  else if(e.key==='Shift')held.shift=true;
+  else if(e.key===' '){e.preventDefault();held.space=true;if(!e.repeat)pressSpace()}});
+window.addEventListener('keyup',function(e){if(KEYS[e.key])held[KEYS[e.key]]=false;if(e.key==='Shift')held.shift=false;if(e.key===' ')held.space=false});
+document.querySelectorAll('.dpad button').forEach(function(b){var d=b.dataset.d;
+  function on(e){e.preventDefault();held[d]=true}function off(e){e.preventDefault();held[d]=false}
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off)});
+var bb=document.getElementById('bBomb');
+bb.addEventListener('pointerdown',function(e){e.preventDefault();held.space=true;pressSpace()});
+['pointerup','pointerleave','pointercancel'].forEach(function(n){bb.addEventListener(n,function(){held.space=false})});
+document.getElementById('bRestart').addEventListener('click',function(){newGame()});
+stage.addEventListener('pointerdown',function(){if(S.mode!=='play')pressSpace()});
+var last=performance.now();
+function loop(now){var dt=Math.min(50,now-last)/1000;last=now;update(dt);hud();render(dt);var txt=(S.msg&&S.t<S.msgT)?S.msg:(S.mode==='next'?'Maila gainditu da!':'');if(txt){bn.style.display='block';bn.textContent=txt}else bn.style.display='none';renderer.render(scene,cam);requestAnimationFrame(loop)}
+newGame();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

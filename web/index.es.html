@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoxelArt · 20 ejemplos de proyecto final</title>
+<style>
+:root{--bg:#F6F8FD;--card:#FFFFFF;--card2:#EEF2FB;--line:#D9E0F0;--tx:#14183A;--mut:#566089;--teal:#5EEAD4;--ac:#0F766E;--yel:#FDE047;--pink:#BE185D;--focus:#2563EB}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--ac)}
+header{padding:56px 24px 28px;max-width:1080px;margin:0 auto}
+.kicker{display:inline-block;background:var(--teal);color:#06231F;font-weight:800;letter-spacing:.12em;font-size:12px;padding:6px 14px;border-radius:99px}
+h1{font-size:clamp(34px,6vw,64px);line-height:1.02;margin:18px 0 12px;font-weight:900;letter-spacing:-.02em}
+h1 span{color:var(--ac)}
+.lead{color:var(--mut);font-size:18px;max-width:720px;margin:0}
+main{max-width:1080px;margin:0 auto;padding:8px 24px 80px}
+h2{font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin:44px 0 14px;display:flex;align-items:center;gap:12px}
+h2::after{content:"";flex:1;height:1px;background:var(--line)}
+.game{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 3px rgba(20,24,58,.07)}
+.game.open{border-color:var(--ac);box-shadow:0 4px 18px rgba(20,24,58,.10)}
+.head{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:16px;width:100%;padding:14px 18px;cursor:pointer}
+.head:hover{background:var(--card2)}
+.head:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
+.num{font-weight:900;font-size:14px;letter-spacing:.06em;border-radius:10px;min-width:58px;height:40px;display:grid;place-items:center;flex:none;padding:0 8px}
+.num.l1{background:#BBF7D0;color:#14532D}.num.l2{background:#FDE68A;color:#713F12}.num.l3{background:#FECACA;color:#7F1D1D}
+h2 small{font-size:13px;letter-spacing:0;text-transform:none;color:var(--mut);font-weight:500}
+.diff b{font-size:15px}
+.thumb{width:44px;height:60px;border-radius:8px;object-fit:cover;flex:none;background:var(--card2)}
+.ttl{flex:1;min-width:0}
+.ttl b{display:block;font-size:clamp(20px,3vw,26px);font-weight:800;letter-spacing:-.01em}
+.ttl small{display:block;color:var(--mut);font-size:14px;margin-top:2px}
+.chev{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--mut);display:grid;place-items:center;transition:transform .2s}
+.chev::before{content:"";width:8px;height:8px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:rotate(45deg) translate(-1px,-1px)}
+.game.open .chev{transform:rotate(180deg);border-color:var(--ac)}
+.game.open .chev::before{border-color:var(--ac)}
+.panel{display:none;padding:4px 18px 22px;border-top:1px solid var(--line)}
+.game.open .panel{display:block}
+.playtag{font-size:12px;font-weight:800;color:#0F766E;background:#CCFBF1;border:1px solid #5EEAD4;border-radius:99px;padding:2px 10px;margin-right:10px;white-space:nowrap}
+.play{display:inline-block;background:var(--teal);color:#06231F;font-weight:800;text-decoration:none;padding:11px 20px;border-radius:99px}
+.play:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 18px}
+.tab{all:unset;box-sizing:border-box;cursor:pointer;padding:9px 16px;border-radius:99px;border:1px solid var(--line);color:var(--mut);font-weight:700;font-size:14px}
+.tab:hover{color:var(--tx);border-color:var(--mut)}
+.tab[aria-selected=true]{background:var(--teal);color:#06231F;border-color:var(--teal)}
+.tab:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.view{display:none}.view.on{display:block}
+.sum{display:grid;grid-template-columns:260px 1fr;gap:26px;align-items:start}
+.sum img.cov{width:100%;height:auto;border-radius:12px;display:block;cursor:zoom-in}
+.tagline{font-size:20px;font-weight:700;margin:0 0 16px}
+.wl{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
+.box{background:var(--card2);border-radius:12px;padding:12px 14px}
+.box h4,.sec h4{margin:0 0 4px;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.win h4{color:#15803D}.lose h4{color:#B91C1C}
+.box p{margin:0}
+.sec{margin-top:20px}
+.sec h4{color:#B45309;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.chips li{background:var(--card2);border-radius:99px;padding:6px 13px;font-size:14px}
+.chips li b{color:var(--ac)}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.grid3 li{background:var(--card2);border-radius:12px;padding:12px 14px;font-size:15px}
+.grid3 li b{display:block;font-size:16px}
+.grid3 li span{color:var(--mut)}
+.rule i{font-style:normal;font-weight:800;color:var(--pink);font-size:12px;letter-spacing:.08em}
+.shot{display:block;max-width:100%;height:auto;border-radius:14px;cursor:zoom-in;margin:0 auto;border:1px solid var(--line)}
+.shot.poster{max-width:560px}
+.cap{color:var(--mut);font-size:14px;margin:10px 0 0;text-align:center}
+.lvls{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin:18px 0 0}
+.lvl{background:var(--card2);border-radius:12px;padding:12px 14px}
+.lvl h5{margin:0 0 6px;color:#B45309;font-size:13px;letter-spacing:.1em}
+.lvl p{margin:0 0 6px;font-size:15px}.lvl p span{display:block;font-size:11px;letter-spacing:.12em;color:var(--mut);font-weight:800}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:0;padding:0;list-style:none;counter-reset:s}
+.flow li{background:var(--card2);border-radius:12px;padding:12px 14px;font-size:15px;position:relative}
+.flow li i{display:block;font-style:normal;font-weight:800;font-size:12px;letter-spacing:.1em;color:var(--pink);margin-bottom:4px}
+.notes{color:var(--mut);font-size:14px;margin:12px 0 0;padding-left:18px}
+#lb{position:fixed;inset:0;background:rgba(5,8,20,.92);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;cursor:zoom-out}
+#lb.on{display:flex}
+#lb img{max-width:100%;max-height:100%;border-radius:10px}
+footer{max-width:1080px;margin:0 auto;padding:0 24px 56px;color:var(--mut);font-size:14px}
+@media(max-width:760px){
+ header{padding-top:36px}
+ .sum{grid-template-columns:1fr}.sum img.cov{max-width:260px}
+ .wl{grid-template-columns:1fr}
+ .thumb{display:none}
+ .head{padding:12px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.chev{transition:none}}
+</style>
+</head>
+<body>
+<header>
+ <span class="kicker">VOXELART · PROYECTO FINAL</span>
+ <h1>20 ideas de videojuego <span>hechas con voxels</span></h1>
+ <p class="lead">Ejemplos de lo que puede entregar el alumnado: cada juego tiene su portada, póster de proyecto, pantalla de juego y tres niveles. Están ordenados de menos a más difícil de programar. Pulsa un título para ver toda la información.</p>
+</header>
+<main id="list" aria-label="Lista de juegos"></main>
+<footer>MagicaVoxel + Unity con Visual Scripting. Todos los personajes y nombres son originales.</footer>
+<div id="lb" role="dialog" aria-label="Imagen ampliada"><img alt=""></div>
+<script>
+const GAMES = [
+ {
+  "n": 1,
+  "slug": "cofre-pirata",
+  "title": "Cofre Pirata",
+  "tag": "Un pirata tiene que recoger 5 monedas antes de que se acabe el tiempo para abrir el cofre del tesoro.",
+  "gana": "Con las 5 monedas, llegando al cofre a tiempo.",
+  "pierde": "Si se acaba el tiempo o cae al agua.",
+  "legend": [
+   "P · Pirata",
+   "M · Moneda (5)",
+   "C · Cofre (meta)",
+   "Agua (peligro)"
+  ],
+  "powers": [
+   [
+    "Moverse",
+    "con las flechas"
+   ],
+   [
+    "Saltar",
+    "los charcos de agua"
+   ]
+  ],
+  "models": [
+   [
+    "Pirata",
+    "El personaje que controla el jugador."
+   ],
+   [
+    "Moneda",
+    "Objeto que hay que recoger."
+   ],
+   [
+    "Cofre",
+    "La meta del nivel."
+   ]
+  ],
+  "spells": [
+   [
+    "toca una moneda",
+    "desaparece y suma 1 punto"
+   ],
+   [
+    "toca el agua",
+    "reaparece en el inicio"
+   ],
+   [
+    "tiene 5 monedas y toca el cofre",
+    "se abre: ¡victoria!"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Isla pequeña y sin enemigos.",
+    "meta": "Reunir todas las monedas y abrir el cofre.",
+    "pasa": "Abre el cofre"
+   },
+   {
+    "n": "2",
+    "nov": "Charcos en el camino y un cangrejo que patrulla.",
+    "meta": "Reunir todas las monedas y abrir el cofre.",
+    "pasa": "Abre el cofre"
+   },
+   {
+    "n": "3",
+    "nov": "Tres islas unidas por puentes y dos cangrejos.",
+    "meta": "Cruzar los puentes y abrir el cofre con menos tiempo.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el pirata toca el cofre"
+   ],
+   [
+    "Condición",
+    "¿Tiene todas las monedas?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: mover · Espacio: saltar",
+  "lv": 1,
+  "lvname": "Fácil",
+  "why": "Solo hay que recoger monedas, evitar el agua y llegar al cofre."
+ },
+ {
+  "n": 4,
+  "slug": "granja-perdida",
+  "title": "La Granja Perdida",
+  "tag": "Una granjera busca sus 4 gallinas escondidas antes de que anochezca.",
+  "gana": "Encontrando las 4 gallinas.",
+  "pierde": "Si anochece y falta alguna gallina.",
+  "legend": [
+   "G · Granjera",
+   "H · Gallina (4)",
+   "V · Valla (se salta)",
+   "E · Establo (extra)"
+  ],
+  "powers": [
+   [
+    "Moverse",
+    "por la granja"
+   ],
+   [
+    "Saltar",
+    "las vallas"
+   ]
+  ],
+  "models": [
+   [
+    "Granjera",
+    "El personaje del jugador."
+   ],
+   [
+    "Gallina",
+    "Hay que encontrar 4."
+   ],
+   [
+    "Valla",
+    "Obstáculo que se salta."
+   ]
+  ],
+  "spells": [
+   [
+    "toca una gallina",
+    "se recoge y suma 1"
+   ],
+   [
+    "pasa un segundo",
+    "baja el temporizador"
+   ],
+   [
+    "llega a cero y faltan gallinas",
+    "se reinicia el nivel"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Una granja con vallas.",
+    "meta": "Encontrar las 4 gallinas antes de que anochezca.",
+    "pasa": "Todas en el establo"
+   },
+   {
+    "n": "2",
+    "nov": "Más vallas, una gallina más y un zorro que patrulla.",
+    "meta": "Encontrar las 5 gallinas.",
+    "pasa": "Todas en el establo"
+   },
+   {
+    "n": "3",
+    "nov": "Es de noche: dos zorros y menos tiempo.",
+    "meta": "Encontrar las 5 gallinas antes de que se acabe el tiempo.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: la granjera entra en el establo"
+   ],
+   [
+    "Condición",
+    "¿Tiene todas las gallinas?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: mover · Espacio: saltar",
+  "lv": 1,
+  "lvname": "Fácil",
+  "why": "Recoger objetos con un tiempo límite, sin enemigos."
+ },
+ {
+  "n": 8,
+  "slug": "regata-voxel",
+  "title": "Regata Voxel",
+  "tag": "Un velero tiene que rodear las 3 boyas y cruzar la meta, esquivando las rocas.",
+  "gana": "Rodeando las 3 boyas y cruzando la meta a tiempo.",
+  "pierde": "Si se acaba el tiempo.",
+  "legend": [
+   "V · Velero (jugador)",
+   "B · Boya (3)",
+   "R · Roca",
+   "M · Meta",
+   "Mar"
+  ],
+  "powers": [
+   [
+    "Girar",
+    "el timón"
+   ],
+   [
+    "Orientar",
+    "la vela con el viento"
+   ],
+   [
+    "Impulso",
+    "(extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Velero",
+    "El barco que controla el jugador."
+   ],
+   [
+    "Boya",
+    "Marca el recorrido."
+   ],
+   [
+    "Roca",
+    "Obstáculo en el mar."
+   ]
+  ],
+  "spells": [
+   [
+    "el barco pasa por una boya",
+    "la boya se apaga y suma 1"
+   ],
+   [
+    "choca con una roca",
+    "pierde velocidad"
+   ],
+   [
+    "cruza la meta con las 3 boyas",
+    "se para el reloj: ¡victoria!"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Un lago tranquilo con 3 boyas.",
+    "meta": "Rodear las 3 boyas y cruzar la meta.",
+    "pasa": "Cruza la meta"
+   },
+   {
+    "n": "2",
+    "nov": "Rocas en el camino.",
+    "meta": "Rodear las boyas sin chocar con las rocas.",
+    "pasa": "Cruza la meta"
+   },
+   {
+    "n": "3",
+    "nov": "Tormenta: agua oscura, más rocas y menos tiempo.",
+    "meta": "Terminar el recorrido antes de que se acabe el tiempo.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el velero cruza la meta"
+   ],
+   [
+    "Condición",
+    "¿Ha rodeado las 3 boyas?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: girar el timón · Espacio: ajustar la vela",
+  "lv": 1,
+  "lvname": "Fácil",
+  "why": "Pasar por 3 boyas y cruzar la meta; las rocas no se mueven."
+ },
+ {
+  "n": 5,
+  "slug": "rally-voxel",
+  "title": "Rally Voxel",
+  "tag": "Un coche de rally tiene que completar el circuito antes de que se acabe el tiempo, esquivando conos y manchas de aceite.",
+  "gana": "Cruzando la meta antes de que se acabe el tiempo.",
+  "pierde": "Si se acaba el tiempo.",
+  "legend": [
+   "C · Coche",
+   "N · Cono",
+   "A · Mancha de aceite",
+   "G · Gasolina (+5 s)",
+   "M · Meta",
+   "Carretera"
+  ],
+  "powers": [
+   [
+    "Acelerar y frenar",
+    "Girar"
+   ],
+   [
+    "a izquierda y derecha",
+    "Turbo"
+   ]
+  ],
+  "models": [
+   [
+    "Coche",
+    "El vehículo que controla el jugador."
+   ],
+   [
+    "Cono",
+    "Obstáculo en la carretera."
+   ],
+   [
+    "Gasolina",
+    "Bidón que da tiempo extra."
+   ]
+  ],
+  "spells": [
+   [
+    "toca un bidón de gasolina",
+    "desaparece y suma 5 segundos"
+   ],
+   [
+    "toca un cono o una mancha de aceite",
+    "el coche pierde velocidad"
+   ],
+   [
+    "cruza la meta antes de que se acabe el tiempo",
+    "se para el reloj: ¡victoria!"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Un circuito en óvalo sin obstáculos.",
+    "meta": "Llegar a la meta antes de que se acabe el tiempo.",
+    "pasa": "Cruza la meta"
+   },
+   {
+    "n": "2",
+    "nov": "Curvas, conos y una mancha de aceite.",
+    "meta": "Llegar a la meta a tiempo esquivando los obstáculos.",
+    "pasa": "Cruza la meta"
+   },
+   {
+    "n": "3",
+    "nov": "De noche y con un coche rival.",
+    "meta": "Llegar a la meta antes que el rival.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el coche cruza la meta"
+   ],
+   [
+    "Condición",
+    "¿Ha llegado a tiempo?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: acelerar, frenar y girar · Espacio: turbo",
+  "lv": 1,
+  "lvname": "Fácil",
+  "why": "Mover un coche por un circuito con obstáculos fijos y un cronómetro."
+ },
+ {
+  "n": 15,
+  "slug": "valle-nevado",
+  "title": "Valle Nevado",
+  "tag": "Un esquiador baja la montaña pasando por las puertas y esquivando los árboles.",
+  "gana": "Pasando todas las puertas y llegando a la meta.",
+  "pierde": "Si choca con un árbol 3 veces.",
+  "legend": [
+   "E · Esquiador (jugador)",
+   "P · Pino",
+   "S · Puerta de eslalon",
+   "M · Muñeco de nieve",
+   "F · Meta",
+   "Nieve"
+  ],
+  "powers": [
+   [
+    "Esquiar",
+    "con las flechas"
+   ],
+   [
+    "Frenar",
+    "con la tecla espacio"
+   ],
+   [
+    "Turbo",
+    "en las bajadas (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Esquiador",
+    "Baja la montaña."
+   ],
+   [
+    "Pino",
+    "Obstáculo que hay que esquivar."
+   ],
+   [
+    "Puerta",
+    "Hay que pasar entre los palos."
+   ]
+  ],
+  "spells": [
+   [
+    "pasa entre los palos",
+    "suma 1 puerta"
+   ],
+   [
+    "choca con un árbol",
+    "pierde 1 vida"
+   ],
+   [
+    "cruza la meta",
+    "se para el cronómetro"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Una pista ancha con una puerta.",
+    "meta": "Pasar la puerta y llegar a la meta.",
+    "pasa": "Cruza la meta"
+   },
+   {
+    "n": "2",
+    "nov": "Eslalon con dos puertas y más árboles.",
+    "meta": "Pasar todas las puertas sin chocar.",
+    "pasa": "Cruza la meta"
+   },
+   {
+    "n": "3",
+    "nov": "Un descenso con cuatro puertas y poco tiempo.",
+    "meta": "Terminar el eslalon antes de que se acabe el tiempo.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el esquiador cruza la meta"
+   ],
+   [
+    "Condición",
+    "¿Ha pasado todas las puertas?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: esquiar · Espacio: frenar",
+  "lv": 1,
+  "lvname": "Fácil",
+  "why": "Bajar por una pista pasando puertas; los árboles son obstáculos quietos."
+ },
+ {
+  "n": 10,
+  "slug": "mision-espacial",
+  "title": "Misión Espacial",
+  "tag": "Una nave espacial recoge cristales y llega al planeta, esquivando asteroides.",
+  "gana": "Recogiendo todos los cristales y llegando al planeta.",
+  "pierde": "Si pierde sus 3 vidas.",
+  "legend": [
+   "N · Nave (jugador)",
+   "C · Cristal",
+   "A · Asteroide",
+   "P · Planeta (meta)",
+   "Espacio"
+  ],
+  "powers": [
+   [
+    "Mover",
+    "en cuatro direcciones"
+   ],
+   [
+    "Acelerar",
+    "el propulsor (extra)"
+   ],
+   [
+    "Disparar",
+    "a los asteroides (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Nave",
+    "La nave que controla el jugador."
+   ],
+   [
+    "Cristal",
+    "Hay que recogerlos todos."
+   ],
+   [
+    "Asteroide",
+    "Peligro que hay que esquivar."
+   ]
+  ],
+  "spells": [
+   [
+    "toca un cristal",
+    "desaparece y suma 1 punto"
+   ],
+   [
+    "choca con un asteroide",
+    "pierde 1 vida"
+   ],
+   [
+    "tiene todos los cristales y toca el planeta",
+    "se carga el siguiente nivel"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Espacio abierto con un asteroide.",
+    "meta": "Recoger los 3 cristales y tocar el planeta.",
+    "pasa": "Toca el planeta"
+   },
+   {
+    "n": "2",
+    "nov": "Un campo de asteroides.",
+    "meta": "Recoger los cristales sin perder vidas.",
+    "pasa": "Toca el planeta"
+   },
+   {
+    "n": "3",
+    "nov": "Dos ovnis patrullan el sector.",
+    "meta": "Esquivar a los ovnis y llegar al planeta.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: la nave toca el planeta"
+   ],
+   [
+    "Condición",
+    "¿Ha recogido todos los cristales?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: mover la nave",
+  "lv": 2,
+  "lvname": "Medio",
+  "why": "Movimiento libre, asteroides y ovnis en movimiento y un sistema de vidas."
+ },
+ {
+  "n": 9,
+  "slug": "pez-hambriento",
+  "title": "El Pez Hambriento",
+  "tag": "Un pez pequeño tiene que comer plancton y llegar a la cueva, huyendo de tiburones y medusas.",
+  "gana": "Comiendo todo el plancton y llegando a la cueva.",
+  "pierde": "Si pierde sus 3 vidas.",
+  "legend": [
+   "P · Pez (jugador)",
+   "C · Plancton",
+   "M · Medusa",
+   "T · Tiburón",
+   "K · Coral",
+   "G · Alga",
+   "E · Cueva (salida)"
+  ],
+  "powers": [
+   [
+    "Nadar",
+    "en cuatro direcciones"
+   ],
+   [
+    "Esprintar",
+    "con la aleta (extra)"
+   ],
+   [
+    "Esconderse",
+    "entre las algas (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Pez",
+    "El pequeño pez que controla el jugador."
+   ],
+   [
+    "Tiburón",
+    "Enemigo que patrulla."
+   ],
+   [
+    "Medusa",
+    "Peligro que flota por el agua."
+   ]
+  ],
+  "spells": [
+   [
+    "toca plancton",
+    "desaparece y suma 1 punto"
+   ],
+   [
+    "toca un tiburón o una medusa",
+    "pierde 1 vida"
+   ],
+   [
+    "tiene todo el plancton y toca la cueva",
+    "se abre el paso: ¡victoria!"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Un arrecife tranquilo con una medusa.",
+    "meta": "Comer todo el plancton y llegar a la cueva.",
+    "pasa": "Entra en la cueva"
+   },
+   {
+    "n": "2",
+    "nov": "Un bosque de algas con dos medusas.",
+    "meta": "Comer todo el plancton sin perder vidas.",
+    "pasa": "Entra en la cueva"
+   },
+   {
+    "n": "3",
+    "nov": "Una cueva oscura con un tiburón.",
+    "meta": "Esquivar al tiburón y salir por la cueva.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el pez entra en la cueva"
+   ],
+   [
+    "Condición",
+    "¿Ha comido todo el plancton?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: nadar · Espacio: esprintar",
+  "lv": 2,
+  "lvname": "Medio",
+  "why": "Enemigos que patrullan, un contador de plancton y 3 vidas."
+ },
+ {
+  "n": 19,
+  "slug": "jardin-abejas",
+  "title": "Jardín de Abejas",
+  "tag": "Una abeja vuela por el jardín, poliniza todas las flores y vuelve a la colmena, esquivando arañas.",
+  "gana": "Polinizando todas las flores y volviendo a la colmena.",
+  "pierde": "Si una araña la atrapa 3 veces.",
+  "legend": [
+   "B · Abeja (jugador)",
+   "F · Flor",
+   "A · Araña",
+   "H · Colmena",
+   "Estanque"
+  ],
+  "powers": [
+   [
+    "Volar",
+    "con las flechas"
+   ],
+   [
+    "Posarse",
+    "en una flor para polinizar"
+   ],
+   [
+    "Zumbido",
+    "asusta a las arañas (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Abeja",
+    "La polinizadora del jugador."
+   ],
+   [
+    "Flor",
+    "Hay que polinizarlas todas."
+   ],
+   [
+    "Araña",
+    "Enemiga que patrulla."
+   ]
+  ],
+  "spells": [
+   [
+    "se posa en una flor",
+    "la poliniza y suma 1"
+   ],
+   [
+    "toca una araña",
+    "pierde 1 vida"
+   ],
+   [
+    "vuelve a la colmena con todas las flores",
+    "se carga el siguiente nivel"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Un jardín pequeño con dos flores y una araña.",
+    "meta": "Polinizar las 2 flores y volver a la colmena.",
+    "pasa": "Vuelve a la colmena"
+   },
+   {
+    "n": "2",
+    "nov": "Un estanque, seis flores y dos arañas.",
+    "meta": "Polinizar las flores sin tocar a las arañas.",
+    "pasa": "Vuelve a la colmena"
+   },
+   {
+    "n": "3",
+    "nov": "Un jardín de noche con tres arañas.",
+    "meta": "Polinizar todas las flores y escapar.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: la abeja vuelve a la colmena"
+   ],
+   [
+    "Condición",
+    "¿Ha polinizado todas las flores?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: volar · Espacio: posarse",
+  "lv": 2,
+  "lvname": "Medio",
+  "why": "Polinizar flores, arañas que patrullan y vidas."
+ },
+ {
+  "n": 7,
+  "slug": "vallas-voxel",
+  "title": "Vallas Voxel",
+  "tag": "Un atleta corre los 100 metros saltando vallas para llegar a la meta antes que sus rivales.",
+  "gana": "Cruzando la meta antes que los dos rivales.",
+  "pierde": "Si un rival llega antes a la meta.",
+  "legend": [
+   "A · Atleta (jugador)",
+   "R · Rival",
+   "V · Valla",
+   "M · Meta",
+   "Pista",
+   "Hierba"
+  ],
+  "powers": [
+   [
+    "Correr",
+    "con las flechas"
+   ],
+   [
+    "Saltar",
+    "las vallas"
+   ],
+   [
+    "Esprintar",
+    "(extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Atleta",
+    "El corredor que controla el jugador."
+   ],
+   [
+    "Valla",
+    "Obstáculo que hay que saltar."
+   ],
+   [
+    "Meta",
+    "Arco con la línea de llegada."
+   ]
+  ],
+  "spells": [
+   [
+    "pulsa la tecla de saltar",
+    "el atleta salta sobre la valla"
+   ],
+   [
+    "toca una valla",
+    "pierde velocidad un instante"
+   ],
+   [
+    "cruza la meta",
+    "se para el cronómetro y se muestra su posición"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Pista recta de 100 m con dos vallas y un rival.",
+    "meta": "Cruzar la meta el primero.",
+    "pasa": "Cruza la meta"
+   },
+   {
+    "n": "2",
+    "nov": "Tres calles, más vallas y dos rivales.",
+    "meta": "Cruzar la meta el primero.",
+    "pasa": "Cruza la meta"
+   },
+   {
+    "n": "3",
+    "nov": "Un foso de agua y barro en mitad de la pista.",
+    "meta": "Saltar el foso y ganar a los rivales.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el atleta cruza la meta"
+   ],
+   [
+    "Condición",
+    "¿Ha llegado el primero?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: correr · Espacio: saltar",
+  "lv": 2,
+  "lvname": "Medio",
+  "why": "Saltar vallas y competir con rivales controlados por el ordenador."
+ },
+ {
+  "n": 2,
+  "slug": "gato-ninja",
+  "title": "Gato Ninja",
+  "tag": "Un gato ninja esquiva a los robots vigilantes para llegar a la puerta de salida del tejado.",
+  "gana": "Con la llave, llegando a la puerta sin que le toque un robot.",
+  "pierde": "Si un robot toca al gato.",
+  "legend": [
+   "G · Gato ninja",
+   "R · Robot (patrulla)",
+   "L · Llave",
+   "S · Salida (meta)",
+   "C · Caja"
+  ],
+  "powers": [
+   [
+    "Moverse",
+    "por los tejados"
+   ],
+   [
+    "Saltar",
+    "entre tejados"
+   ],
+   [
+    "Esconderse",
+    "tras la caja (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Gato ninja",
+    "Personaje del jugador."
+   ],
+   [
+    "Robot",
+    "Enemigo que patrulla."
+   ],
+   [
+    "Llave y puerta",
+    "Objeto y meta del nivel."
+   ],
+   [
+    "Caja",
+    "Escondite y plataforma."
+   ]
+  ],
+  "spells": [
+   [
+    "pasa el tiempo",
+    "cada robot patrulla de un lado a otro"
+   ],
+   [
+    "un robot toca al gato",
+    "se reinicia el nivel"
+   ],
+   [
+    "el gato recoge la llave",
+    "la puerta se abre"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Un tejado, un robot y una llave.",
+    "meta": "Coger la llave y llegar a la puerta.",
+    "pasa": "Cruza la puerta"
+   },
+   {
+    "n": "2",
+    "nov": "Dos tejados con un hueco en medio y dos robots.",
+    "meta": "Saltar el hueco, coger la llave y llegar a la puerta.",
+    "pasa": "Cruza la puerta"
+   },
+   {
+    "n": "3",
+    "nov": "Tres robots y dos llaves.",
+    "meta": "Coger las 2 llaves y abrir la puerta.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el gato toca la puerta"
+   ],
+   [
+    "Condición",
+    "¿Tiene todas las llaves?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: mover · Espacio: saltar",
+  "lv": 2,
+  "lvname": "Medio",
+  "why": "Robots que patrullan, una llave y una puerta que se abre."
+ },
+ {
+  "n": 6,
+  "slug": "templo-perdido",
+  "title": "El Templo Perdido",
+  "tag": "Un héroe explora un templo, coge la llave y abre la puerta del tesoro.",
+  "gana": "Cogiendo la llave, abriendo la puerta y llegando al tesoro.",
+  "pierde": "Si el héroe se queda sin corazones.",
+  "legend": [
+   "H · Héroe",
+   "L · Llave",
+   "S · Slime (enemigo)",
+   "P · Puerta cerrada",
+   "T · Tesoro",
+   "C · Corazón extra"
+  ],
+  "powers": [
+   [
+    "Moverse",
+    "por el templo"
+   ],
+   [
+    "Atacar",
+    "con la espada"
+   ],
+   [
+    "Abrir",
+    "puertas con la llave"
+   ]
+  ],
+  "models": [
+   [
+    "Héroe",
+    "El personaje que explora el templo."
+   ],
+   [
+    "Slime",
+    "Enemigo que se mueve por la sala."
+   ],
+   [
+    "Puerta",
+    "Se abre si el héroe tiene la llave."
+   ]
+  ],
+  "spells": [
+   [
+    "toca una llave",
+    "desaparece y se guarda en el inventario"
+   ],
+   [
+    "un slime toca al héroe",
+    "el héroe pierde 1 corazón"
+   ],
+   [
+    "toca la puerta y tiene la llave",
+    "la puerta se abre"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Un bosque con un slime y una llave escondida.",
+    "meta": "Coger la llave y llegar a la entrada del templo.",
+    "pasa": "Entra en el templo"
+   },
+   {
+    "n": "2",
+    "nov": "Salas separadas por una puerta cerrada con llave.",
+    "meta": "Abrir la puerta con la llave y llegar al tesoro.",
+    "pasa": "Abre la puerta"
+   },
+   {
+    "n": "3",
+    "nov": "Un guardián de piedra y dos slimes.",
+    "meta": "Vencer al guardián (5 golpes) y abrir el cofre final.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el héroe cruza la salida del nivel"
+   ],
+   [
+    "Condición",
+    "¿Ha cumplido el objetivo del nivel?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: mover · Espacio: espada",
+  "lv": 2,
+  "lvname": "Medio",
+  "why": "Llave, puerta y enemigos: varias reglas que se cruzan."
+ },
+ {
+  "n": 12,
+  "slug": "casa-encantada",
+  "title": "Casa Encantada",
+  "tag": "Un explorador busca las llaves de la casa embrujada y abre la puerta, esquivando fantasmas.",
+  "gana": "Reuniendo las 3 llaves y abriendo la puerta.",
+  "pierde": "Si un fantasma lo atrapa 3 veces.",
+  "legend": [
+   "E · Explorador (jugador)",
+   "F · Fantasma",
+   "L · Llave (3)",
+   "C · Calabaza trampa",
+   "P · Puerta final"
+  ],
+  "powers": [
+   [
+    "Moverse",
+    "por las habitaciones"
+   ],
+   [
+    "Coger",
+    "llaves y objetos"
+   ],
+   [
+    "Linterna",
+    "asusta a los fantasmas (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Explorador",
+    "El valiente que controla el jugador."
+   ],
+   [
+    "Fantasma",
+    "Patrulla la casa."
+   ],
+   [
+    "Llave",
+    "Abre la puerta final."
+   ]
+  ],
+  "spells": [
+   [
+    "toca una llave",
+    "la guarda en el inventario"
+   ],
+   [
+    "toca un fantasma",
+    "pierde 1 vida"
+   ],
+   [
+    "toca la puerta con las 3 llaves",
+    "la puerta se abre: ¡victoria!"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Una habitación con una llave y una trampa.",
+    "meta": "Coger la llave y abrir la puerta.",
+    "pasa": "Abre la puerta"
+   },
+   {
+    "n": "2",
+    "nov": "Dos llaves y un fantasma que patrulla.",
+    "meta": "Coger las llaves sin que te atrape el fantasma.",
+    "pasa": "Abre la puerta"
+   },
+   {
+    "n": "3",
+    "nov": "Tres llaves, dos fantasmas y calabazas trampa.",
+    "meta": "Reunir las 3 llaves y escapar.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el explorador abre la puerta"
+   ],
+   [
+    "Condición",
+    "¿Tiene todas las llaves?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: mover · Espacio: coger",
+  "lv": 2,
+  "lvname": "Medio",
+  "why": "Inventario de 3 llaves, fantasmas que patrullan y calabazas trampa."
+ },
+ {
+  "n": 16,
+  "slug": "dino-parque",
+  "title": "Dino Parque",
+  "tag": "Un dinosaurio pequeño recoge los huevos y los lleva al nido, huyendo del T-Rex.",
+  "gana": "Llevando los 3 huevos al nido sin que lo atrapen.",
+  "pierde": "Si el T-Rex lo atrapa 3 veces.",
+  "legend": [
+   "D · Dino (jugador)",
+   "T · T-Rex",
+   "H · Huevo (3)",
+   "N · Nido",
+   "P · Palmera",
+   "Barro"
+  ],
+  "powers": [
+   [
+    "Moverse",
+    "por la selva"
+   ],
+   [
+    "Correr",
+    "un momento (extra)"
+   ],
+   [
+    "Esconderse",
+    "tras las palmeras (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Dino",
+    "El pequeño dinosaurio del jugador."
+   ],
+   [
+    "T-Rex",
+    "Enemigo que patrulla."
+   ],
+   [
+    "Huevo",
+    "Hay que llevarlos al nido."
+   ]
+  ],
+  "spells": [
+   [
+    "toca un huevo",
+    "lo recoge y suma 1"
+   ],
+   [
+    "el T-Rex le toca",
+    "pierde 1 vida"
+   ],
+   [
+    "llega al nido con los huevos",
+    "se carga el siguiente nivel"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Un claro de selva con un T-Rex dormido.",
+    "meta": "Llevar 2 huevos al nido.",
+    "pasa": "Llega al nido"
+   },
+   {
+    "n": "2",
+    "nov": "Un pantano de barro con un T-Rex que patrulla.",
+    "meta": "Recoger los 3 huevos sin que te vea.",
+    "pasa": "Llega al nido"
+   },
+   {
+    "n": "3",
+    "nov": "Un volcán con lava y dos T-Rex.",
+    "meta": "Llegar al nido con los huevos esquivando la lava.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el dino llega al nido"
+   ],
+   [
+    "Condición",
+    "¿Lleva todos los huevos?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: mover · Mayús: correr",
+  "lv": 2,
+  "lvname": "Medio",
+  "why": "Huevos, un T-Rex que patrulla y varios tipos de terreno."
+ },
+ {
+  "n": 14,
+  "slug": "minigolf-voxel",
+  "title": "Minigolf Voxel",
+  "tag": "Un golfista tiene que meter la bola en el hoyo con el menor número de golpes posible.",
+  "gana": "Metiendo la bola en el hoyo en pocos golpes.",
+  "pierde": "Si la bola cae al agua 3 veces.",
+  "legend": [
+   "G · Golfista (jugador)",
+   "B · Bola",
+   "H · Hoyo y bandera",
+   "M · Molino",
+   "Arena",
+   "Agua"
+  ],
+  "powers": [
+   [
+    "Apuntar",
+    "con las flechas"
+   ],
+   [
+    "Golpear",
+    "con más o menos fuerza"
+   ],
+   [
+    "Rebotar",
+    "en las paredes (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Golfista",
+    "El jugador que golpea la bola."
+   ],
+   [
+    "Bola",
+    "Hay que meterla en el hoyo."
+   ],
+   [
+    "Molino",
+    "Obstáculo con aspas."
+   ]
+  ],
+  "spells": [
+   [
+    "pulsa golpear",
+    "la bola sale y suma 1 golpe"
+   ],
+   [
+    "la bola toca el agua",
+    "vuelve al inicio"
+   ],
+   [
+    "la bola cae en el hoyo",
+    "se carga el siguiente hoyo"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Hoyo 1: recto y sin obstáculos.",
+    "meta": "Meter la bola en el hoyo en 3 golpes o menos.",
+    "pasa": "La bola entra en el hoyo"
+   },
+   {
+    "n": "2",
+    "nov": "Hoyo 2: arena y un estanque.",
+    "meta": "Rodear el agua y meter la bola.",
+    "pasa": "La bola entra en el hoyo"
+   },
+   {
+    "n": "3",
+    "nov": "Hoyo 3: un molino con aspas que giran.",
+    "meta": "Pasar la bola entre las aspas.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: la bola cae en el hoyo"
+   ],
+   [
+    "Condición",
+    "¿Cuántos golpes lleva?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: apuntar · Espacio: golpear",
+  "lv": 2,
+  "lvname": "Medio",
+  "why": "Física de la bola, fuerza del golpe, rebotes y cuenta de golpes."
+ },
+ {
+  "n": 11,
+  "slug": "bombero-voxel",
+  "title": "Bombero Voxel",
+  "tag": "Un bombero apaga los fuegos de la ciudad y rescata a las personas antes de que se acabe el tiempo.",
+  "gana": "Apagando todos los fuegos y rescatando a las personas.",
+  "pierde": "Si se acaba el tiempo.",
+  "legend": [
+   "B · Bombero (jugador)",
+   "F · Fuego",
+   "C · Civil por rescatar",
+   "H · Hidrante",
+   "K · Casa",
+   "Calle"
+  ],
+  "powers": [
+   [
+    "Moverse",
+    "por la ciudad"
+   ],
+   [
+    "Lanzar agua",
+    "con la manguera"
+   ],
+   [
+    "Recargar",
+    "en el hidrante (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Bombero",
+    "El héroe que controla el jugador."
+   ],
+   [
+    "Fuego",
+    "Hay que apagarlo con agua."
+   ],
+   [
+    "Casa",
+    "Edificio que puede arder."
+   ]
+  ],
+  "spells": [
+   [
+    "lanza agua al fuego",
+    "el fuego se apaga y suma 1 punto"
+   ],
+   [
+    "toca una llama",
+    "pierde 1 vida"
+   ],
+   [
+    "toca a una persona",
+    "la rescata y suma 1 salvado"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Una casa en llamas y una persona por rescatar.",
+    "meta": "Apagar los fuegos y rescatar a la persona.",
+    "pasa": "Apaga todos los fuegos"
+   },
+   {
+    "n": "2",
+    "nov": "Dos casas ardiendo y dos personas.",
+    "meta": "Apagar todo y rescatar a las dos personas.",
+    "pasa": "Apaga todos los fuegos"
+   },
+   {
+    "n": "3",
+    "nov": "Tres casas ardiendo: hay que recargar agua en el hidrante.",
+    "meta": "Apagar todos los fuegos antes de que acabe el tiempo.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el bombero apaga el último fuego"
+   ],
+   [
+    "Condición",
+    "¿Quedan fuegos o personas sin rescatar?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: mover · Espacio: lanzar agua",
+  "lv": 3,
+  "lvname": "Difícil",
+  "why": "Agua que se gasta, fuegos, personas por rescatar y recarga en el hidrante."
+ },
+ {
+  "n": 17,
+  "slug": "robot-fabrica",
+  "title": "Robot Fábrica",
+  "tag": "Un robot empuja las cajas de la fábrica hasta las zonas amarillas para ordenar el almacén.",
+  "gana": "Dejando todas las cajas sobre las zonas amarillas.",
+  "pierde": "Si deja una caja atascada en una esquina.",
+  "legend": [
+   "R · Robot (jugador)",
+   "C · Caja",
+   "X · Zona de destino",
+   "O · Caja colocada",
+   "# · Pared",
+   "Suelo"
+  ],
+  "powers": [
+   [
+    "Moverse",
+    "en cuatro direcciones"
+   ],
+   [
+    "Empujar",
+    "las cajas"
+   ],
+   [
+    "Deshacer",
+    "el último movimiento (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Robot",
+    "El obrero que controla el jugador."
+   ],
+   [
+    "Caja",
+    "Solo se puede empujar."
+   ],
+   [
+    "Caja colocada",
+    "Ya está en su sitio."
+   ]
+  ],
+  "spells": [
+   [
+    "empuja una caja",
+    "la caja avanza una casilla"
+   ],
+   [
+    "la caja llega a una zona amarilla",
+    "cambia a verde y suma 1"
+   ],
+   [
+    "todas las cajas están colocadas",
+    "se carga el siguiente nivel"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Una sala pequeña: una caja y un destino.",
+    "meta": "Empujar la caja hasta la zona amarilla.",
+    "pasa": "Todas las cajas colocadas"
+   },
+   {
+    "n": "2",
+    "nov": "Dos cajas y una pared en medio.",
+    "meta": "Colocar las dos cajas en sus destinos.",
+    "pasa": "Todas las cajas colocadas"
+   },
+   {
+    "n": "3",
+    "nov": "Tres destinos y una esquina peligrosa.",
+    "meta": "Ordenar las tres cajas sin atascarlas.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: la última caja llega a su destino"
+   ],
+   [
+    "Condición",
+    "¿Están todas las cajas en su sitio?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: mover el robot (empuja las cajas)",
+  "lv": 3,
+  "lvname": "Difícil",
+  "why": "Movimiento por casillas y cajas que se empujan: hay que programar la lógica del tablero."
+ },
+ {
+  "n": 3,
+  "slug": "cueva-del-jefe",
+  "title": "La Cueva del Jefe",
+  "tag": "Un héroe atraviesa una cueva y derrota a un monstruo para conseguir el cristal.",
+  "gana": "Golpeando 3 veces al monstruo y cogiendo el cristal.",
+  "pierde": "Si el monstruo lo toca 3 veces.",
+  "legend": [
+   "H · Héroe",
+   "J · Monstruo jefe",
+   "C · Cristal (meta)",
+   "A · Antorcha"
+  ],
+  "powers": [
+   [
+    "Moverse",
+    "por la cueva"
+   ],
+   [
+    "Atacar",
+    "con la espada"
+   ]
+  ],
+  "models": [
+   [
+    "Héroe",
+    "El personaje del jugador."
+   ],
+   [
+    "Monstruo",
+    "El jefe de la cueva."
+   ],
+   [
+    "Cristal",
+    "Premio y meta del nivel."
+   ]
+  ],
+  "spells": [
+   [
+    "el héroe se mueve",
+    "el monstruo lo persigue"
+   ],
+   [
+    "el monstruo toca al héroe",
+    "el héroe pierde 1 vida"
+   ],
+   [
+    "el monstruo recibe 3 golpes",
+    "aparece el cristal"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Una cueva con un monstruo.",
+    "meta": "Golpearlo 3 veces y coger el cristal.",
+    "pasa": "Coge el cristal"
+   },
+   {
+    "n": "2",
+    "nov": "Una pared en medio y dos esbirros.",
+    "meta": "Vencer a los dos esbirros y coger el cristal.",
+    "pasa": "Coge el cristal"
+   },
+   {
+    "n": "3",
+    "nov": "El jefe final y dos esbirros.",
+    "meta": "Vencer al jefe (5 golpes) y coger el cristal.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el héroe toca el cristal"
+   ],
+   [
+    "Condición",
+    "¿Han sido vencidos todos los monstruos?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: mover · Espacio: atacar",
+  "lv": 3,
+  "lvname": "Difícil",
+  "why": "Combate contra un monstruo: vida del enemigo, ataques y daño."
+ },
+ {
+  "n": 13,
+  "slug": "pasteleria-loca",
+  "title": "Pastelería Loca",
+  "tag": "Un chef recoge los ingredientes en orden, los lleva al horno y entrega la tarta a tiempo.",
+  "gana": "Entregando la tarta con todos los ingredientes a tiempo.",
+  "pierde": "Si se acaba el tiempo.",
+  "legend": [
+   "C · Chef (jugador)",
+   "H · Huevo",
+   "A · Harina",
+   "F · Fresa",
+   "O · Horno",
+   "T · Mesa de entrega"
+  ],
+  "powers": [
+   [
+    "Moverse",
+    "por la cocina"
+   ],
+   [
+    "Coger y soltar",
+    "ingredientes"
+   ],
+   [
+    "Correr",
+    "con prisa (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Chef",
+    "El cocinero que controla el jugador."
+   ],
+   [
+    "Ingredientes",
+    "Huevo, harina y fresa."
+   ],
+   [
+    "Tarta",
+    "El pedido final."
+   ]
+  ],
+  "spells": [
+   [
+    "toca un ingrediente",
+    "lo lleva en las manos"
+   ],
+   [
+    "mete el ingrediente en el horno",
+    "suma 1 al pedido"
+   ],
+   [
+    "tiene todo y llega a la mesa",
+    "entrega la tarta: ¡victoria!"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Una receta sencilla con dos ingredientes.",
+    "meta": "Llevar 2 ingredientes al horno y entregar la tarta.",
+    "pasa": "Entrega la tarta"
+   },
+   {
+    "n": "2",
+    "nov": "Tres ingredientes, en orden.",
+    "meta": "Meter los ingredientes en el orden de la receta.",
+    "pasa": "Entrega la tarta"
+   },
+   {
+    "n": "3",
+    "nov": "Dos hornos y muy poco tiempo.",
+    "meta": "Entregar la tarta antes de que se acabe el reloj.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el chef entrega la tarta"
+   ],
+   [
+    "Condición",
+    "¿Están todos los ingredientes en el horno?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: mover · Espacio: coger / soltar",
+  "lv": 3,
+  "lvname": "Difícil",
+  "why": "Ingredientes en orden, uso del horno y entrega con cronómetro."
+ },
+ {
+  "n": 20,
+  "slug": "laberinto-dinamita",
+  "title": "Laberinto Dinamita",
+  "tag": "Un minero pone dinamita para abrirse paso entre cajones, vence a los slimes y llega a la puerta de salida.",
+  "gana": "Rompiendo los cajones y llegando a la puerta de salida.",
+  "pierde": "Si pierde sus 3 vidas.",
+  "legend": [
+   "M · Minero (jugador)",
+   "D · Dinamita",
+   "C · Cajón (se rompe)",
+   "S · Slime (enemigo)",
+   "# · Pilar (no se rompe)",
+   "P · Puerta de salida"
+  ],
+  "powers": [
+   [
+    "Moverse",
+    "por el laberinto"
+   ],
+   [
+    "Poner dinamita",
+    "con la tecla espacio"
+   ],
+   [
+    "Más alcance",
+    "con objetos extra (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Minero",
+    "El héroe que controla el jugador."
+   ],
+   [
+    "Dinamita",
+    "Explota a los 3 segundos."
+   ],
+   [
+    "Slime",
+    "Enemigo que camina solo."
+   ]
+  ],
+  "spells": [
+   [
+    "pulsa poner dinamita",
+    "aparece la dinamita y empieza una cuenta atrás de 3 s"
+   ],
+   [
+    "la dinamita explota",
+    "rompe los cajones y los slimes de alrededor, en cruz"
+   ],
+   [
+    "toca la llama o un slime",
+    "pierde 1 vida"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Un laberinto pequeño, con pocos cajones y sin enemigos.",
+    "meta": "Romper el cajón que bloquea el camino y llegar a la puerta.",
+    "pasa": "Llega a la puerta"
+   },
+   {
+    "n": "2",
+    "nov": "Más cajones y un slime que camina por el pasillo.",
+    "meta": "Vencer al slime con la dinamita y llegar a la puerta.",
+    "pasa": "Llega a la puerta"
+   },
+   {
+    "n": "3",
+    "nov": "Un laberinto más cerrado con dos slimes.",
+    "meta": "Abrir el camino sin quedar atrapado por tu propia explosión.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el minero toca la puerta"
+   ],
+   [
+    "Condición",
+    "¿Ha abierto el camino y sigue con vida?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Flechas: mover · Espacio: poner dinamita",
+  "lv": 3,
+  "lvname": "Difícil",
+  "why": "Bombas con cuenta atrás, explosión en cruz, cajones que se rompen y enemigos."
+ },
+ {
+  "n": 18,
+  "slug": "defensa-castillo",
+  "title": "Defensa del Castillo",
+  "tag": "El jugador coloca torres a lo largo del camino para frenar a los enemigos antes de que lleguen al castillo.",
+  "gana": "Sobreviviendo a las 3 oleadas de enemigos.",
+  "pierde": "Si los enemigos destruyen el castillo.",
+  "legend": [
+   "T · Torre (la coloca el jugador)",
+   "C · Castillo",
+   "G · Goblin",
+   "O · Ogro",
+   "s · Hueco para torre",
+   "Camino"
+  ],
+  "powers": [
+   [
+    "Construir",
+    "torres con monedas"
+   ],
+   [
+    "Mejorar",
+    "el daño de la torre (extra)"
+   ],
+   [
+    "Reparar",
+    "el castillo (extra)"
+   ]
+  ],
+  "models": [
+   [
+    "Torre",
+    "Dispara a los enemigos cercanos."
+   ],
+   [
+    "Goblin",
+    "Enemigo rápido y débil."
+   ],
+   [
+    "Castillo",
+    "Hay que protegerlo."
+   ]
+  ],
+  "spells": [
+   [
+    "un enemigo entra en el alcance de la torre",
+    "la torre dispara"
+   ],
+   [
+    "un enemigo llega al castillo",
+    "el castillo pierde 1 vida"
+   ],
+   [
+    "termina la última oleada",
+    "se carga el siguiente nivel"
+   ]
+  ],
+  "levels": [
+   {
+    "n": "1",
+    "nov": "Camino recto con tres goblins.",
+    "meta": "Frenar a los enemigos antes de que lleguen al castillo.",
+    "pasa": "Termina la oleada"
+   },
+   {
+    "n": "2",
+    "nov": "Más goblins y tres torres.",
+    "meta": "Sobrevivir a la segunda oleada.",
+    "pasa": "Termina la oleada"
+   },
+   {
+    "n": "3",
+    "nov": "Un ogro jefe acompañado de goblins.",
+    "meta": "Derrotar al ogro con cuatro torres.",
+    "pasa": null
+   }
+  ],
+  "flow": [
+   [
+    "Evento",
+    "Al entrar en el trigger: el castillo sobrevive a la oleada"
+   ],
+   [
+    "Condición",
+    "¿Quedan enemigos vivos?"
+   ],
+   [
+    "Acción",
+    "Mostrar el mensaje de nivel superado y esperar 2 segundos"
+   ],
+   [
+    "Acción",
+    "Cargar la escena del siguiente nivel"
+   ]
+  ],
+  "notes": [
+   "Cada nivel es una escena de Unity (Nivel1, Nivel2, Nivel3) y todas se añaden a los ajustes de compilación (Build Settings).",
+   "Los puntos y las vidas se guardan en una variable de aplicación para no perderlos al cambiar de escena.",
+   "En el último nivel no se carga otra escena: se muestra la pantalla de victoria."
+  ],
+  "hint": "Clic en un hueco: construir una torre",
+  "lv": 3,
+  "lvname": "Difícil",
+  "why": "Oleadas de enemigos, torres que disparan, monedas y vida del castillo."
+ }
+];
+const TABS0 = [['res','Resumen'],['pos','Póster'],['pan','Pantalla de juego'],['niv','Niveles']];
+const SIMS = {
+ 'laberinto-dinamita':['../sims/es/laberinto.html','Vista isométrica'],
+ 'valle-nevado':['../sims/es/valle3d.html','En 3D'],
+ 'casa-encantada':['../sims/es/casa3d.html','En 3D'],
+ 'bombero-voxel':['../sims/es/bombero3d.html','En 3D'],
+ 'templo-perdido':['../sims/es/templo3d.html','En 3D'],
+ 'regata-voxel':['../sims/es/regata3d.html','En 3D'],
+ 'cofre-pirata':['../sims/es/cofre3d.html','En 3D'],
+ 'mision-espacial':['../sims/es/espacio3d.html','En 3D'],
+ 'pasteleria-loca':['../sims/es/pasteleria3d.html','En 3D'],
+ 'granja-perdida':['../sims/es/granja3d.html','En 3D'],
+ 'rally-voxel':['../sims/es/rally3d.html','En 3D'],
+ 'pez-hambriento':['../sims/es/pez3d.html','En 3D'],
+ 'jardin-abejas':['../sims/es/abejas3d.html','En 3D'],
+ 'vallas-voxel':['../sims/es/vallas3d.html','En 3D'],
+ 'gato-ninja':['../sims/es/gato3d.html','En 3D'],
+ 'dino-parque':['../sims/es/dino3d.html','En 3D'],
+ 'minigolf-voxel':['../sims/es/golf3d.html','En 3D'],
+ 'robot-fabrica':['../sims/es/robot3d.html','En 3D'],
+ 'cueva-del-jefe':['../sims/es/cueva3d.html','En 3D'],
+ 'defensa-castillo':['../sims/es/castillo3d.html','En 3D']};
+const tabsOf = g => SIMS[g.slug] ? TABS0.concat([['jug','▶ Jugar']]) : TABS0;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const img = (g,k) => 'img/' + g.slug + '-' + k + '.webp';
+
+function view(g, id){
+  const L = g.levels, F = g.flow;
+  const res = `
+   <div class="sum">
+    <img class="cov" loading="lazy" width="640" height="880" src="${img(g,'portada')}" alt="Portada de ${esc(g.title)}" data-zoom>
+    <div>
+     <p class="tagline">${esc(g.tag)}</p>
+     <p class="diff"><b>Dificultad: ${esc(g.lvname)}.</b> ${esc(g.why)}</p>
+     <div class="wl"><div class="box win"><h4>Se gana</h4><p>${esc(g.gana)}</p></div><div class="box lose"><h4>Se pierde</h4><p>${esc(g.pierde)}</p></div></div>
+     <div class="sec"><h4>Personajes y objetos</h4><ul class="chips">${g.legend.map(x=>{const m=x.split(' · ');return m.length>1?`<li><b>${esc(m[0])}</b> ${esc(m.slice(1).join(' · '))}</li>`:`<li>${esc(x)}</li>`}).join('')}</ul></div>
+     <div class="sec"><h4>Mis poderes</h4><ul class="chips">${g.powers.map(p=>`<li><b>${esc(p[0])}</b> ${esc(p[1])}</li>`).join('')}</ul></div>
+    </div>
+   </div>
+   <div class="sec"><h4>En MagicaVoxel creo</h4><ul class="grid3">${g.models.map(m=>`<li><b>${esc(m[0])}</b><span>${esc(m[1])}</span></li>`).join('')}</ul></div>
+   <div class="sec"><h4>En Unity (Visual Scripting) programo</h4><ul class="grid3">${g.spells.map(s=>`<li class="rule"><i>CUANDO</i> ${esc(s[0])}<br><i>ENTONCES</i> ${esc(s[1])}</li>`).join('')}</ul></div>`;
+  const pos = `<img class="shot poster" loading="lazy" width="720" height="1320" src="${img(g,'poster')}" alt="Póster del proyecto ${esc(g.title)}" data-zoom><p class="cap">Así lo explicaría el alumnado en su ficha de proyecto. Pulsa la imagen para ampliarla.</p>`;
+  const pan = `<img class="shot" loading="lazy" width="960" height="540" src="${img(g,'pantalla')}" alt="Pantalla de juego de ${esc(g.title)}" data-zoom><p class="cap">Controles: ${esc(g.hint)}</p>`;
+  const niv = `<img class="shot" loading="lazy" width="1280" height="920" src="${img(g,'niveles')}" alt="Los tres niveles de ${esc(g.title)}" data-zoom>
+   <div class="lvls">${L.map(l=>`<div class="lvl"><h5>NIVEL ${l.n}</h5><p><span>NOVEDAD</span>${esc(l.nov)}</p><p><span>META</span>${esc(l.meta)}</p>${l.pasa?`<p><span>PARA PASAR</span>${esc(l.pasa)}</p>`:''}</div>`).join('')}</div>
+   <div class="sec"><h4>¿Cómo se pasa al siguiente nivel? (Visual Scripting)</h4><ol class="flow">${F.map(f=>`<li><i>${esc(f[0]).toUpperCase()}</i>${esc(f[1])}</li>`).join('')}</ol><ul class="notes">${g.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul></div>`;
+  const s = SIMS[g.slug];
+  const jug = s ? `<div class="sec"><h4>Simulación jugable (${esc(s[1])})</h4><p class="tagline">Prueba el juego tal y como lo imaginaría el alumnado: ${esc(g.tag)}</p><p class="cap">Controles: ${esc(g.hint)}. En la simulación, el panel de la derecha muestra en vivo qué EVENTO, CONDICIÓN y ACCIÓN de Visual Scripting se dispara.</p><p><a class="play" href="${s[0]}" target="_blank" rel="noopener">▶ Abrir la simulación jugable</a></p></div>` : '';
+  return {res,pos,pan,niv,jug};
+}
+
+function row(g){
+  const id = g.slug, v = view(g,id);
+  return `<article class="game" id="${id}">
+   <button class="head" aria-expanded="false" aria-controls="p-${id}">
+    <span class="num l${g.lv}" role="img" aria-label="Dificultad: ${g.lvname}">${'★'.repeat(g.lv)}</span>
+    <img class="thumb" loading="lazy" width="44" height="60" src="${img(g,'portada')}" alt="">
+    <span class="ttl"><b>${esc(g.title)}</b><small>${esc(g.tag)}</small></span>
+    ${SIMS[g.slug]?'<span class="playtag">▶ Jugable</span>':''}<span class="chev" aria-hidden="true"></span>
+   </button>
+   <div class="panel" id="p-${id}" role="region" aria-label="Información de ${esc(g.title)}">
+    <div class="tabs" role="group" aria-label="Secciones">${tabsOf(g).map((t,i)=>`<button class="tab" data-t="${t[0]}" aria-selected="${i==0}">${t[1]}</button>`).join('')}</div>
+    ${tabsOf(g).map((t,i)=>`<div class="view${i==0?' on':''}" data-v="${t[0]}">${v[t[0]]}</div>`).join('')}
+   </div>
+  </article>`;
+}
+
+const TIERS = [[1, "Fácil", "Recoger objetos y llegar a la meta, sin enemigos que se muevan solos."], [2, "Medio", "Enemigos que se mueven solos, vidas o varias reglas a la vez."], [3, "Difícil", "Muchas reglas conectadas: temporizadores, secuencias, combates u oleadas."]];
+const list = document.getElementById('list');
+list.innerHTML = TIERS.map(t => `<h2>${esc(t[1])} <small>${esc(t[2])}</small></h2>` + GAMES.filter(g => g.lv === t[0]).map(row).join('')).join('');
+
+function setOpen(art, open, scroll){
+  art.classList.toggle('open', open);
+  art.querySelector('.head').setAttribute('aria-expanded', open);
+  if (open && scroll) setTimeout(()=>art.scrollIntoView({block:'start'}), 30);
+}
+function openOnly(id, scroll){
+  document.querySelectorAll('.game.open').forEach(a => { if (a.id !== id) setOpen(a,false); });
+  const a = document.getElementById(id);
+  if (a) setOpen(a, true, scroll);
+}
+list.addEventListener('click', e => {
+  const h = e.target.closest('.head');
+  if (h){
+    const a = h.parentElement, was = a.classList.contains('open');
+    if (was){ setOpen(a,false); history.replaceState(null,'',location.pathname+location.search); }
+    else { openOnly(a.id, true); history.replaceState(null,'','#'+a.id); }
+    return;
+  }
+  const t = e.target.closest('.tab');
+  if (t){
+    const a = t.closest('.game');
+    a.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x===t));
+    a.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.dataset.v === t.dataset.t));
+    return;
+  }
+  const z = e.target.closest('[data-zoom]');
+  if (z){ const lb = document.getElementById('lb'); lb.querySelector('img').src = z.src; lb.querySelector('img').alt = z.alt; lb.classList.add('on'); }
+});
+const lb = document.getElementById('lb');
+lb.addEventListener('click', () => lb.classList.remove('on'));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('on'); });
+if (location.hash && document.getElementById(location.hash.slice(1))) openOnly(location.hash.slice(1), true);
+</script>
+</body>
+</html>

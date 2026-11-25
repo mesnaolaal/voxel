@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minigolf Voxel – simulación jugable 3D</title>
+<style>
+:root{--bg:#F6F8FD;--card:#fff;--tx:#0F172A;--mut:#475569;--ac:#0F766E;--bd:#D8DEEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+h1{margin:0 0 4px;font-size:26px}
+.sub{color:var(--mut);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pill{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:999px;padding:3px 12px;font-weight:600;font-size:14px}
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#9AD4F5;aspect-ratio:16/10.5}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+#bn{position:absolute;left:0;right:0;top:14px;text-align:center;background:rgba(15,23,42,.78);color:#fff;font-weight:700;font-size:20px;padding:8px;display:none}
+#ov{position:absolute;inset:0;background:rgba(15,23,42,.72);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:16px}
+#ov b{font-size:34px;color:#FDE047}
+.pad{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0;gap:12px}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:6px}
+.dpad button,.bomb{border:1px solid var(--bd);background:#fff;border-radius:12px;font-size:20px;cursor:pointer;color:var(--tx)}
+.dpad button:active,.bomb:active{background:#CCFBF1}
+.bomb{width:120px;height:120px;border-radius:60px;background:#DBEAFE;border-color:#93C5FD;font-weight:700;font-size:14px}
+.help{color:var(--mut);font-size:14px;margin:10px 0 0}
+h2{font-size:16px;margin:0 0 8px}
+#log{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:6px;min-height:300px}
+#log li{border-left:4px solid var(--bd);padding:4px 8px;background:#F8FAFC;border-radius:0 8px 8px 0}
+.t{font-weight:700;font-size:11px;letter-spacing:.04em;margin-right:6px}
+.ev{border-color:#3B82F6!important}.ev .t{color:#1D4ED8}
+.co{border-color:#F59E0B!important}.co .t{color:#B45309}
+.ac{border-color:#10B981!important}.ac .t{color:#047857}
+.btn{margin-top:10px;background:var(--ac);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Minigolf Voxel <span style="font-weight:400;color:#64748B;font-size:18px">· 3D</span></h1>
+  <p class="sub">Simulación jugable en 3D del ejemplo de proyecto. A la derecha verás qué EVENTO → CONDICIÓN → ACCIÓN de Visual Scripting se dispara en cada momento.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="hud"><span class="pill" id="hA"></span><span class="pill" id="hB"></span><span class="pill" id="hC"></span><span class="pill" id="hD"></span></div>
+      <div class="stage" id="stage" tabindex="0"><div id="bn"></div><div id="ov"></div></div>
+      <div class="pad">
+        <div class="dpad">
+          <span></span><button data-d="up" aria-label="Arriba">▲</button><span></span>
+          <button data-d="left" aria-label="Izquierda">◀</button><button data-d="down" aria-label="Abajo">▼</button><button data-d="right" aria-label="Derecha">▶</button>
+        </div>
+        <button class="bomb" id="bBomb">GOLPEAR<br>(mantén y suelta)</button>
+      </div>
+      <p class="help">← → (o A/D): apuntar (Shift: afinar) · Mantén Espacio para cargar la fuerza y suéltalo para golpear. Mete la bola en el hoyo con pocos golpes. Si cae al agua 3 veces, pierdes.</p>
+    </div>
+    <div class="card">
+      <h2>Visual Scripting en vivo</h2>
+      <ul id="log"></ul>
+      <button class="btn" id="bRestart">Reiniciar partida</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var VW=640,VH=420,C=2;
+var stage=document.getElementById('stage'),logEl=document.getElementById('log'),bn=document.getElementById('bn'),ov=document.getElementById('ov');
+function log(k,t,x){var li=document.createElement('li');li.className=k;li.innerHTML='<span class="t">'+t+'</span>'+x;logEl.insertBefore(li,logEl.firstChild);while(logEl.children.length>10)logEl.removeChild(logEl.lastChild)}
+function ev(t){log('ev','EVENTO',t)}function co(t){log('co','CONDICIÓN',t)}function ac(t){log('ac','ACCIÓN',t)}
+function setHud(a,b,c,d){document.getElementById('hA').textContent=a;document.getElementById('hB').textContent=b;document.getElementById('hC').textContent=c;document.getElementById('hD').textContent=d}
+var renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.setSize(VW,VH,false);
+stage.insertBefore(renderer.domElement,stage.firstChild);
+var scene=new THREE.Scene();scene.background=new THREE.Color('#A5DBFF');scene.fog=new THREE.Fog('#BFE4FF',45,110);
+var cam=new THREE.PerspectiveCamera(42,VW/VH,0.1,400);
+var amb=new THREE.AmbientLight(0xffffff,0.85);scene.add(amb);
+var sun=new THREE.DirectionalLight(0xffffff,0.7);sun.position.set(-20,40,15);scene.add(sun);
+var lvGroup=null,mats={};
+function mat(c){return mats[c]||(mats[c]=new THREE.MeshLambertMaterial({color:c}))}
+function basic(c){var k='b'+c;return mats[k]||(mats[k]=new THREE.MeshBasicMaterial({color:c}))}
+function emi(c,e){var k=c+'|'+e;return mats[k]||(mats[k]=new THREE.MeshLambertMaterial({color:c,emissive:e}))}
+function bx(w,h,d,col,x,y,z,parent){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof col==='string'?mat(col):col);m.position.set(x,y,z);if(parent)parent.add(m);return m}
+function checker(c1,c2,rx,ry){var c=document.createElement('canvas');c.width=c.height=2;var g=c.getContext('2d');g.fillStyle=c1;g.fillRect(0,0,2,2);g.fillStyle=c2;g.fillRect(0,0,1,1);g.fillRect(1,1,1,1);var t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);return t}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function clearLevel(){if(lvGroup){scene.remove(lvGroup);lvGroup.traverse(function(o){if(o.geometry)o.geometry.dispose()})}lvGroup=new THREE.Group();scene.add(lvGroup)}
+function showOv(t,s,s2){ov.style.display='flex';ov.innerHTML='<b>'+t+'</b><span>'+s+'</span>'+(s2?'<span>'+s2+'</span>':'')}
+function hideOv(){ov.style.display='none'}
+var S=null,held={};
+function cellCh(cx,cz){var r=S.L.rows[cz];return r?r[cx]:undefined}
+function flash(txt,ms){S.msg=txt;S.msgT=S.t+(ms||1400)}
+
+amb.intensity=0.8;sun.intensity=0.7;
+var TITLE='MINIGOLF VOXEL';
+var R=0.4;
+var HOLES=[
+ {name:'Hoyo 1: recto y sin obstáculos',par:3,x0:-5,x1:5,z0:-16,z1:16,tee:[0,13],hole:[0,-13],water:[],sand:[],walls:[],mill:null},
+ {name:'Hoyo 2: arena y un estanque',par:3,x0:-8,x1:8,z0:-16,z1:16,tee:[-5,13],hole:[5,-13],water:[[-3,5,-3,3]],sand:[[1,8,-10,-5],[-8,-4,6,10]],walls:[],mill:null},
+ {name:'Hoyo 3: un molino con aspas que giran',par:3,x0:-5,x1:5,z0:-17,z1:17,tee:[0,14],hole:[0,-14],water:[],sand:[],walls:[[2.2,5,-0.8,0.8],[-5,-2.2,-0.8,0.8]],mill:{x:0,z:0,len:4.6,tower:[-0.8,0.8,-0.8,0.8]}}];
+function inR(x,z,r){return x>=r[0]&&x<=r[1]&&z>=r[2]&&z<=r[3]}
+function millAng(){return S.wt*1.6}
+function bladeHit(b){var m=S.H.mill;if(!m)return false;var a=millAng();
+  for(var i=0;i<4;i++){var ang=a+i*Math.PI/2,ex=m.x+Math.cos(ang)*m.len,ez=m.z+Math.sin(ang)*m.len,dx=ex-m.x,dz=ez-m.z,t=Math.max(0,Math.min(1,((b.x-m.x)*dx+(b.z-m.z)*dz)/(dx*dx+dz*dz))),px=m.x+dx*t,pz=m.z+dz*t;
+    if(Math.hypot(b.x-px,b.z-pz)<R+0.22)return{nx:(b.x-px),nz:(b.z-pz),bx:px,bz:pz,ang:ang}}return false}
+function physStep(b,dt){ // devuelve 'water' | 'hole' | null
+  var H=S.H,sp=Math.hypot(b.vx,b.vz);
+  if(sp>0){var sand=H.sand.some(function(r){return inR(b.x,b.z,r)}),dec=(sand?12:3.5)*dt;var ns=Math.max(0,sp-dec);b.vx*=ns/sp;b.vz*=ns/sp;if(ns<0.3){b.vx=0;b.vz=0}}
+  b.x+=b.vx*dt;b.z+=b.vz*dt;
+  if(b.x<H.x0+R){b.x=H.x0+R;b.vx=Math.abs(b.vx)*0.8}if(b.x>H.x1-R){b.x=H.x1-R;b.vx=-Math.abs(b.vx)*0.8}
+  if(b.z<H.z0+R){b.z=H.z0+R;b.vz=Math.abs(b.vz)*0.8}if(b.z>H.z1-R){b.z=H.z1-R;b.vz=-Math.abs(b.vz)*0.8}
+  var boxes=H.walls.slice();if(H.mill)boxes.push(H.mill.tower);
+  boxes.forEach(function(w){var cx=Math.max(w[0],Math.min(w[1],b.x)),cz=Math.max(w[2],Math.min(w[3],b.z)),dx=b.x-cx,dz=b.z-cz,d=Math.hypot(dx,dz);
+    if(d<R){if(d<1e-4){dx=0;dz=1;d=1}var nx=dx/d,nz=dz/d;b.x=cx+nx*R;b.z=cz+nz*R;var vn=b.vx*nx+b.vz*nz;if(vn<0){b.vx-=1.8*vn*nx;b.vz-=1.8*vn*nz}}});
+  var bh=bladeHit(b);if(bh){var d=Math.hypot(bh.nx,bh.nz)||1,nx=bh.nx/d,nz=bh.nz/d;b.x=bh.bx+nx*(R+0.23);b.z=bh.bz+nz*(R+0.23);var vn=b.vx*nx+b.vz*nz;if(vn<0){b.vx-=1.8*vn*nx;b.vz-=1.8*vn*nz}
+    var kick=4;b.vx+=-Math.sin(bh.ang)*kick*0.5;b.vz+=Math.cos(bh.ang)*kick*0.5;if(b.vx||b.vz){} }
+  if(H.water.some(function(r){return inR(b.x,b.z,r)}))return 'water';
+  var dh=Math.hypot(b.x-H.hole[0],b.z-H.hole[1]);if(dh<0.8&&Math.hypot(b.vx,b.vz)<13)return 'hole';
+  return null}
+var ball=new THREE.Mesh(new THREE.BoxGeometry(0.8,0.8,0.8),basic('#FFFFFF')),golfer=new THREE.Group(),clubG,arrow=new THREE.Group(),arrowBars=[];
+(function(){var g=golfer;
+  bx(0.4,1.0,0.42,'#1D4ED8',-0.25,0.5,0,g);bx(0.4,1.0,0.42,'#1D4ED8',0.25,0.5,0,g);bx(1.1,1.2,0.6,'#F8FAFC',0,1.6,0,g);bx(1.12,0.25,0.62,'#16A34A',0,1.15,0,g);bx(0.28,0.9,0.3,'#F8FAFC',-0.7,1.55,0,g);bx(0.28,0.9,0.3,'#F8FAFC',0.7,1.55,0,g);
+  bx(0.65,0.6,0.6,'#FCD9A6',0,2.5,0,g);bx(0.7,0.2,0.7,'#DC2626',0,2.9,0,g);bx(0.95,0.1,0.9,'#DC2626',0,2.8,0.35,g);bx(0.12,0.12,0.06,'#111827',0.15,2.5,0.31,g);bx(0.12,0.12,0.06,'#111827',-0.15,2.5,0.31,g);
+  clubG=new THREE.Group();clubG.position.set(0.75,1.1,0.2);bx(0.12,1.8,0.12,'#94A3B8',0,-0.9,0,clubG);bx(0.5,0.3,0.3,'#475569',0,-1.8,0.1,clubG);g.add(clubG)})();
+for(var i=0;i<8;i++){var ab=new THREE.Mesh(new THREE.BoxGeometry(0.35,0.1,0.8),basic('#FACC15'));arrow.add(ab);arrowBars.push(ab)}
+var flag=null,millG=null,blades=null;
+function buildLevel(n){
+  var H=HOLES[n];S.H=H;S.L=H;clearLevel();var r=rng(41+n*9),i;
+  scene.background.set('#9AD4F5');scene.fog.color.set('#BFE3F7');scene.fog.near=90;scene.fog.far=220;
+  var w=H.x1-H.x0,l=H.z1-H.z0,cx=(H.x0+H.x1)/2,cz=(H.z0+H.z1)/2;
+  var gt=checker('#4FBF4A','#46B342',w/2,l/2),fl=new THREE.Mesh(new THREE.BoxGeometry(w,0.6,l),new THREE.MeshLambertMaterial({map:gt}));fl.position.set(cx,-0.3,cz);lvGroup.add(fl);
+  var outg=new THREE.Mesh(new THREE.PlaneGeometry(260,260),new THREE.MeshLambertMaterial({color:'#3F9A3B'}));outg.rotation.x=-Math.PI/2;outg.position.set(cx,-0.62,cz);lvGroup.add(outg);
+  H.sand.forEach(function(s){bx(s[1]-s[0],0.1,s[3]-s[2],'#F3D58A',(s[0]+s[1])/2,0.02,(s[2]+s[3])/2,lvGroup)});
+  H.water.forEach(function(s){bx(s[1]-s[0],0.4,s[3]-s[2],emi('#38BDF8','#0369A1'),(s[0]+s[1])/2,-0.02,(s[2]+s[3])/2,lvGroup);bx(s[1]-s[0]+0.6,0.3,s[3]-s[2]+0.6,'#92400E',(s[0]+s[1])/2,-0.1,(s[2]+s[3])/2,lvGroup)});
+  // paredes exteriores
+  bx(w+1,1.0,0.8,'#92400E',cx,0.5,H.z0-0.4,lvGroup);bx(w+1,1.0,0.8,'#92400E',cx,0.5,H.z1+0.4,lvGroup);bx(0.8,1.0,l,'#92400E',H.x0-0.4,0.5,cz,lvGroup);bx(0.8,1.0,l,'#92400E',H.x1+0.4,0.5,cz,lvGroup);
+  H.walls.forEach(function(s){bx(s[1]-s[0],1.0,s[3]-s[2],'#B45309',(s[0]+s[1])/2,0.5,(s[2]+s[3])/2,lvGroup)});
+  // hoyo
+  bx(1.6,0.05,1.6,'#0B0B0B',H.hole[0],0.04,H.hole[1],lvGroup);bx(0.12,4,0.12,'#F8FAFC',H.hole[0],2,H.hole[1],lvGroup);flag=bx(1.6,0.9,0.1,'#EF4444',H.hole[0]+0.8,3.5,H.hole[1],lvGroup);
+  // tee
+  bx(2.2,0.08,2.2,'#2563EB',H.tee[0],0.03,H.tee[1],lvGroup);
+  // molino
+  millG=null;blades=null;if(H.mill){var m=H.mill;millG=new THREE.Group();bx(1.6,3.2,1.6,'#F8FAFC',0,1.6,0,millG);bx(2.0,0.8,2.0,'#DC2626',0,3.6,0,millG);millG.position.set(m.x,0,m.z);lvGroup.add(millG);
+    blades=new THREE.Group();for(i=0;i<4;i++){var b=bx(m.len,0.5,0.5,'#92400E',m.len/2,0,0,blades),b2=bx(m.len*0.8,0.18,0.9,'#F8FAFC',m.len*0.6,0,0,blades);var holder=new THREE.Group();holder.rotation.y=-i*Math.PI/2;blades.remove(b);blades.remove(b2);holder.add(b);holder.add(b2);blades.add(holder)}
+    blades.position.set(m.x,1.0,m.z);lvGroup.add(blades)}
+  // decoración: árboles
+  for(i=0;i<16;i++){var tx=H.x0-4-r()*8,side=i%2?1:-1,tz=H.z0+r()*l;var px=side>0?H.x1+3+r()*8:H.x0-3-r()*8;bx(0.8,2.5,0.8,'#78350F',px,1.25,tz,lvGroup);bx(3,2.5,3,'#16A34A',px,3.4,tz,lvGroup)}
+  scene.add(ball);scene.add(golfer);scene.add(arrow);
+  S.b={x:H.tee[0],z:H.tee[1],vx:0,vz:0};S.rest={x:H.tee[0],z:H.tee[1]};S.ang=Math.atan2(H.hole[0]-H.tee[0],-(H.hole[1]-H.tee[1]));S.pw=0;S.charging=false;S.moving=false;S.strokes=0;S.water=0;S.wt=0;S.swing=0;S.camx=cx;S.camz=cz;S.zoomY=Math.max(w*1.5,l*1.12)+5;
+  S.sink=0;
+}
+function hud(){var H=S.H||HOLES[0];setHud('Hoyo '+((S.lv||0)+1)+'/3 · par '+H.par,'Golpes '+(S.strokes||0),'Agua '+(S.water||0)+'/3',S.moving?'Bola rodando…':(S.charging?'Fuerza '+Math.round(S.pw*100)+' %':'Fuerza: mantén Espacio'))}
+function newGame(){S={mode:'title',lv:0,t:0,msg:'',msgT:0,total:0,res:[]};logEl.innerHTML='';ev('Start del juego');ac('Variables: golpes = 0, hoyo = 1');buildLevel(0);showOv('MINIGOLF VOXEL','Pulsa Espacio o toca para empezar','← → apuntar · mantén Espacio y suéltalo para golpear')}
+function loadLevel(n){S.lv=n;S.mode='play';var tot=S.total,res=S.res;buildLevel(n);S.total=tot;S.res=res;hideOv();flash(HOLES[n].name,2600);
+  ev('Load Scene "Hoyo '+(n+1)+'"');ac('Instantiate Golfista, Bola, Hoyo'+(S.H.mill?', Molino':'')+(S.H.water.length?', Agua':'')+'; golpes = 0')}
+function retry(){S.total=0;S.res=[];loadLevel(0)}
+function toNext(){var k=S.strokes,par=S.H.par;S.total+=k;S.res.push(k);var txt=k===1?'¡Hoyo en uno!':(k<par?(k===par-1?'¡Birdie! ':'¡Eagle! ')+k+' golpes':(k===par?'Par: '+k+' golpes':k+' golpes (par '+par+')'));
+  if(S.lv<2){S.mode='next';flash(txt,2000);S.nextAt=S.t+2300;ac('Mostrar '+k+' golpes, esperar 2 s, Load Scene "Hoyo '+(S.lv+2)+'"')}else{S.mode='won';ac('Load Scene "Victoria"');showOv('¡TERMINASTE EL CAMPO!','Golpes: '+S.res.join(' + ')+' = '+S.total+' (par total 9)','Pulsa Espacio para jugar otra vez')}}
+function over(){S.mode='over';showOv('¡DEMASIADA AGUA!','La bola cayó al agua 3 veces','Pulsa Espacio para reintentar desde el hoyo 1')}
+function shoot(pw){var H=S.H,sp=4+12*pw;S.b.vx=Math.sin(S.ang)*sp;S.b.vz=-Math.cos(S.ang)*sp;S.strokes++;S.moving=true;S.swing=0.35;S.rest={x:S.b.x,z:S.b.z};
+  ev('Input: soltar Espacio');ac('Golpear con fuerza '+Math.round(pw*100)+' %, golpes = '+S.strokes)}
+function onSpace(){if(S.moving||S.mode!=='play')return;S.charging=true;S.pw=0}
+function update(dt){
+  S.t+=dt*1000;
+  if(S.mode==='next'&&S.t>=S.nextAt)loadLevel(S.lv+1);
+  if(S.mode!=='play')return;
+  S.wt+=dt;
+  if(S.sink>0){S.sink-=dt;if(S.sink<=0){ev('On Trigger Enter (Bola ∩ Hoyo)');co('¿Cae en el hoyo? SÍ');ac('Destroy(Bola), cargar el siguiente hoyo');toNext()}return}
+  if(!S.moving){
+    var rot=((held.right?1:0)-(held.left?1:0))*(held.shift?0.5:1.5)*dt;S.ang+=rot;
+    if(S.charging){S.pw=Math.min(1,S.pw+dt/1.3);if(!held.space){var pw=Math.max(0.12,S.pw);S.charging=false;S.pw=0;shoot(pw)}}
+  }else{
+    var steps=Math.ceil(dt/0.008),h=dt/steps,res=null;
+    for(var i=0;i<steps&&!res;i++)res=physStep(S.b,h);
+    if(res==='water'){S.water++;S.strokes++;S.b.vx=S.b.vz=0;S.moving=false;ev('On Trigger Enter (Bola ∩ Agua)');ac('Teleport al inicio del golpe, golpes + 1, agua = '+S.water+'/3');flash('¡Al agua! +1 golpe',1400);S.b.x=S.rest.x;S.b.z=S.rest.z;if(S.water>=3){ac('Load Scene "GameOver"');over();return}}
+    else if(res==='hole'){S.moving=false;S.b.vx=S.b.vz=0;S.b.x=S.H.hole[0];S.b.z=S.H.hole[1];S.sink=0.9}
+    else if(S.b.vx===0&&S.b.vz===0){S.moving=false;S.rest={x:S.b.x,z:S.b.z};var H=S.H;S.ang=Math.atan2(H.hole[0]-S.b.x,-(H.hole[1]-S.b.z))}}
+}
+function render(dt){
+  var H=S.H,b=S.b,t=S.t/1000;
+  var y=S.sink>0?0.4-(0.9-S.sink)*1.2:0.4;ball.position.set(b.x,y,b.z);ball.rotation.x+=b.vz*dt*1.5;ball.rotation.z-=b.vx*dt*1.5;ball.visible=!(S.sink>0&&S.sink<0.3);
+  var show=S.mode==='play'&&!S.moving&&S.sink<=0;arrow.visible=show;golfer.visible=show||S.swing>0;
+  if(show){var len=1.5+(S.charging?S.pw:0.2)*8;for(var i=0;i<8;i++){var ab=arrowBars[i];ab.visible=i*1.1<len+1;ab.position.set(b.x+Math.sin(S.ang)*(1.2+i*1.1),0.12,b.z-Math.cos(S.ang)*(1.2+i*1.1));ab.rotation.y=-S.ang;ab.material.color.set(S.charging?(i/8<S.pw?'#EF4444':'#FACC15'):'#FACC15')}}
+  S.swing=Math.max(0,S.swing-dt);
+  var gx=b.x-Math.sin(S.ang)*1.5+Math.cos(S.ang)*1.3,gz=b.z+Math.cos(S.ang)*1.5+Math.sin(S.ang)*1.3;golfer.position.set(gx,0,gz);golfer.rotation.y=-S.ang+Math.PI;
+  clubG.rotation.x=S.swing>0?-1.2+Math.sin((0.35-S.swing)/0.35*Math.PI)*1.6:(S.charging?0.9*S.pw+0.1:0.1);
+  if(blades){blades.rotation.y=-millAng()}
+  flag.position.x=H.hole[0]+0.8+Math.sin(t*3)*0.1;
+  var cx=(H.x0+H.x1)/2,cz=(H.z0+H.z1)/2;S.camx+=(cx-S.camx)*Math.min(1,6*dt);S.camz+=(cz-S.camz)*Math.min(1,6*dt);
+  cam.position.set(S.camx,S.zoomY,S.camz+S.zoomY*0.5);cam.lookAt(S.camx,0.2,S.camz+0.3);
+}
+
+var KEYS={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
+function pressSpace(){if(S.mode==='title')loadLevel(0);else if(S.mode==='over'){if(typeof retry==='function')retry();else newGame()}else if(S.mode==='won')newGame();else if(S.mode==='play')onSpace()}
+window.addEventListener('keydown',function(e){
+  if(KEYS[e.key]){held[KEYS[e.key]]=true;e.preventDefault()}
+  else if(e.key==='Shift')held.shift=true;
+  else if(e.key===' '){e.preventDefault();held.space=true;if(!e.repeat)pressSpace()}});
+window.addEventListener('keyup',function(e){if(KEYS[e.key])held[KEYS[e.key]]=false;if(e.key==='Shift')held.shift=false;if(e.key===' ')held.space=false});
+document.querySelectorAll('.dpad button').forEach(function(b){var d=b.dataset.d;
+  function on(e){e.preventDefault();held[d]=true}function off(e){e.preventDefault();held[d]=false}
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off)});
+var bb=document.getElementById('bBomb');
+bb.addEventListener('pointerdown',function(e){e.preventDefault();held.space=true;pressSpace()});
+['pointerup','pointerleave','pointercancel'].forEach(function(n){bb.addEventListener(n,function(){held.space=false})});
+document.getElementById('bRestart').addEventListener('click',function(){newGame()});
+stage.addEventListener('pointerdown',function(){if(S.mode!=='play')pressSpace()});
+var last=performance.now();
+function loop(now){var dt=Math.min(50,now-last)/1000;last=now;update(dt);hud();render(dt);var txt=(S.msg&&S.t<S.msgT)?S.msg:(S.mode==='next'?'¡Nivel superado!':'');if(txt){bn.style.display='block';bn.textContent=txt}else bn.style.display='none';renderer.render(scene,cam);requestAnimationFrame(loop)}
+newGame();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

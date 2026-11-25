@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dinamita Labirintoa – simulazio jokagarria</title>
+<style>
+:root{--bg:#F6F8FD;--card:#fff;--tx:#0F172A;--mut:#475569;--ac:#0F766E;--bd:#D8DEEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 40px}
+h1{margin:0 0 4px;font-size:26px}
+.sub{color:var(--mut);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pill{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:999px;padding:3px 12px;font-weight:600;font-size:14px}
+canvas{display:block;width:100%;height:auto;border-radius:10px;background:#134E4A;touch-action:none}
+.pad{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:12px}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:6px}
+.dpad button,.bomb{border:1px solid var(--bd);background:#fff;border-radius:12px;font-size:20px;cursor:pointer;color:var(--tx)}
+.dpad button:active,.bomb:active{background:#CCFBF1}
+.bomb{width:110px;height:110px;border-radius:55px;background:#FEE2E2;border-color:#FCA5A5;font-weight:700;font-size:15px}
+.help{color:var(--mut);font-size:14px;margin:10px 0 0}
+h2{font-size:16px;margin:0 0 8px}
+#log{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:6px;min-height:260px}
+#log li{border-left:4px solid var(--bd);padding:4px 8px;background:#F8FAFC;border-radius:0 8px 8px 0}
+.t{font-weight:700;font-size:11px;letter-spacing:.04em;margin-right:6px}
+.ev{border-color:#3B82F6!important}.ev .t{color:#1D4ED8}
+.co{border-color:#F59E0B!important}.co .t{color:#B45309}
+.ac{border-color:#10B981!important}.ac .t{color:#047857}
+.btn{margin-top:10px;background:var(--ac);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Dinamita Labirintoa </h1>
+  <p class="sub">Proiektu-adibidearen simulazio jokagarria. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="hud">
+        <span class="pill" id="hNivel">Nivel 1/3</span>
+        <span class="pill" id="hVidas">Vidas ♥♥♥</span>
+        <span class="pill" id="hPts">Puntos 0</span>
+        <span class="pill" id="hSl">Slimes 0</span>
+      </div>
+      <canvas id="cv" width="640" height="440" tabindex="0"></canvas>
+      <div class="pad">
+        <div class="dpad">
+          <span></span><button data-d="up" aria-label="Gora">▲</button><span></span>
+          <button data-d="left" aria-label="Ezkerrera">◀</button><button data-d="down" aria-label="Behera">▼</button><button data-d="right" aria-label="Eskuinera">▶</button>
+        </div>
+        <button class="bomb" id="bBomb">DINAMITA<br>(Zuriunea)</button>
+      </div>
+      <p class="help">Geziak edo WASD mugitzeko · Zuriunea dinamita jartzeko. Apurtu kaxoiak, saihestu edo garaitu slimeak eta heldu ate horira. Ez gelditu leherketaren gurutzean.</p>
+    </div>
+    <div class="card">
+      <h2>Visual Scripting zuzenean</h2>
+      <ul id="log"></ul>
+      <button class="btn" id="bRestart">Partida berrabiarazi</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+var COLS=9,ROWS=7,OX=290,OY=112,HW=36,HH=18;
+var LEVELS=[
+ {name:'Labirinto txiki bat',slimeMs:0,map:[
+  'M.C......',
+  '.#.#.#.#.',
+  '..C.C....',
+  '.#.#.#.#.',
+  '.C...C...',
+  '.#.#.#.#.',
+  '.........'.replace('.........','......C.P')]},
+ {name:'Slime bat pasabidean',slimeMs:620,map:[
+  'M.C...C..',
+  '.#.#.#.#.',
+  'C.C.C.C..',
+  '.#.#.#.#.',
+  '..C..S.C.',
+  '.#.#.#.#.',
+  '..C.C...P']},
+ {name:'Itxiagoa, bi slime',slimeMs:480,map:[
+  'M.C.C.C..',
+  '.#.#.#.#.',
+  'C.C.C.C.C',
+  '.#.#.#.#.',
+  'C..S.C.S.',
+  '.#.#.#.#.',
+  '..C.C.C.P']}
+];
+var S;// estado
+var logEl=document.getElementById('log');
+function log(kind,tag,txt){
+  var li=document.createElement('li');li.className=kind;
+  li.innerHTML='<span class="t">'+tag+'</span>'+txt;
+  logEl.insertBefore(li,logEl.firstChild);
+  while(logEl.children.length>9)logEl.removeChild(logEl.lastChild);
+}
+function ev(t){log('ev','GERTAERA',t)}function co(t){log('co','BALDINTZA',t)}function ac(t){log('ac','EKINTZA',t)}
+function newGame(){
+  S={mode:'title',lv:0,lives:3,score:0,range:2,maxB:1,t:0};
+  logEl.innerHTML='';
+  ev('Jokoaren Start');ac('Aldagaiak: bizitzak = 3, puntuak = 0');
+  hud();
+}
+function loadLevel(n){
+  var L=LEVELS[n];S.lv=n;S.mode='play';
+  S.grid=[];S.crates={};S.slimes=[];S.dyn=[];S.exp=[];S.pw=[];S.door=null;
+  for(var y=0;y<ROWS;y++){S.grid[y]=[];for(var x=0;x<COLS;x++){
+    var ch=L.map[y][x],v=0;
+    if(x%2==1&&y%2==1)v=1;
+    else if(ch=='C')v=2;
+    else if(ch=='P')S.door={x:x,y:y};
+    else if(ch=='S')S.slimes.push({x:x,y:y,px:x,py:y,dx:1,dy:0,next:S.t+400,mv:0,from:null});
+    else if(ch=='M'){S.start={x:x,y:y}}
+    S.grid[y][x]=v;
+  }}
+  // cajones con premio
+  var keys=[];for(var y=0;y<ROWS;y++)for(var x=0;x<COLS;x++)if(S.grid[y][x]==2)keys.push(x+','+y);
+  keys.forEach(function(k,i){S.crates[k]=(i%5==2)?'range':(i%7==4?'bomb':null)});
+  S.p={x:S.start.x,y:S.start.y,px:S.start.x,py:S.start.y,from:null,mv:0,dir:'down',inv:0,leave:null};
+  S.slimeMs=L.slimeMs;S.msg='Maila '+(n+1)+' · '+L.name;S.msgT=S.t+2200;
+  ev('Load Scene "Maila '+(n+1)+'"');ac('Instantiate Meatzaria, '+S.slimes.length+' slime, kaxoi eta atea');
+  hud();
+}
+function hud(){
+  document.getElementById('hNivel').textContent='Maila '+(S.lv+1)+'/3';
+  document.getElementById('hVidas').textContent='Bizitzak '+new Array(S.lives+1).join('♥');
+  document.getElementById('hPts').textContent='Puntuak '+S.score;
+  document.getElementById('hSl').textContent='Slimeak '+(S.slimes?S.slimes.length:0);
+}
+// ---- consultas
+function dynAt(x,y){for(var i=0;i<S.dyn.length;i++)if(S.dyn[i].x==x&&S.dyn[i].y==y)return S.dyn[i];return null}
+function solid(x,y,forSlime){
+  if(x<0||y<0||x>=COLS||y>=ROWS)return true;
+  if(S.grid[y][x]!=0)return true;
+  var d=dynAt(x,y);if(d&&d.solid)return true;
+  if(forSlime&&d)return true;
+  return false;
+}
+// ---- entrada
+var held={};var want=null;
+var DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
+var KEYS={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
+window.addEventListener('keydown',function(e){
+  if(KEYS[e.key]){held[KEYS[e.key]]=true;e.preventDefault();}
+  else if(e.key===' '){e.preventDefault();if(!e.repeat)action();}
+});
+window.addEventListener('keyup',function(e){if(KEYS[e.key])held[KEYS[e.key]]=false});
+document.querySelectorAll('.dpad button').forEach(function(b){
+  var d=b.dataset.d;
+  function on(e){e.preventDefault();held[d]=true}function off(e){e.preventDefault();held[d]=false}
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off);
+});
+document.getElementById('bBomb').addEventListener('click',action);
+document.getElementById('bRestart').addEventListener('click',function(){newGame()});
+cv.addEventListener('pointerdown',function(){cv.focus();if(S.mode!=='play')action()});
+function action(){
+  if(S.mode==='title'){loadLevel(0);return}
+  if(S.mode==='over'||S.mode==='won'){newGame();return}
+  if(S.mode!=='play')return;
+  var p=S.p;if(p.mv>0)return;
+  if(dynAt(p.x,p.y))return;
+  if(S.dyn.length>=S.maxB){return}
+  S.dyn.push({x:p.x,y:p.y,t:S.t+2000,solid:false});
+  p.leave={x:p.x,y:p.y};
+  ev('Input: Zuriunea tekla');ac('Instantiate Dinamita + Timer 2 s');
+}
+// ---- lógica
+function tryMove(){
+  var p=S.p;if(p.mv>0)return;
+  var d=null;['up','down','left','right'].forEach(function(k){if(held[k]&&!d)d=k});
+  if(!d)return;
+  p.dir=d;
+  var nx=p.x+DIRS[d][0],ny=p.y+DIRS[d][1];
+  if(solid(nx,ny,false))return;
+  p.from={x:p.x,y:p.y};p.x=nx;p.y=ny;p.mv=1;
+}
+function hitPlayer(why){
+  var p=S.p;if(p.inv>S.t)return;
+  S.lives--;p.inv=S.t+1800;
+  ev('On Trigger Enter ('+why+')');ac('bizitzak = bizitzak − 1 → '+S.lives);
+  if(S.lives<=0){S.mode='over';ac('Load Scene "GameOver"');hud();return}
+  p.x=S.start.x;p.y=S.start.y;p.px=p.x;p.py=p.y;p.mv=0;p.from=null;
+  ac('Meatzaria hasierara Teleport');
+  hud();
+}
+function explode(d){
+  var i=S.dyn.indexOf(d);if(i<0)return;S.dyn.splice(i,1);
+  ev('Dinamitaren Timer amaitu da');ac('Gurutze-leherketa (irismena '+S.range+')');
+  var cells=[{x:d.x,y:d.y}];
+  [[1,0],[-1,0],[0,1],[0,-1]].forEach(function(v){
+    for(var k=1;k<=S.range;k++){
+      var x=d.x+v[0]*k,y=d.y+v[1]*k;
+      if(x<0||y<0||x>=COLS||y>=ROWS)break;
+      if(S.grid[y][x]==1)break;
+      cells.push({x:x,y:y});
+      if(S.grid[y][x]==2){
+        S.grid[y][x]=0;S.score+=10;
+        var key=x+','+y,pr=S.crates[key];delete S.crates[key];
+        ev('On Trigger Enter (Leherketa ∩ Kaxoia)');ac('Destroy(Kaxoia), puntuak +10');
+        if(pr)S.pw.push({x:x,y:y,type:pr});
+        break;
+      }
+    }
+  });
+  cells.forEach(function(c){S.exp.push({x:c.x,y:c.y,t:S.t+450});
+    var o=dynAt(c.x,c.y);if(o)o.t=Math.min(o.t,S.t+120);
+  });
+  hud();
+}
+function update(dt){
+  S.t+=dt;
+  if(S.mode!=='play')return;
+  var p=S.p;
+  if(p.mv>0){p.mv-=dt/150;if(p.mv<=0){p.mv=0;p.px=p.x;p.py=p.y;p.from=null}
+    else{p.px=p.x+(p.from.x-p.x)*p.mv;p.py=p.y+(p.from.y-p.y)*p.mv}}
+  tryMove();
+  if(p.leave&&(p.x!=p.leave.x||p.y!=p.leave.y)){var dd=dynAt(p.leave.x,p.leave.y);if(dd)dd.solid=true;p.leave=null}
+  // dinamitas
+  S.dyn.slice().forEach(function(d){if(S.t>=d.t)explode(d)});
+  S.exp=S.exp.filter(function(e){return S.t<e.t});
+  // daño explosión
+  S.exp.forEach(function(e){
+    if(Math.abs(p.px-e.x)<0.7&&Math.abs(p.py-e.y)<0.7)hitPlayer('Leherketa ∩ Meatzaria');
+    for(var i=S.slimes.length-1;i>=0;i--){var s=S.slimes[i];
+      if(Math.abs(s.px-e.x)<0.7&&Math.abs(s.py-e.y)<0.7){S.slimes.splice(i,1);S.score+=100;
+        ev('On Trigger Enter (Leherketa ∩ Slime)');ac('Destroy(Slime), puntuak +100');hud();}}
+    for(var j=S.pw.length-1;j>=0;j--){if(S.pw[j].x==e.x&&S.pw[j].y==e.y)S.pw.splice(j,1)}
+  });
+  // slimes
+  S.slimes.forEach(function(s){
+    if(s.mv>0){s.mv-=dt/(S.slimeMs*0.8);if(s.mv<=0){s.mv=0;s.px=s.x;s.py=s.y}else{s.px=s.x+(s.from.x-s.x)*s.mv;s.py=s.y+(s.from.y-s.y)*s.mv}}
+    else if(S.t>=s.next){
+      var opts=[];[[1,0],[-1,0],[0,1],[0,-1]].forEach(function(v){if(!solid(s.x+v[0],s.y+v[1],true))opts.push(v)});
+      if(opts.length){
+        var cont=opts.filter(function(v){return v[0]==s.dx&&v[1]==s.dy});
+        var v=(cont.length&&Math.random()<0.8)?cont[0]:opts[Math.floor(Math.random()*opts.length)];
+        s.dx=v[0];s.dy=v[1];s.from={x:s.x,y:s.y};s.x+=v[0];s.y+=v[1];s.mv=1;
+      }
+      s.next=S.t+S.slimeMs;
+    }
+    if(Math.abs(s.px-p.px)<0.55&&Math.abs(s.py-p.py)<0.55)hitPlayer('Slime ∩ Meatzaria');
+  });
+  // power-ups
+  for(var k=S.pw.length-1;k>=0;k--){var w=S.pw[k];
+    if(w.x==p.x&&w.y==p.y&&p.mv==0){S.pw.splice(k,1);
+      if(w.type=='range'){S.range++;ev('On Trigger Enter (Meatzaria ∩ Piztaile luzea)');ac('irismena = '+S.range)}
+      else{S.maxB++;ev('On Trigger Enter (Meatzaria ∩ Dinamita gehigarria)');ac('gehienezko dinamitak = '+S.maxB)}
+      S.score+=25;hud();}}
+  // puerta
+  if(S.door&&p.x==S.door.x&&p.y==S.door.y&&p.mv==0&&S.mode==='play'){
+    ev('On Trigger Enter (Meatzaria ∩ Atea)');
+    S.score+=200;
+    if(S.lv<2){co('meatzaria iritsi da eta bizirik jarraitzen du');ac('Mezua erakutsi, 2 s itxaron, Load Scene "Maila '+(S.lv+2)+'"');
+      S.mode='next';S.msg='Maila gainditu da!';S.msgT=S.t+2000;S.nextAt=S.t+2000;}
+    else{ac('Load Scene "Garaipena"');S.mode='won';}
+    hud();
+  }
+}
+// ---- dibujo
+function P(x,y,z){return[OX+(x-y)*HW,OY+(x+y)*HH-(z||0)]}
+function poly(pts,fill,stroke){ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(var i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke()}}
+function shade(hex,f){var n=parseInt(hex.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255;
+  r=Math.max(0,Math.min(255,Math.round(r*f)));g=Math.max(0,Math.min(255,Math.round(g*f)));b=Math.max(0,Math.min(255,Math.round(b*f)));
+  return'rgb('+r+','+g+','+b+')'}
+function box(gx,gy,w,d,z0,h,col,ln){
+  var z1=z0+h;
+  poly([P(gx,gy+d,z0),P(gx+w,gy+d,z0),P(gx+w,gy+d,z1),P(gx,gy+d,z1)],shade(col,.82),ln);
+  poly([P(gx+w,gy,z0),P(gx+w,gy+d,z0),P(gx+w,gy+d,z1),P(gx+w,gy,z1)],shade(col,.62),ln);
+  poly([P(gx,gy,z1),P(gx+w,gy,z1),P(gx+w,gy+d,z1),P(gx,gy+d,z1)],shade(col,1.08),ln);
+}
+function draw(){
+  ctx.clearRect(0,0,640,440);
+  // suelo
+  for(var y=0;y<ROWS;y++)for(var x=0;x<COLS;x++){
+    poly([P(x,y,0),P(x+1,y,0),P(x+1,y+1,0),P(x,y+1,0)],((x+y)%2)?'#DCC693':'#E7D3A8');
+  }
+  // borde
+  box(-0.0,ROWS,COLS,0.001,0,0.001,'#134E4A');
+  if(!S||!S.grid){overlay('DINAMITA LABIRINTOA','Sakatu Zuriunea edo ukitu hasteko');return}
+  var items=[];
+  // puerta (plana)
+  if(S.door){items.push({k:S.door.x+S.door.y+0.5,f:function(){
+    var d=S.door;box(d.x+0.1,d.y+0.1,0.8,0.8,0,4,'#FDE047','#A16207');
+    box(d.x+0.25,d.y+0.25,0.5,0.5,4,16,'#FACC15','#A16207');
+    var q=P(d.x+0.5,d.y+0.9,14);ctx.fillStyle='#78350F';ctx.fillRect(q[0]-5,q[1]-6,10,12);}})}
+  S.pw.forEach(function(w){items.push({k:w.x+w.y+0.5,f:function(){
+    box(w.x+0.3,w.y+0.3,0.4,0.4,0,10,w.type=='range'?'#38BDF8':'#A78BFA','#1E293B');
+    var q=P(w.x+0.5,w.y+0.5,16);ctx.fillStyle='#fff';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText(w.type=='range'?'+':'●',q[0],q[1])}})});
+  for(var y=0;y<ROWS;y++)for(var x=0;x<COLS;x++){
+    var g=S.grid[y][x];
+    if(g==1)(function(x,y){items.push({k:x+y+1,f:function(){box(x,y,1,1,0,22,'#6B7280','rgba(0,0,0,.25)')}})})(x,y);
+    if(g==2)(function(x,y){items.push({k:x+y+1,f:function(){
+      box(x+0.08,y+0.08,0.84,0.84,0,18,'#C98A4B','rgba(60,30,0,.45)');
+      var a=P(x+0.08,y+0.92,9),b=P(x+0.92,y+0.92,9);ctx.strokeStyle='rgba(60,30,0,.5)';ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();
+      var c=P(x+0.5,y+0.5,18);ctx.beginPath();ctx.moveTo(c[0]-16,c[1]);ctx.lineTo(c[0]+16,c[1]);ctx.stroke();}})})(x,y);
+  }
+  S.dyn.forEach(function(d){items.push({k:d.x+d.y+0.5,f:function(){
+    var pulse=1+0.08*Math.sin(S.t/80);
+    box(d.x+0.3,d.y+0.3,0.4,0.4,0,18*pulse,'#DC2626','rgba(0,0,0,.3)');
+    box(d.x+0.3,d.y+0.3,0.4,0.4,7,3,'#F3F4F6');
+    var q=P(d.x+0.5,d.y+0.5,22*pulse);ctx.fillStyle=(Math.floor(S.t/120)%2)?'#FDE047':'#FB923C';
+    ctx.beginPath();ctx.arc(q[0],q[1]-4,4,0,6.3);ctx.fill();}})});
+  S.slimes.forEach(function(s){items.push({k:s.px+s.py+0.5,f:function(){
+    var sq=1+0.1*Math.sin(S.t/110+s.x);
+    box(s.px+0.2,s.py+0.2,0.6,0.6,0,15*sq,'#4ADE80','rgba(0,40,0,.35)');
+    var q=P(s.px+0.2,s.py+0.8,9*sq);ctx.fillStyle='#052E16';ctx.fillRect(q[0]+6,q[1]-3,4,5);ctx.fillRect(q[0]+17,q[1]+1,4,5);}})});
+  var p=S.p;
+  if(S.mode!=='over'){items.push({k:p.px+p.py+0.5,f:function(){
+    if(p.inv>S.t&&Math.floor(S.t/90)%2)return;
+    box(p.px+0.25,p.py+0.25,0.5,0.5,0,14,'#F59E0B','rgba(0,0,0,.3)');
+    box(p.px+0.28,p.py+0.28,0.44,0.44,14,12,'#FCD9A6','rgba(0,0,0,.25)');
+    box(p.px+0.24,p.py+0.24,0.52,0.52,25,5,'#4B5563','rgba(0,0,0,.3)');
+    var q=P(p.px+0.28,p.py+0.72,19);ctx.fillStyle='#1F2937';ctx.fillRect(q[0]+4,q[1]-1,3,4);ctx.fillRect(q[0]+13,q[1]+3,3,4);}})}
+  items.forEach(function(i,n){i.n=n});
+  items.sort(function(a,b){return a.k-b.k||a.n-b.n});
+  items.forEach(function(i){i.f()});
+  // explosiones (encima)
+  S.exp.forEach(function(e){
+    var a=Math.min(1,(e.t-S.t)/300);
+    ctx.globalAlpha=0.35+0.55*a;
+    poly([P(e.x,e.y,2),P(e.x+1,e.y,2),P(e.x+1,e.y+1,2),P(e.x,e.y+1,2)],'#F97316');
+    poly([P(e.x+.2,e.y+.2,14),P(e.x+.8,e.y+.2,14),P(e.x+.8,e.y+.8,14),P(e.x+.2,e.y+.8,14)],'#FDE047');
+    ctx.globalAlpha=1;
+  });
+  if(S.msg&&S.t<S.msgT)banner(S.msg);
+  if(S.mode==='next'){banner('Maila gainditu da!');if(S.t>=S.nextAt)loadLevel(S.lv+1)}
+  if(S.mode==='over')overlay('JOKOA AMAITU DA','Sakatu Zuriunea berriro jokatzeko');
+  if(S.mode==='won')overlay('LORTU DUZU!','Puntuak: '+S.score+' · Zuriunea errepikatzeko');
+  if(S.mode==='title')overlay('DINAMITA LABIRINTOA','Sakatu Zuriunea edo ukitu hasteko');
+}
+function banner(t){ctx.fillStyle='rgba(15,23,42,.75)';ctx.fillRect(0,18,640,42);ctx.fillStyle='#fff';ctx.font='bold 22px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText(t,320,47)}
+function overlay(t,s){ctx.fillStyle='rgba(19,78,74,.82)';ctx.fillRect(0,0,640,440);ctx.fillStyle='#FDE047';ctx.font='bold 40px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText(t,320,200);ctx.fillStyle='#fff';ctx.font='18px system-ui,sans-serif';ctx.fillText(s,320,240)}
+var last=performance.now();
+function loop(now){var dt=Math.min(50,now-last);last=now;if(S)update(dt);draw();requestAnimationFrame(loop)}
+newGame();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

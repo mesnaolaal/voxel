@@ -1,0 +1,117 @@
+from common import build
+G=r'''
+var TITLE='JARDÍN DE ABEJAS';
+var LV=[
+ {name:'Un jardín pequeño con dos flores y una araña',night:false,rows:[
+  'H..........',
+  '...........',
+  '....F...A..',
+  '..F........',
+  '...........',
+  '...........',
+  '...........']},
+ {name:'Un estanque, seis flores y dos arañas',night:false,rows:[
+  'H..............',
+  '..............F',
+  '..F.~~~~~......',
+  '....~~~~~..A...',
+  '.F..~~~~~...F..',
+  '....~~~~~......',
+  '..A.......F....',
+  '.F.............',
+  '...............']},
+ {name:'Un jardín de noche con tres arañas',night:true,rows:[
+  'H..............',
+  '.F.........F...',
+  '......A........',
+  '..~~~......F...',
+  '..~~~..A.......',
+  '.F.~~~.........',
+  '..........A..F.',
+  '.F.............',
+  '...............']}];
+function ch(cx,cz){return cellCh(cx,cz)}
+function inB(x,z){var L=S.L;return x>=-1&&z>=-1&&x<=(L.rows[0].length-1)*C+1&&z<=(L.rows.length-1)*C+1}
+function walk(cx,cz){var c=ch(cx,cz);return c!==undefined&&c!=='~'&&c!=='H'}
+var bee=new THREE.Group(),wL,wR,glow=new THREE.PointLight(0xfff0a0,0,22);
+(function(){var g=bee;bx(1.0,0.9,1.5,'#FACC15',0,0,0,g);bx(1.02,0.95,0.3,'#111827',0,0,-0.1,g);bx(1.02,0.95,0.3,'#111827',0,0,-0.6,g);bx(0.8,0.8,0.7,'#FACC15',0,0.05,0.95,g);bx(0.15,0.15,0.1,'#111827',0.25,0.2,1.32,g);bx(0.15,0.15,0.1,'#111827',-0.25,0.2,1.32,g);
+  bx(0.1,0.5,0.1,'#111827',0.2,0.6,1.1,g);bx(0.1,0.5,0.1,'#111827',-0.2,0.6,1.1,g);bx(0.3,0.3,0.7,'#111827',0,-0.1,-1.0,g);
+  wL=bx(1.6,0.08,0.9,basic('#DBEAFE'),-1.0,0.6,0.1,g);wR=bx(1.6,0.08,0.9,basic('#DBEAFE'),1.0,0.6,0.1,g);glow.position.set(0,2,0);g.add(glow)})();
+var PET=['#F43F5E','#A855F7','#F97316','#3B82F6','#EC4899','#EF4444'];
+function makeFlower(col){var g=new THREE.Group();bx(0.25,1.8,0.25,'#16A34A',0,0.9,0,g);bx(0.9,0.12,0.3,'#22C55E',0.4,0.7,0,g);var p=new THREE.Group();p.position.y=1.9;g.add(p);
+  [[0.7,0],[-0.7,0],[0,0.7],[0,-0.7],[0.5,0.5],[-0.5,-0.5],[0.5,-0.5],[-0.5,0.5]].forEach(function(o){bx(0.6,0.2,0.6,col,o[0],0,o[1],p)});var c=bx(0.7,0.3,0.7,'#FDE047',0,0.1,0,p);g.userData.pet=p;g.userData.cen=c;g.userData.col=col;return g}
+function makeSpider(){var g=new THREE.Group();bx(1.1,0.8,1.3,'#1F2937',0,0.9,0,g);bx(0.8,0.7,0.8,'#111827',0,1.0,0.95,g);bx(0.15,0.15,0.1,'#EF4444',0.2,1.2,1.38,g);bx(0.15,0.15,0.1,'#EF4444',-0.2,1.2,1.38,g);bx(0.6,0.4,0.2,'#DC2626',0,1.3,-0.65,g);
+  var legs=[];for(var i=0;i<4;i++){[-1,1].forEach(function(s){var l=bx(1.3,0.14,0.14,'#374151',s*1.0,0.8,-0.4+i*0.45,g);l.rotation.z=-s*0.5;l.userData.i=i;legs.push(l)})}g.userData.legs=legs;return g}
+function makeHive(){var g=new THREE.Group();for(var i=0;i<5;i++){bx(2.6-i*0.35,0.7,2.6-i*0.35,i%2?'#D97706':'#F59E0B',0,0.35+i*0.7,0,g)}bx(0.9,0.9,0.2,'#1F2937',0,0.6,1.3,g);bx(0.4,0.3,0.4,'#78350F',0,3.7,0,g);return g}
+var grassMats=null;
+function buildLevel(n){
+  var L=LV[n];S.L=L;clearLevel();var rows=L.rows,nz=rows.length,nx=rows[0].length,r=rng(61+n*7);
+  scene.background.set(L.night?'#0A1030':'#BFE6FF');scene.fog.color.set(L.night?'#0A1030':'#D4EEFF');scene.fog.near=80;scene.fog.far=200;
+  amb.intensity=L.night?0.38:0.85;sun.intensity=L.night?0.18:0.7;glow.intensity=L.night?1.8:0;
+  var gt=checker(L.night?'#2F6B3A':'#6BCB4F',L.night?'#2A6034':'#62BE48',1,1),gm=[mat('#7A5230'),mat('#7A5230'),new THREE.MeshLambertMaterial({map:gt}),mat('#7A5230'),mat('#7A5230'),mat('#7A5230')];
+  S.fl=[];S.sp=[];S.hive=null;S.nf=0;S.pol=0;
+  var out=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshLambertMaterial({color:L.night?'#1F4F2B':'#4FA43A'}));out.rotation.x=-Math.PI/2;out.position.set((nx-1)*C/2,-0.95,(nz-1)*C/2);lvGroup.add(out);
+  for(var z=0;z<nz;z++)for(var x=0;x<nx;x++){var c=rows[z][x],wx=x*C,wz=z*C;
+    if(c==='~'){var w=bx(C,0.3,C,L.night?'#1D4ED8':'#38BDF8',wx,-0.35,wz,lvGroup);if((x+z)%3===0)bx(0.9,0.06,0.9,'#22C55E',wx+0.3,-0.17,wz-0.2,lvGroup)}
+    else{var m=new THREE.Mesh(new THREE.BoxGeometry(C,0.9,C),gm);m.position.set(wx,-0.45,wz);lvGroup.add(m)}
+    if(c==='F'){var col=PET[S.nf%PET.length],f=makeFlower(col);f.position.set(wx,0,wz);lvGroup.add(f);S.fl.push({x:wx,z:wz,mesh:f,done:false,col:col});S.nf++}
+    else if(c==='A'){var s=makeSpider();s.position.set(wx,0,wz);lvGroup.add(s);S.sp.push({x:wx,z:wz,mesh:s,dx:1,dz:0,last:'',flee:0,ph:r()*6})}
+    else if(c==='H'){var h=makeHive();h.position.set(wx,0,wz);lvGroup.add(h);S.hive={x:wx,z:wz}}
+    else if(c==='.'&&r()<0.16){var gr=bx(0.14,0.5,0.14,'#15803D',wx+(r()-0.5)*1.4,0.25,wz+(r()-0.5)*1.4,lvGroup)}}
+  for(var i=0;i<30;i++){var bxp=-4-r()*3,t=bx(1.4,2.5+r()*2,1.4,'#166534',(r()*(nx+6)-3)*C,1.2,(i%2?-3.5:nz*C+0.5)+r()*2,lvGroup)}
+  scene.add(bee);
+  S.p={x:S.hive.x+2.6,z:S.hive.z+2.6,ry:0,y:3.2,inv:0,land:0,tgt:null,zumbT:0,zcd:0,vx:0,vz:0,kx:0,kz:0};S.lives=3;S.warn=0;S.camx=(nx-1)*C/2;S.camz=(nz-1)*C/2;S.zoomY=Math.max(nx*1.55,nz*2.4)+3;S.ring=null;
+}
+function hud(){var h='';for(var i=0;i<3;i++)h+=i<(S.lives||0)?'♥':'♡';var p=S.p;
+  setHud('Nivel '+(S.lv+1)+'/3 · '+h,'Flores '+(S.pol||0)+'/'+(S.nf||0),p&&p.land>0?'Posándose…':'Volando',p&&p.zcd>0?'Zumbido '+Math.ceil(p.zcd)+' s':'Zumbido listo')}
+function newGame(){S={mode:'title',lv:0,t:0,msg:'',msgT:0,lives:3,pol:0};logEl.innerHTML='';ev('Start del juego');ac('Variables: vidas = 3, flores = 0');buildLevel(0);showOv('JARDÍN DE ABEJAS','Pulsa Espacio o toca para empezar')}
+function loadLevel(n){S.lv=n;S.mode='play';buildLevel(n);hideOv();flash('Nivel '+(n+1)+' · '+S.L.name,2600);
+  ev('Load Scene "Nivel '+(n+1)+'"');ac('Instantiate Abeja, '+S.nf+' flor(es), '+S.sp.length+' araña(s) y Colmena')}
+function retry(){loadLevel(S.lv)}
+function toNext(){if(S.lv<2){S.mode='next';flash('¡Nivel superado!',2000);S.nextAt=S.t+2000;ac('Mostrar mensaje, esperar 2 s, Load Scene "Nivel '+(S.lv+2)+'"')}else{S.mode='won';ac('Load Scene "Victoria"');showOv('¡JARDÍN POLINIZADO!','Has polinizado todos los jardines','Pulsa Espacio para repetir')}}
+function over(){S.mode='over';showOv('¡ATRAPADA!','Las arañas te atraparon 3 veces','Pulsa Espacio para reintentar este nivel')}
+function onSpace(){var p=S.p;if(p.land>0)return;var f=null,bd=2.2;S.fl.forEach(function(q){if(!q.done){var d=Math.hypot(q.x-p.x,q.z-p.z);if(d<bd){bd=d;f=q}}});
+  ev('Input: tecla Espacio');if(f){co('¿Hay una flor sin polinizar debajo? SÍ');p.land=0.8;p.tgt=f;p.x=f.x;p.z=f.z;ac('Posarse en la flor (0,8 s)')}else{co('¿Hay una flor cerca? NO');ac('No pasa nada')}}
+function zumb(){var p=S.p;if(p.zcd>0)return;p.zcd=5;S.ring=S.t;ev('Input: tecla Shift');ac('Zumbido: las arañas a menos de 8 m huyen 2,5 s');S.sp.forEach(function(s){if(Math.hypot(s.x-p.x,s.z-p.z)<8)s.flee=2.5})}
+function update(dt){
+  S.t+=dt*1000;
+  if(S.mode==='next'&&S.t>=S.nextAt)loadLevel(S.lv+1);
+  if(S.mode!=='play')return;
+  var p=S.p,L=S.L;p.zcd=Math.max(0,p.zcd-dt);
+  if(held.shift&&!S.shiftHeld){zumb()}S.shiftHeld=held.shift;
+  if(p.land>0){p.land-=dt;if(p.land<=0){var f=p.tgt;f.done=true;S.pol++;p.tgt=null;ev('Posarse en flor');ac('Polinizar flor, flores = '+S.pol+'/'+S.nf);f.mesh.userData.cen.material=emi('#FDE68A','#F59E0B')}}
+  else{var dx=(held.right?1:0)-(held.left?1:0),dz=(held.down?1:0)-(held.up?1:0),m=Math.hypot(dx,dz);if(m>0){dx/=m;dz/=m}
+    p.vx+=(dx*8.5-p.vx)*Math.min(1,8*dt);p.vz+=(dz*8.5-p.vz)*Math.min(1,8*dt);p.kx*=Math.max(0,1-5*dt);p.kz*=Math.max(0,1-5*dt);
+    var nx=p.x+(p.vx+p.kx)*dt,nz=p.z+(p.vz+p.kz)*dt;if(inB(nx,p.z))p.x=nx;if(inB(p.x,nz))p.z=nz;if(m>0)p.ry=Math.atan2(dx,dz)}
+  S.sp.forEach(function(g){
+    var cx=Math.round(g.x/C),cz=Math.round(g.z/C),ccx=cx*C,ccz=cz*C,step=(g.flee>0?3.8:2.4)*dt;g.flee=Math.max(0,g.flee-dt);
+    var near=Math.hypot(g.x-ccx,g.z-ccz)<=step*1.01+0.01,id=cx+','+cz;
+    if(near&&g.last!==id){g.last=id;
+      var opts=[[1,0],[-1,0],[0,1],[0,-1]].filter(function(v){return walk(cx+v[0],cz+v[1])});
+      if(g.flee>0){opts.sort(function(a,b){return Math.hypot((cx+b[0])*C-p.x,(cz+b[1])*C-p.z)-Math.hypot((cx+a[0])*C-p.x,(cz+a[1])*C-p.z)});if(opts[0]){g.x=ccx;g.z=ccz;g.dx=opts[0][0];g.dz=opts[0][1]}}
+      else{var fwd=opts.filter(function(v){return !(v[0]===-g.dx&&v[1]===-g.dz)});if(fwd.length)opts=fwd;
+        var keep=opts.some(function(v){return v[0]===g.dx&&v[1]===g.dz});
+        if(!keep||Math.random()<0.4){var v=opts[Math.floor(Math.random()*opts.length)];if(v){g.x=ccx;g.z=ccz;g.dx=v[0];g.dz=v[1]}}}}
+    g.x+=g.dx*step;g.z+=g.dz*step;
+    if(p.inv<=S.t&&g.flee<=0&&Math.hypot(g.x-p.x,g.z-p.z)<1.4){p.inv=S.t+2000;S.lives--;ev('On Trigger Enter (Araña ∩ Abeja)');ac('vidas = vidas − 1 → '+S.lives);flash('¡Una araña! Vidas: '+S.lives,1100);
+      var a=Math.atan2(p.x-g.x,p.z-g.z);p.kx=Math.sin(a)*14;p.kz=Math.cos(a)*14;if(p.land>0){p.land=0;p.tgt=null}
+      if(S.lives<=0){ac('Load Scene "GameOver"');over()}}});
+  if(S.mode!=='play')return;
+  if(Math.hypot(S.hive.x-p.x,S.hive.z-p.z)<2.6&&p.land<=0){
+    if(S.pol>=S.nf){ev('On Trigger Enter (Abeja ∩ Colmena)');co('¿Todas las flores polinizadas? SÍ');ac('Cargar el siguiente nivel');toNext()}
+    else if(S.t>S.warn){S.warn=S.t+2500;ev('On Trigger Enter (Abeja ∩ Colmena)');co('¿Todas las flores polinizadas? NO ('+S.pol+'/'+S.nf+')');flash('Faltan flores: '+S.pol+'/'+S.nf,1600)}}
+}
+function render(dt){
+  var p=S.p,t=S.t/1000,L=S.L;
+  var h=p.land>0?3.2-2.6*Math.sin(Math.PI*Math.min(1,(0.8-p.land)/0.8)*0.5+0.0)*Math.min(1,(0.8-p.land)/0.4):3.2+Math.sin(t*6)*0.2;
+  if(p.land>0)h=Math.max(0.8,3.2-2.4*Math.min(1,(0.8-p.land)/0.35));
+  p.y+=(h-p.y)*Math.min(1,12*dt);
+  bee.position.set(p.x,p.y,p.z);bee.rotation.y=p.ry;bee.visible=!(p.inv>S.t&&Math.floor(S.t/90)%2);wL.rotation.z=Math.sin(t*60)*0.6;wR.rotation.z=-Math.sin(t*60)*0.6;
+  S.sp.forEach(function(g){g.mesh.position.set(g.x,0,g.z);g.mesh.rotation.y=Math.atan2(g.dx,g.dz);g.mesh.userData.legs.forEach(function(l){l.rotation.y=Math.sin(t*14+l.userData.i*1.6)*0.35})});
+  S.fl.forEach(function(f){f.mesh.userData.pet.rotation.y=t*0.5;if(f.done){f.mesh.userData.pet.position.y=1.9+Math.sin(t*3)*0.05}});
+  var nx=S.L.rows[0].length,nz=S.L.rows.length,cx=(nx-1)*C/2,cz=(nz-1)*C/2;
+  S.camx+=(cx-S.camx)*Math.min(1,6*dt);S.camz+=(cz-S.camz)*Math.min(1,6*dt);
+  cam.position.set(S.camx,S.zoomY,S.camz+S.zoomY*0.42);cam.lookAt(S.camx,0.4,S.camz+0.2);
+}
+'''
+build('abejas3d.html','Jardín de Abejas','POSARSE<br>(Espacio)','Flechas o WASD para volar · Espacio: posarte en una flor cercana y polinizarla · Shift: zumbido que asusta a las arañas. Poliniza todas las flores y vuelve a la colmena. Tienes 3 vidas.','#BFE6FF',G)

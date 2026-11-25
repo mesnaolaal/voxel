@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Espazio Misioa – simulazio jokagarria 3D</title>
+<style>
+:root{--bg:#F6F8FD;--card:#fff;--tx:#0F172A;--mut:#475569;--ac:#0F766E;--bd:#D8DEEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+h1{margin:0 0 4px;font-size:26px}
+.sub{color:var(--mut);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pill{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:999px;padding:3px 12px;font-weight:600;font-size:14px}
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#04061A;aspect-ratio:16/10.5}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+#bn{position:absolute;left:0;right:0;top:14px;text-align:center;background:rgba(15,23,42,.78);color:#fff;font-weight:700;font-size:20px;padding:8px;display:none}
+#ov{position:absolute;inset:0;background:rgba(15,23,42,.72);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:16px}
+#ov b{font-size:34px;color:#FDE047}
+.pad{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0;gap:12px}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:6px}
+.dpad button,.bomb{border:1px solid var(--bd);background:#fff;border-radius:12px;font-size:20px;cursor:pointer;color:var(--tx)}
+.dpad button:active,.bomb:active{background:#CCFBF1}
+.bomb{width:120px;height:120px;border-radius:60px;background:#DBEAFE;border-color:#93C5FD;font-weight:700;font-size:14px}
+.help{color:var(--mut);font-size:14px;margin:10px 0 0}
+h2{font-size:16px;margin:0 0 8px}
+#log{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:6px;min-height:300px}
+#log li{border-left:4px solid var(--bd);padding:4px 8px;background:#F8FAFC;border-radius:0 8px 8px 0}
+.t{font-weight:700;font-size:11px;letter-spacing:.04em;margin-right:6px}
+.ev{border-color:#3B82F6!important}.ev .t{color:#1D4ED8}
+.co{border-color:#F59E0B!important}.co .t{color:#B45309}
+.ac{border-color:#10B981!important}.ac .t{color:#047857}
+.btn{margin-top:10px;background:var(--ac);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Espazio Misioa <span style="font-weight:400;color:#64748B;font-size:18px">· 3D</span></h1>
+  <p class="sub">Proiektu-adibidearen simulazio jokagarria 3D-n. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="hud"><span class="pill" id="hA"></span><span class="pill" id="hB"></span><span class="pill" id="hC"></span><span class="pill" id="hD"></span></div>
+      <div class="stage" id="stage" tabindex="0"><div id="bn"></div><div id="ov"></div></div>
+      <div class="pad">
+        <div class="dpad">
+          <span></span><button data-d="up" aria-label="Gora">▲</button><span></span>
+          <button data-d="left" aria-label="Ezkerrera">◀</button><button data-d="down" aria-label="Behera">▼</button><button data-d="right" aria-label="Eskuinera">▶</button>
+        </div>
+        <button class="bomb" id="bBomb">TIRO EGIN<br>(Zuriunea)</button>
+      </div>
+      <p class="help">Geziak edo WASD ontzia gora, behera, ezkerrera eta eskuinera mugitzeko · Zuriunea: asteroideei tiro egin · Eutsi Maius propultsorrerako (abiadura handiagoa, teklatuan bakarrik). Bildu kristal guztiak eta ukitu planeta. Saihestu asteroideak eta ufoak: 3 bizitza dituzu.</p>
+    </div>
+    <div class="card">
+      <h2>Visual Scripting zuzenean</h2>
+      <ul id="log"></ul>
+      <button class="btn" id="bRestart">Partida berrabiarazi</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var VW=640,VH=420,C=2;
+var stage=document.getElementById('stage'),logEl=document.getElementById('log'),bn=document.getElementById('bn'),ov=document.getElementById('ov');
+function log(k,t,x){var li=document.createElement('li');li.className=k;li.innerHTML='<span class="t">'+t+'</span>'+x;logEl.insertBefore(li,logEl.firstChild);while(logEl.children.length>10)logEl.removeChild(logEl.lastChild)}
+function ev(t){log('ev','GERTAERA',t)}function co(t){log('co','BALDINTZA',t)}function ac(t){log('ac','EKINTZA',t)}
+function setHud(a,b,c,d){document.getElementById('hA').textContent=a;document.getElementById('hB').textContent=b;document.getElementById('hC').textContent=c;document.getElementById('hD').textContent=d}
+var renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.setSize(VW,VH,false);
+stage.insertBefore(renderer.domElement,stage.firstChild);
+var scene=new THREE.Scene();scene.background=new THREE.Color('#A5DBFF');scene.fog=new THREE.Fog('#BFE4FF',45,110);
+var cam=new THREE.PerspectiveCamera(42,VW/VH,0.1,400);
+var amb=new THREE.AmbientLight(0xffffff,0.85);scene.add(amb);
+var sun=new THREE.DirectionalLight(0xffffff,0.7);sun.position.set(-20,40,15);scene.add(sun);
+var lvGroup=null,mats={};
+function mat(c){return mats[c]||(mats[c]=new THREE.MeshLambertMaterial({color:c}))}
+function basic(c){var k='b'+c;return mats[k]||(mats[k]=new THREE.MeshBasicMaterial({color:c}))}
+function emi(c,e){var k=c+'|'+e;return mats[k]||(mats[k]=new THREE.MeshLambertMaterial({color:c,emissive:e}))}
+function bx(w,h,d,col,x,y,z,parent){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof col==='string'?mat(col):col);m.position.set(x,y,z);if(parent)parent.add(m);return m}
+function checker(c1,c2,rx,ry){var c=document.createElement('canvas');c.width=c.height=2;var g=c.getContext('2d');g.fillStyle=c1;g.fillRect(0,0,2,2);g.fillStyle=c2;g.fillRect(0,0,1,1);g.fillRect(1,1,1,1);var t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);return t}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function clearLevel(){if(lvGroup){scene.remove(lvGroup);lvGroup.traverse(function(o){if(o.geometry)o.geometry.dispose()})}lvGroup=new THREE.Group();scene.add(lvGroup)}
+function showOv(t,s,s2){ov.style.display='flex';ov.innerHTML='<b>'+t+'</b><span>'+s+'</span>'+(s2?'<span>'+s2+'</span>':'')}
+function hideOv(){ov.style.display='none'}
+var S=null,held={};
+function cellCh(cx,cz){var r=S.L.rows[cz];return r?r[cx]:undefined}
+function flash(txt,ms){S.msg=txt;S.msgT=S.t+(ms||1400)}
+
+var TITLE='ESPAZIO MISIOA';
+var LV=[
+ {name:'Espazio irekia eta asteroide bat',len:420,crystals:3,asts:1,ufos:0,seed:3},
+ {name:'Asteroide-eremu bat',len:520,crystals:4,asts:22,ufos:0,seed:7},
+ {name:'Bi ufo patruilatzen dute sektorean',len:560,crystals:5,asts:10,ufos:2,seed:11}];
+var BX=13,BY=7.5;
+scene.background=new THREE.Color('#04061A');scene.fog=null;
+amb.intensity=0.55;sun.intensity=0.95;sun.position.set(-20,30,40);
+var ship=new THREE.Group(),flame;
+(function(){var g=ship;
+  bx(0.9,0.6,3.0,'#E5E7EB',0,0,0,g);bx(0.5,0.45,1.0,'#E5E7EB',0,0,-1.9,g);bx(0.25,0.3,0.6,'#E5E7EB',0,0,-2.6,g);
+  bx(0.55,0.4,0.9,emi('#22D3EE','#0E7490'),0,0.45,-0.4,g);
+  var w1=bx(3.4,0.14,1.5,'#EF4444',-1.7,-0.05,0.5,g);w1.rotation.y=-0.35;var w2=bx(3.4,0.14,1.5,'#EF4444',1.7,-0.05,0.5,g);w2.rotation.y=0.35;
+  bx(0.14,0.7,1.0,'#EF4444',0,0.6,1.1,g);
+  bx(0.5,0.5,0.5,'#4B5563',-0.5,0,1.5,g);bx(0.5,0.5,0.5,'#4B5563',0.5,0,1.5,g);
+  flame=new THREE.Group();bx(0.35,0.35,1.2,basic('#F97316'),-0.5,0,2.2,flame);bx(0.35,0.35,1.2,basic('#F97316'),0.5,0,2.2,flame);bx(0.2,0.2,1.5,basic('#FDE047'),-0.5,0,2.3,flame);bx(0.2,0.2,1.5,basic('#FDE047'),0.5,0,2.3,flame);g.add(flame)})();
+// estrellas
+var NS=1800,sp=new Float32Array(NS*3);for(var i=0;i<NS;i++){sp[i*3]=(Math.random()-0.5)*260;sp[i*3+1]=(Math.random()-0.5)*160;sp[i*3+2]=-Math.random()*900+60}
+var sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(sp,3));var stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:2,sizeAttenuation:false,fog:false}));stars.frustumCulled=false;scene.add(stars);
+var astMat=new THREE.MeshLambertMaterial({color:'#8B7B6B',flatShading:true}),crysMat=new THREE.MeshLambertMaterial({color:'#22D3EE',emissive:'#0891B2',flatShading:true});
+function makeUfo(){var g=new THREE.Group();var d=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.8,0.7,8),mat('#9CA3AF'));g.add(d);var t=new THREE.Mesh(new THREE.CylinderGeometry(1.2,2.2,0.5,8),mat('#6B7280'));t.position.y=0.55;g.add(t);
+  var c=new THREE.Mesh(new THREE.SphereGeometry(1.0,8,6),new THREE.MeshLambertMaterial({color:'#86EFAC',emissive:'#16A34A',flatShading:true}));c.position.y=1.0;g.add(c);
+  for(var i=0;i<6;i++){var a=i/6*6.283;bx(0.35,0.35,0.35,basic(i%2?'#FDE047':'#F87171'),Math.cos(a)*2.4,0,Math.sin(a)*2.4,g)}return g}
+var planet=null;
+function buildLevel(n){
+  var L=LV[n];S.L=L;clearLevel();var r=rng(L.seed*13+5),i;
+  S.asts=[];S.crys=[];S.ufos=[];S.bul=[];S.deb=[];
+  function free(x,y,z,d){return S.asts.every(function(a){return Math.hypot(a.x-x,a.y-y,a.z-z)>a.r+d})}
+  for(i=0;i<L.asts;i++){var rr=1.3+r()*1.6,x,y,z,tries=0;do{x=(r()*2-1)*(BX+2);y=(r()*2-1)*(BY+1);z=-60-r()*(L.len-120);tries++}while(!free(x,y,z,rr+1)&&tries<8);
+    var m=new THREE.Mesh(new THREE.IcosahedronGeometry(rr,0),astMat);m.position.set(x,y,z);m.rotation.set(r()*6,r()*6,0);lvGroup.add(m);S.asts.push({x:x,y:y,z:z,r:rr,mesh:m,rs:(r()-0.5)*1.2,dead:false})}
+  for(i=0;i<L.crystals;i++){var x2,y2,z2,t2=0;do{x2=(r()*2-1)*(BX-1);y2=(r()*2-1)*(BY-0.5);z2=-70-(i+0.3+r()*0.4)*((L.len-150)/L.crystals);t2++}while(!free(x2,y2,z2,3)&&t2<10);
+    var cm=new THREE.Mesh(new THREE.OctahedronGeometry(0.95,0),crysMat);cm.position.set(x2,y2,z2);cm.scale.y=1.5;lvGroup.add(cm);S.crys.push({x:x2,y:y2,z:z2,mesh:cm,got:false})}
+  for(i=0;i<L.ufos;i++){var u=makeUfo();var z3=-170-i*180-r()*40;u.position.set(0,0,z3);lvGroup.add(u);S.ufos.push({bx:(r()*2-1)*6,by:(r()*2-1)*3,z:z3,mesh:u,ph:r()*6,x:0,y:0,sx:0.7+r()*0.4,sy:0.9+r()*0.4})}
+  planet=new THREE.Group();var pl=new THREE.Mesh(new THREE.SphereGeometry(30,10,8),new THREE.MeshLambertMaterial({color:'#38BDF8',flatShading:true}));planet.add(pl);
+  [[8,12,20],[-14,6,24],[16,-10,18],[-6,-18,22]].forEach(function(o){var c=new THREE.Mesh(new THREE.IcosahedronGeometry(7,0),new THREE.MeshLambertMaterial({color:'#4ADE80',flatShading:true}));c.position.set(o[0],o[1],o[2]).normalize().multiplyScalar(29);planet.add(c)});
+  var ring=new THREE.Mesh(new THREE.RingGeometry(40,52,24),new THREE.MeshBasicMaterial({color:0xFDE68A,transparent:true,opacity:0.55,side:THREE.DoubleSide}));ring.rotation.x=1.3;planet.add(ring);
+  planet.position.set(0,0,-L.len-45);lvGroup.add(planet);
+  var sunL=new THREE.Mesh(new THREE.SphereGeometry(9,8,6),new THREE.MeshBasicMaterial({color:0xFDE68A}));sunL.position.set(-90,50,-L.len-300);lvGroup.add(sunL);
+  scene.add(ship);
+  S.p={x:0,y:0,z:0,vx:0,vy:0,inv:0,roll:0};S.cd=0;S.cr=0;S.camx=0;S.camy=0;S.shake=0;S.plT=0;
+}
+function hud(){var p=S.p,d=Math.max(0,Math.round((S.L?S.L.len+15:0)+(p?p.z:0)));var h='';for(var i=0;i<3;i++)h+=i<(S.lives||0)?'♥':'♡';
+  setHud('Maila '+(S.lv+1)+'/3 · '+h,'Kristalak '+(S.cr||0)+'/'+(S.L?S.L.crystals:0),'Planeta: '+d+' m',held.shift?'Propultsorra ON':'Laserra prest')}
+function newGame(){S={mode:'title',lv:0,t:0,msg:'',msgT:0,lives:3,cr:0};logEl.innerHTML='';ev('Jokoaren Start');ac('Aldagaiak: bizitzak = 3, kristalak = 0');buildLevel(0);showOv('ESPAZIO MISIOA','Sakatu Zuriunea edo ukitu hasteko')}
+function loadLevel(n){S.lv=n;S.mode='play';buildLevel(n);hideOv();flash('Maila '+(n+1)+' · '+S.L.name,2400);
+  ev('Load Scene "Maila '+(n+1)+'"');ac('Instantiate Ontzia, '+S.L.crystals+' kristal, '+S.L.asts+' asteroide'+(S.L.ufos?', '+S.L.ufos+' ufo':'')+' eta Planeta')}
+function toNext(){if(S.lv<2){S.mode='next';flash('Maila gainditu da!',2000);S.nextAt=S.t+2000;ac('Mezua erakutsi, 2 s itxaron, Load Scene "Maila '+(S.lv+2)+'"')}else{S.mode='won';ac('Load Scene "Garaipena"');showOv('MISIOA BETETA!','3 sektoreetan planetara iritsi zara','Sakatu Zuriunea errepikatzeko')}}
+function over(){S.mode='over';showOv('ONTZIA SUNTSITUTA!','Bizitzarik gabe geratu zara','Sakatu Zuriunea berriro saiatzeko')}
+function onSpace(){if(S.cd>0)return;S.cd=0.22;var p=S.p;S.bul.push({x:p.x,y:p.y,z:p.z-2,t:1.3,mesh:(function(){var b=bx(0.25,0.25,2.2,basic('#F472B6'),p.x,p.y,p.z-2,lvGroup);return b})()});if(!S.lastSh||S.t-S.lastSh>1200){ev('Input: Zuriunea tekla');ac('Instantiate Laserra aurrera')}S.lastSh=S.t}
+function hurt(why){var p=S.p;if(p.inv>S.t)return;S.lives--;p.inv=S.t+2000;S.shake=0.5;ev('On Trigger Enter ('+why+' ∩ Ontzia)');ac('bizitzak = bizitzak − 1 → '+S.lives);if(S.lives<=0){ac('Load Scene "GameOver"');over()}}
+function update(dt){
+  S.t+=dt*1000;
+  if(S.mode==='next'&&S.t>=S.nextAt)loadLevel(S.lv+1);
+  if(S.mode!=='play')return;
+  var p=S.p;S.cd=Math.max(0,S.cd-dt);S.shake=Math.max(0,S.shake-dt);
+  var dx=(held.right?1:0)-(held.left?1:0),dy=(held.up?1:0)-(held.down?1:0);
+  p.vx+=(dx*15-p.vx)*Math.min(1,7*dt);p.vy+=(dy*12-p.vy)*Math.min(1,7*dt);
+  p.x=Math.max(-BX,Math.min(BX,p.x+p.vx*dt));p.y=Math.max(-BY,Math.min(BY,p.y+p.vy*dt));
+  var sp=held.shift?44:26;p.z-=sp*dt;p.roll+=((-dx*0.7)-p.roll)*Math.min(1,6*dt);
+  S.crys.forEach(function(c){if(!c.got&&Math.hypot(c.x-p.x,c.y-p.y,c.z-p.z)<2.1){c.got=true;c.mesh.visible=false;S.cr++;ev('On Trigger Enter (Ontzia ∩ Kristala)');ac('Destroy(Kristala), kristalak = '+S.cr+'/'+S.L.crystals)}});
+  S.asts.forEach(function(a){if(!a.dead&&Math.hypot(a.x-p.x,a.y-p.y,a.z-p.z)<a.r*0.85+1.0)hurt('Asteroidea')});
+  if(S.mode!=='play')return;
+  S.ufos.forEach(function(u){u.x=u.bx+9*Math.sin(S.t/1000*u.sx+u.ph);u.y=u.by+4.5*Math.sin(S.t/1000*u.sy*1.3+u.ph*2);if(Math.hypot(u.x-p.x,u.y-p.y,u.z-p.z)<2.9)hurt('Ufoa')});
+  if(S.mode!=='play')return;
+  for(var i=S.bul.length-1;i>=0;i--){var b=S.bul[i];b.z-=95*dt;b.t-=dt;b.mesh.position.z=b.z;var hit=false;
+    S.asts.forEach(function(a){if(!hit&&!a.dead&&Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z)<a.r+0.8){hit=true;a.dead=true;a.mesh.visible=false;ev('On Trigger Enter (Laserra ∩ Asteroidea)');ac('Destroy(Asteroidea) eta Destroy(Laserra)');for(var k=0;k<7;k++){var d=bx(0.45,0.45,0.45,'#A8A29E',a.x,a.y,a.z,lvGroup);S.deb.push({m:d,vx:(Math.random()-0.5)*16,vy:(Math.random()-0.5)*16,vz:(Math.random()-0.5)*16,t:0.7})}}});
+    if(hit||b.t<=0){lvGroup.remove(b.mesh);S.bul.splice(i,1)}}
+  for(var j=S.deb.length-1;j>=0;j--){var d=S.deb[j];d.t-=dt;d.m.position.x+=d.vx*dt;d.m.position.y+=d.vy*dt;d.m.position.z+=d.vz*dt;d.m.scale.setScalar(Math.max(0.01,d.t/0.7));if(d.t<=0){lvGroup.remove(d.m);S.deb.splice(j,1)}}
+  var pl=planet,dist=Math.hypot(p.x-pl.position.x,p.y-pl.position.y,p.z-pl.position.z);
+  if(dist<33){ev('On Trigger Enter (Ontzia ∩ Planeta)');
+    if(S.cr>=S.L.crystals){co('Kristal guztiak ditu? BAI ('+S.cr+'/'+S.L.crystals+')');ac('Hurrengo maila kargatu');toNext()}
+    else{co('Kristal guztiak ditu? EZ ('+S.cr+'/'+S.L.crystals+')');ac('Sektorearen hasierara itzuli (kristalak berrezarrita)');flash('Kristalak falta dira: saiatu berriro!',2200);
+      p.z=0;p.x=0;p.y=0;S.cr=0;S.crys.forEach(function(c){c.got=false;c.mesh.visible=true})}}
+}
+function render(dt){
+  var p=S.p,t=S.t/1000;
+  ship.position.set(p.x,p.y,p.z);ship.rotation.z=p.roll;ship.rotation.x=p.vy*0.02;ship.visible=!(p.inv>S.t&&Math.floor(S.t/90)%2);
+  flame.scale.z=(held.shift?1.8:1)*(0.8+0.3*Math.sin(t*40));
+  S.crys.forEach(function(c){if(!c.got){c.mesh.rotation.y=t*2.2;c.mesh.position.y=c.y+Math.sin(t*3+c.z)*0.25}});
+  S.asts.forEach(function(a){if(!a.dead){a.mesh.rotation.x+=a.rs*dt;a.mesh.rotation.y+=a.rs*0.7*dt}});
+  S.ufos.forEach(function(u){u.mesh.position.set(u.x,u.y,u.z);u.mesh.rotation.y=t*2});
+  planet.rotation.y=t*0.05;
+  S.camx+=(p.x*0.7-S.camx)*Math.min(1,5*dt);S.camy+=(p.y*0.7-S.camy)*Math.min(1,5*dt);
+  var sh=S.shake*0.8;cam.fov=62+(held.shift?10:0);cam.updateProjectionMatrix();
+  cam.position.set(S.camx+(Math.random()-0.5)*sh,S.camy+3.2+(Math.random()-0.5)*sh,p.z+9);cam.lookAt(p.x*0.85,p.y*0.85,p.z-22);
+  stars.position.z=p.z*0.8;
+}
+
+var KEYS={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
+function pressSpace(){if(S.mode==='title')loadLevel(0);else if(S.mode==='over'){if(typeof retry==='function')retry();else newGame()}else if(S.mode==='won')newGame();else if(S.mode==='play')onSpace()}
+window.addEventListener('keydown',function(e){
+  if(KEYS[e.key]){held[KEYS[e.key]]=true;e.preventDefault()}
+  else if(e.key==='Shift')held.shift=true;
+  else if(e.key===' '){e.preventDefault();held.space=true;if(!e.repeat)pressSpace()}});
+window.addEventListener('keyup',function(e){if(KEYS[e.key])held[KEYS[e.key]]=false;if(e.key==='Shift')held.shift=false;if(e.key===' ')held.space=false});
+document.querySelectorAll('.dpad button').forEach(function(b){var d=b.dataset.d;
+  function on(e){e.preventDefault();held[d]=true}function off(e){e.preventDefault();held[d]=false}
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off)});
+var bb=document.getElementById('bBomb');
+bb.addEventListener('pointerdown',function(e){e.preventDefault();held.space=true;pressSpace()});
+['pointerup','pointerleave','pointercancel'].forEach(function(n){bb.addEventListener(n,function(){held.space=false})});
+document.getElementById('bRestart').addEventListener('click',function(){newGame()});
+stage.addEventListener('pointerdown',function(){if(S.mode!=='play')pressSpace()});
+var last=performance.now();
+function loop(now){var dt=Math.min(50,now-last)/1000;last=now;update(dt);hud();render(dt);var txt=(S.msg&&S.t<S.msgT)?S.msg:(S.mode==='next'?'Maila gainditu da!':'');if(txt){bn.style.display='block';bn.textContent=txt}else bn.style.display='none';renderer.render(scene,cam);requestAnimationFrame(loop)}
+newGame();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

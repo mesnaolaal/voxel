@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoxelArt · 20 ejemplos de proyecto final</title>
+<style>
+:root{--bg:#F6F8FD;--card:#FFFFFF;--card2:#EEF2FB;--line:#D9E0F0;--tx:#14183A;--mut:#566089;--teal:#5EEAD4;--ac:#0F766E;--yel:#FDE047;--pink:#BE185D;--focus:#2563EB}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:var(--ac)}
+header{padding:56px 24px 28px;max-width:1080px;margin:0 auto}
+.kicker{display:inline-block;background:var(--teal);color:#06231F;font-weight:800;letter-spacing:.12em;font-size:12px;padding:6px 14px;border-radius:99px}
+h1{font-size:clamp(34px,6vw,64px);line-height:1.02;margin:18px 0 12px;font-weight:900;letter-spacing:-.02em}
+h1 span{color:var(--ac)}
+.lead{color:var(--mut);font-size:18px;max-width:720px;margin:0}
+main{max-width:1080px;margin:0 auto;padding:8px 24px 80px}
+h2{font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);margin:44px 0 14px;display:flex;align-items:center;gap:12px}
+h2::after{content:"";flex:1;height:1px;background:var(--line)}
+.game{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 3px rgba(20,24,58,.07)}
+.game.open{border-color:var(--ac);box-shadow:0 4px 18px rgba(20,24,58,.10)}
+.head{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:16px;width:100%;padding:14px 18px;cursor:pointer}
+.head:hover{background:var(--card2)}
+.head:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
+.num{font-weight:900;font-size:14px;letter-spacing:.06em;border-radius:10px;min-width:58px;height:40px;display:grid;place-items:center;flex:none;padding:0 8px}
+.num.l1{background:#BBF7D0;color:#14532D}.num.l2{background:#FDE68A;color:#713F12}.num.l3{background:#FECACA;color:#7F1D1D}
+h2 small{font-size:13px;letter-spacing:0;text-transform:none;color:var(--mut);font-weight:500}
+.diff b{font-size:15px}
+.thumb{width:44px;height:60px;border-radius:8px;object-fit:cover;flex:none;background:var(--card2)}
+.ttl{flex:1;min-width:0}
+.ttl b{display:block;font-size:clamp(20px,3vw,26px);font-weight:800;letter-spacing:-.01em}
+.ttl small{display:block;color:var(--mut);font-size:14px;margin-top:2px}
+.chev{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--mut);display:grid;place-items:center;transition:transform .2s}
+.chev::before{content:"";width:8px;height:8px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:rotate(45deg) translate(-1px,-1px)}
+.game.open .chev{transform:rotate(180deg);border-color:var(--ac)}
+.game.open .chev::before{border-color:var(--ac)}
+.panel{display:none;padding:4px 18px 22px;border-top:1px solid var(--line)}
+.game.open .panel{display:block}
+.playtag{font-size:12px;font-weight:800;color:#0F766E;background:#CCFBF1;border:1px solid #5EEAD4;border-radius:99px;padding:2px 10px;margin-right:10px;white-space:nowrap}
+.play{display:inline-block;background:var(--teal);color:#06231F;font-weight:800;text-decoration:none;padding:11px 20px;border-radius:99px}
+.play:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 18px}
+.tab{all:unset;box-sizing:border-box;cursor:pointer;padding:9px 16px;border-radius:99px;border:1px solid var(--line);color:var(--mut);font-weight:700;font-size:14px}
+.tab:hover{color:var(--tx);border-color:var(--mut)}
+.tab[aria-selected=true]{background:var(--teal);color:#06231F;border-color:var(--teal)}
+.tab:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.view{display:none}.view.on{display:block}
+.sum{display:grid;grid-template-columns:260px 1fr;gap:26px;align-items:start}
+.sum img.cov{width:100%;height:auto;border-radius:12px;display:block;cursor:zoom-in}
+.tagline{font-size:20px;font-weight:700;margin:0 0 16px}
+.wl{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
+.box{background:var(--card2);border-radius:12px;padding:12px 14px}
+.box h4,.sec h4{margin:0 0 4px;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.win h4{color:#15803D}.lose h4{color:#B91C1C}
+.box p{margin:0}
+.sec{margin-top:20px}
+.sec h4{color:#B45309;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.chips li{background:var(--card2);border-radius:99px;padding:6px 13px;font-size:14px}
+.chips li b{color:var(--ac)}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.grid3 li{background:var(--card2);border-radius:12px;padding:12px 14px;font-size:15px}
+.grid3 li b{display:block;font-size:16px}
+.grid3 li span{color:var(--mut)}
+.rule i{font-style:normal;font-weight:800;color:var(--pink);font-size:12px;letter-spacing:.08em}
+.shot{display:block;max-width:100%;height:auto;border-radius:14px;cursor:zoom-in;margin:0 auto;border:1px solid var(--line)}
+.shot.poster{max-width:560px}
+.cap{color:var(--mut);font-size:14px;margin:10px 0 0;text-align:center}
+.lvls{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin:18px 0 0}
+.lvl{background:var(--card2);border-radius:12px;padding:12px 14px}
+.lvl h5{margin:0 0 6px;color:#B45309;font-size:13px;letter-spacing:.1em}
+.lvl p{margin:0 0 6px;font-size:15px}.lvl p span{display:block;font-size:11px;letter-spacing:.12em;color:var(--mut);font-weight:800}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:0;padding:0;list-style:none;counter-reset:s}
+.flow li{background:var(--card2);border-radius:12px;padding:12px 14px;font-size:15px;position:relative}
+.flow li i{display:block;font-style:normal;font-weight:800;font-size:12px;letter-spacing:.1em;color:var(--pink);margin-bottom:4px}
+.notes{color:var(--mut);font-size:14px;margin:12px 0 0;padding-left:18px}
+#lb{position:fixed;inset:0;background:rgba(5,8,20,.92);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;cursor:zoom-out}
+#lb.on{display:flex}
+#lb img{max-width:100%;max-height:100%;border-radius:10px}
+footer{max-width:1080px;margin:0 auto;padding:0 24px 56px;color:var(--mut);font-size:14px}
+@media(max-width:760px){
+ header{padding-top:36px}
+ .sum{grid-template-columns:1fr}.sum img.cov{max-width:260px}
+ .wl{grid-template-columns:1fr}
+ .thumb{display:none}
+ .head{padding:12px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.chev{transition:none}}
+</style>
+</head>
+<body>
+<header>
+ <span class="kicker">VOXELART · PROYECTO FINAL</span>
+ <h1>20 ideas de videojuego <span>hechas con voxels</span></h1>
+ <p class="lead">Ejemplos de lo que puede entregar el alumnado: cada juego tiene su portada, póster de proyecto, pantalla de juego y tres niveles. Están ordenados de menos a más difícil de programar. Pulsa un título para ver toda la información.</p>
+</header>
+<main id="list" aria-label="Lista de juegos"></main>
+<footer>MagicaVoxel + Unity con Visual Scripting. Todos los personajes y nombres son originales.</footer>
+<div id="lb" role="dialog" aria-label="Imagen ampliada"><img alt=""></div>
+<script>
+const GAMES = __DATA__;
+const TABS0 = [['res','Resumen'],['pos','Póster'],['pan','Pantalla de juego'],['niv','Niveles']];
+const SIMS = {
+ 'laberinto-dinamita':['https://claude.ai/artifact/N69CGoQY6C2T9mKerbay1F','Vista isométrica'],
+ 'valle-nevado':['https://claude.ai/artifact/5TYyaXX2Cd4CHTrhq8Pdds','En 3D'],
+ 'casa-encantada':['https://claude.ai/artifact/6QVF3vHkgPgtC3j8gLN1D1','En 3D'],
+ 'bombero-voxel':['https://claude.ai/artifact/DUKRZAPH4aXSphhCRQonXB','En 3D'],
+ 'templo-perdido':['https://claude.ai/artifact/WrYvbraSqNBLuGrfmR3Nhu','En 3D'],
+ 'regata-voxel':['https://claude.ai/artifact/CoCxFoY68LMruesmuTaPMY','En 3D'],
+ 'cofre-pirata':['https://claude.ai/artifact/Fs4dDoy8JUsrB8JkT7HhHy','En 3D'],
+ 'mision-espacial':['https://claude.ai/artifact/F47ufZxQ95hU61aSAN7V4p','En 3D'],
+ 'pasteleria-loca':['https://claude.ai/artifact/USucjBPyrbdYTJrGHHvgED','En 3D']};
+const tabsOf = g => SIMS[g.slug] ? TABS0.concat([['jug','▶ Jugar']]) : TABS0;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const img = (g,k) => 'img/' + g.slug + '-' + k + '.webp';
+
+function view(g, id){
+  const L = g.levels, F = g.flow;
+  const res = `
+   <div class="sum">
+    <img class="cov" loading="lazy" width="640" height="880" src="${img(g,'portada')}" alt="Portada de ${esc(g.title)}" data-zoom>
+    <div>
+     <p class="tagline">${esc(g.tag)}</p>
+     <p class="diff"><b>Dificultad: ${esc(g.lvname)}.</b> ${esc(g.why)}</p>
+     <div class="wl"><div class="box win"><h4>Se gana</h4><p>${esc(g.gana)}</p></div><div class="box lose"><h4>Se pierde</h4><p>${esc(g.pierde)}</p></div></div>
+     <div class="sec"><h4>Personajes y objetos</h4><ul class="chips">${g.legend.map(x=>{const m=x.split(' · ');return m.length>1?`<li><b>${esc(m[0])}</b> ${esc(m.slice(1).join(' · '))}</li>`:`<li>${esc(x)}</li>`}).join('')}</ul></div>
+     <div class="sec"><h4>Mis poderes</h4><ul class="chips">${g.powers.map(p=>`<li><b>${esc(p[0])}</b> ${esc(p[1])}</li>`).join('')}</ul></div>
+    </div>
+   </div>
+   <div class="sec"><h4>En MagicaVoxel creo</h4><ul class="grid3">${g.models.map(m=>`<li><b>${esc(m[0])}</b><span>${esc(m[1])}</span></li>`).join('')}</ul></div>
+   <div class="sec"><h4>En Unity (Visual Scripting) programo</h4><ul class="grid3">${g.spells.map(s=>`<li class="rule"><i>CUANDO</i> ${esc(s[0])}<br><i>ENTONCES</i> ${esc(s[1])}</li>`).join('')}</ul></div>`;
+  const pos = `<img class="shot poster" loading="lazy" width="720" height="1320" src="${img(g,'poster')}" alt="Póster del proyecto ${esc(g.title)}" data-zoom><p class="cap">Así lo explicaría el alumnado en su ficha de proyecto. Pulsa la imagen para ampliarla.</p>`;
+  const pan = `<img class="shot" loading="lazy" width="960" height="540" src="${img(g,'pantalla')}" alt="Pantalla de juego de ${esc(g.title)}" data-zoom><p class="cap">Controles: ${esc(g.hint)}</p>`;
+  const niv = `<img class="shot" loading="lazy" width="1280" height="920" src="${img(g,'niveles')}" alt="Los tres niveles de ${esc(g.title)}" data-zoom>
+   <div class="lvls">${L.map(l=>`<div class="lvl"><h5>NIVEL ${l.n}</h5><p><span>NOVEDAD</span>${esc(l.nov)}</p><p><span>META</span>${esc(l.meta)}</p>${l.pasa?`<p><span>PARA PASAR</span>${esc(l.pasa)}</p>`:''}</div>`).join('')}</div>
+   <div class="sec"><h4>¿Cómo se pasa al siguiente nivel? (Visual Scripting)</h4><ol class="flow">${F.map(f=>`<li><i>${esc(f[0]).toUpperCase()}</i>${esc(f[1])}</li>`).join('')}</ol><ul class="notes">${g.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul></div>`;
+  const s = SIMS[g.slug];
+  const jug = s ? `<div class="sec"><h4>Simulación jugable (${esc(s[1])})</h4><p class="tagline">Prueba el juego tal y como lo imaginaría el alumnado: ${esc(g.tag)}</p><p class="cap">Controles: ${esc(g.hint)}. En la simulación, el panel de la derecha muestra en vivo qué EVENTO, CONDICIÓN y ACCIÓN de Visual Scripting se dispara.</p><p><a class="play" href="${s[0]}" target="_blank" rel="noopener">▶ Abrir la simulación jugable</a></p></div>` : '';
+  return {res,pos,pan,niv,jug};
+}
+
+function row(g){
+  const id = g.slug, v = view(g,id);
+  return `<article class="game" id="${id}">
+   <button class="head" aria-expanded="false" aria-controls="p-${id}">
+    <span class="num l${g.lv}" role="img" aria-label="Dificultad: ${g.lvname}">${'★'.repeat(g.lv)}</span>
+    <img class="thumb" loading="lazy" width="44" height="60" src="${img(g,'portada')}" alt="">
+    <span class="ttl"><b>${esc(g.title)}</b><small>${esc(g.tag)}</small></span>
+    ${SIMS[g.slug]?'<span class="playtag">▶ Jugable</span>':''}<span class="chev" aria-hidden="true"></span>
+   </button>
+   <div class="panel" id="p-${id}" role="region" aria-label="Información de ${esc(g.title)}">
+    <div class="tabs" role="group" aria-label="Secciones">${tabsOf(g).map((t,i)=>`<button class="tab" data-t="${t[0]}" aria-selected="${i==0}">${t[1]}</button>`).join('')}</div>
+    ${tabsOf(g).map((t,i)=>`<div class="view${i==0?' on':''}" data-v="${t[0]}">${v[t[0]]}</div>`).join('')}
+   </div>
+  </article>`;
+}
+
+const TIERS = __TIERS__;
+const list = document.getElementById('list');
+list.innerHTML = TIERS.map(t => `<h2>${esc(t[1])} <small>${esc(t[2])}</small></h2>` + GAMES.filter(g => g.lv === t[0]).map(row).join('')).join('');
+
+function setOpen(art, open, scroll){
+  art.classList.toggle('open', open);
+  art.querySelector('.head').setAttribute('aria-expanded', open);
+  if (open && scroll) setTimeout(()=>art.scrollIntoView({block:'start'}), 30);
+}
+function openOnly(id, scroll){
+  document.querySelectorAll('.game.open').forEach(a => { if (a.id !== id) setOpen(a,false); });
+  const a = document.getElementById(id);
+  if (a) setOpen(a, true, scroll);
+}
+list.addEventListener('click', e => {
+  const h = e.target.closest('.head');
+  if (h){
+    const a = h.parentElement, was = a.classList.contains('open');
+    if (was){ setOpen(a,false); history.replaceState(null,'',location.pathname+location.search); }
+    else { openOnly(a.id, true); history.replaceState(null,'','#'+a.id); }
+    return;
+  }
+  const t = e.target.closest('.tab');
+  if (t){
+    const a = t.closest('.game');
+    a.querySelectorAll('.tab').forEach(x => x.setAttribute('aria-selected', x===t));
+    a.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.dataset.v === t.dataset.t));
+    return;
+  }
+  const z = e.target.closest('[data-zoom]');
+  if (z){ const lb = document.getElementById('lb'); lb.querySelector('img').src = z.src; lb.querySelector('img').alt = z.alt; lb.classList.add('on'); }
+});
+const lb = document.getElementById('lb');
+lb.addEventListener('click', () => lb.classList.remove('on'));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('on'); });
+if (location.hash && document.getElementById(location.hash.slice(1))) openOnly(location.hash.slice(1), true);
+</script>
+</body>
+</html>

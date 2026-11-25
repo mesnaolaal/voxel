@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suhiltzaile Voxel – simulazio jokagarria 3D</title>
+<style>
+:root{--bg:#F6F8FD;--card:#fff;--tx:#0F172A;--mut:#475569;--ac:#0F766E;--bd:#D8DEEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+h1{margin:0 0 4px;font-size:26px}
+.sub{color:var(--mut);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px}
+.hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.pill{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;border-radius:999px;padding:3px 12px;font-weight:600;font-size:14px}
+.stage{position:relative;border-radius:10px;overflow:hidden;background:#A5DBFF;aspect-ratio:16/10.5}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+#bn{position:absolute;left:0;right:0;top:14px;text-align:center;background:rgba(15,23,42,.78);color:#fff;font-weight:700;font-size:20px;padding:8px;display:none}
+#ov{position:absolute;inset:0;background:rgba(15,23,42,.72);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;padding:16px}
+#ov b{font-size:34px;color:#FDE047}
+.pad{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0;gap:12px}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,52px);gap:6px}
+.dpad button,.bomb{border:1px solid var(--bd);background:#fff;border-radius:12px;font-size:20px;cursor:pointer;color:var(--tx)}
+.dpad button:active,.bomb:active{background:#CCFBF1}
+.bomb{width:120px;height:120px;border-radius:60px;background:#DBEAFE;border-color:#93C5FD;font-weight:700;font-size:14px}
+.help{color:var(--mut);font-size:14px;margin:10px 0 0}
+h2{font-size:16px;margin:0 0 8px}
+#log{list-style:none;margin:0;padding:0;font-size:13px;display:flex;flex-direction:column;gap:6px;min-height:300px}
+#log li{border-left:4px solid var(--bd);padding:4px 8px;background:#F8FAFC;border-radius:0 8px 8px 0}
+.t{font-weight:700;font-size:11px;letter-spacing:.04em;margin-right:6px}
+.ev{border-color:#3B82F6!important}.ev .t{color:#1D4ED8}
+.co{border-color:#F59E0B!important}.co .t{color:#B45309}
+.ac{border-color:#10B981!important}.ac .t{color:#047857}
+.btn{margin-top:10px;background:var(--ac);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Suhiltzaile Voxel <span style="font-weight:400;color:#64748B;font-size:18px">· 3D</span></h1>
+  <p class="sub">Proiektu-adibidearen simulazio jokagarria 3D-n. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="hud"><span class="pill" id="hA"></span><span class="pill" id="hB"></span><span class="pill" id="hC"></span><span class="pill" id="hD"></span></div>
+      <div class="stage" id="stage" tabindex="0"><div id="bn"></div><div id="ov"></div></div>
+      <div class="pad">
+        <div class="dpad">
+          <span></span><button data-d="up" aria-label="Gora">▲</button><span></span>
+          <button data-d="left" aria-label="Ezkerrera">◀</button><button data-d="down" aria-label="Behera">▼</button><button data-d="right" aria-label="Eskuinera">▶</button>
+        </div>
+        <button class="bomb" id="bBomb">URA BOTA<br>(eutsi Zuriunea)</button>
+      </div>
+      <p class="help">Geziak edo WASD mugitzeko · eutsi Zuriunea begiratzen duzun tokira ura botatzeko (depositua husten da). Bete ezazu hidrantearen ondoan geldituz. Itzali su guztiak, erreskatatu pertsonak ukituz eta saihestu sugarrak denbora amaitu aurretik.</p>
+    </div>
+    <div class="card">
+      <h2>Visual Scripting zuzenean</h2>
+      <ul id="log"></ul>
+      <button class="btn" id="bRestart">Partida berrabiarazi</button>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var VW=640,VH=420,C=2;
+var stage=document.getElementById('stage'),logEl=document.getElementById('log'),bn=document.getElementById('bn'),ov=document.getElementById('ov');
+function log(k,t,x){var li=document.createElement('li');li.className=k;li.innerHTML='<span class="t">'+t+'</span>'+x;logEl.insertBefore(li,logEl.firstChild);while(logEl.children.length>10)logEl.removeChild(logEl.lastChild)}
+function ev(t){log('ev','GERTAERA',t)}function co(t){log('co','BALDINTZA',t)}function ac(t){log('ac','EKINTZA',t)}
+function setHud(a,b,c,d){document.getElementById('hA').textContent=a;document.getElementById('hB').textContent=b;document.getElementById('hC').textContent=c;document.getElementById('hD').textContent=d}
+var renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));renderer.setSize(VW,VH,false);
+stage.insertBefore(renderer.domElement,stage.firstChild);
+var scene=new THREE.Scene();scene.background=new THREE.Color('#A5DBFF');scene.fog=new THREE.Fog('#BFE4FF',45,110);
+var cam=new THREE.PerspectiveCamera(44,VW/VH,0.1,250);
+scene.add(new THREE.AmbientLight(0xffffff,0.85));
+var sun=new THREE.DirectionalLight(0xffffff,0.7);sun.position.set(-20,40,15);scene.add(sun);
+var lvGroup=null,mats={};
+function mat(c){return mats[c]||(mats[c]=new THREE.MeshLambertMaterial({color:c}))}
+function basic(c){var k='b'+c;return mats[k]||(mats[k]=new THREE.MeshBasicMaterial({color:c}))}
+function bx(w,h,d,col,x,y,z,parent){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof col==='string'?mat(col):col);m.position.set(x,y,z);if(parent)parent.add(m);return m}
+function checker(c1,c2,rx,ry){var c=document.createElement('canvas');c.width=c.height=2;var g=c.getContext('2d');g.fillStyle=c1;g.fillRect(0,0,2,2);g.fillStyle=c2;g.fillRect(0,0,1,1);g.fillRect(1,1,1,1);var t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,ry);return t}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+var hedgeMats=[mat('#166534'),mat('#166534'),mat('#2FA862'),mat('#2FA862'),mat('#166534'),mat('#166534')];
+// bombero
+var fighter=(function(){var g=new THREE.Group();
+  bx(0.3,0.75,0.32,'#1F2937',-0.2,0.38,0,g);bx(0.3,0.75,0.32,'#1F2937',0.2,0.38,0,g);
+  bx(0.9,0.9,0.55,'#DC2626',0,1.2,0,g);bx(0.92,0.14,0.57,'#FDE047',0,1.1,0,g);bx(0.92,0.14,0.57,'#FDE047',0,1.4,0,g);
+  bx(0.25,0.75,0.28,'#DC2626',-0.6,1.15,0.1,g);bx(0.25,0.75,0.28,'#DC2626',0.6,1.15,0.15,g);
+  bx(0.55,0.5,0.5,'#FCD9A6',0,1.95,0,g);bx(0.06,0.1,0.05,'#111827',-0.13,2.0,0.26,g);bx(0.06,0.1,0.05,'#111827',0.13,2.0,0.26,g);
+  bx(0.7,0.28,0.7,'#FACC15',0,2.4,0,g);bx(0.8,0.08,0.9,'#FACC15',0,2.25,0.08,g);
+  bx(0.5,0.7,0.25,'#6B7280',0,1.25,-0.4,g);
+  bx(0.2,0.2,0.7,'#374151',0.35,1.1,0.55,g);return g})();
+function makeFire(){var g=new THREE.Group();
+  bx(1.6,0.03,1.6,'#1F2937',0,0.02,0,g);
+  var a=bx(0.9,1.1,0.9,basic('#DC2626'),0,0.55,0,g),b=bx(0.65,1.5,0.65,basic('#F97316'),0,0.75,0,g),c=bx(0.38,1.2,0.38,basic('#FDE047'),0,0.6,0,g);
+  g.userData.fl=[a,b,c];return g}
+function makePerson(){var g=new THREE.Group();
+  bx(0.3,0.7,0.3,'#1D4ED8',-0.15,0.35,0,g);bx(0.3,0.7,0.3,'#1D4ED8',0.15,0.35,0,g);
+  bx(0.7,0.8,0.45,'#16A34A',0,1.1,0,g);
+  var l=bx(0.22,0.7,0.24,'#FCD9A6',-0.5,1.55,0,g),r=bx(0.22,0.7,0.24,'#FCD9A6',0.5,1.55,0,g);
+  bx(0.5,0.5,0.5,'#FCD9A6',0,1.75,0,g);bx(0.56,0.2,0.56,'#7C2D12',0,2.08,0,g);
+  g.userData.arms=[l,r];
+  bx(0.9,0.9,0.05,basic('#FDE047'),0,2.8,0,g).visible=false;return g}
+function makeHydrant(){var g=new THREE.Group();
+  bx(0.7,0.9,0.7,'#DC2626',0,0.45,0,g);bx(0.8,0.2,0.8,'#B91C1C',0,0.95,0,g);bx(0.5,0.25,0.5,'#DC2626',0,1.2,0,g);
+  bx(0.4,0.3,0.3,'#9CA3AF',0.5,0.6,0,g);bx(0.4,0.3,0.3,'#9CA3AF',-0.5,0.6,0,g);
+  var ring=new THREE.Mesh(new THREE.RingGeometry(2.0,2.3,32),new THREE.MeshBasicMaterial({color:0x38BDF8,transparent:true,opacity:0.7,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=0.05;g.add(ring);return g}
+function makeTruck(){var g=new THREE.Group();
+  bx(2.4,1.3,4.6,'#DC2626',0,1.0,0,g);bx(2.2,1.1,1.5,'#B91C1C',0,1.9,1.4,g);bx(2.0,0.5,0.1,'#BAE6FD',0,2.1,2.2,g);
+  bx(2.45,0.2,4.65,'#F8FAFC',0,1.0,0,g);bx(0.5,0.2,3,'#9CA3AF',0,2.0,-0.6,g);
+  [[-1.25,-1.4],[1.25,-1.4],[-1.25,1.5],[1.25,1.5]].forEach(function(w){bx(0.3,0.9,0.9,'#111827',w[0],0.45,w[1],g)});
+  bx(0.4,0.2,0.4,basic('#38BDF8'),0.6,2.6,1.4,g);bx(0.4,0.2,0.4,basic('#EF4444'),-0.6,2.6,1.4,g);return g}
+// agua
+var NP=40,drops=[];for(var i=0;i<NP;i++){var d=new THREE.Mesh(new THREE.BoxGeometry(0.32,0.32,0.32),new THREE.MeshBasicMaterial({color:0x60A5FA,transparent:true,opacity:0.85}));d.visible=false;scene.add(d);drops.push(d)}
+// niveles
+var LV=[
+ {name:"Su hartutako etxe bat eta erreskatatu beharreko pertsona bat",time:50,rows:[
+  'xxxxxxxxxxxxxxx',
+  'xE..........H.x',
+  'x.KKK..KKK.KK.x',
+  'x.KKK..KKK.KK.x',
+  'x....F......P.x',
+  'x.KK..KKK..KK.x',
+  'x.KK..KKK..KK.x',
+  'x.....F.......x',
+  'xxxxxxxxxxxxxxx']},
+ {name:'Bi etxe erretzen eta bi pertsona',time:65,rows:[
+  'xxxxxxxxxxxxxxxxx',
+  'xE.......H......x',
+  'x.KKK.KKK.KKK...x',
+  'x.KKK.KKK.KKK...x',
+  'x....F.....F..P.x',
+  'x.KKK.KKK.KKK...x',
+  'x.KKK.KKK.KKK...x',
+  'x.P.....F.......x',
+  'x.KKK.KKK.KKK...x',
+  'x...............x',
+  'xxxxxxxxxxxxxxxxx']},
+ {name:'Hiru etxe erretzen: hidrantean birkargatu behar da',time:80,rows:[
+  'xxxxxxxxxxxxxxxxxxx',
+  'xE.......H........x',
+  'x.KKK.KKK.KKK.KKK.x',
+  'x.KKK.KKK.KKK.KKK.x',
+  'x..F.....F...F...Px',
+  'x.KKK.KKK.KKK.KKK.x',
+  'x.KKK.KKK.KKK.KKK.x',
+  'x.....F.......F...x',
+  'x.KKK.KKK.KKK.KKK.x',
+  'x....P...H......F.x',
+  'xxxxxxxxxxxxxxxxxxx']}];
+var S=null,held={};
+function cellCh(cx,cz){var r=S.L.rows[cz];return r?r[cx]:undefined}
+function isSolid(cx,cz){var ch=cellCh(cx,cz);return ch===undefined||ch==='x'||ch==='K'}
+function solidAt(x,z){return isSolid(Math.round(x/C),Math.round(z/C))}
+function canMove(x,z,r){return !solidAt(x-r,z-r)&&!solidAt(x+r,z-r)&&!solidAt(x-r,z+r)&&!solidAt(x+r,z+r)}
+function clearLevel(){if(lvGroup){scene.remove(lvGroup);lvGroup.traverse(function(o){if(o.geometry)o.geometry.dispose()})}lvGroup=new THREE.Group();scene.add(lvGroup)}
+function buildLevel(n){
+  var L=LV[n];S.L=L;clearLevel();
+  var rows=L.rows,nz=rows.length,nx=rows[0].length,r=rng(21+n*5);
+  var fl=new THREE.Mesh(new THREE.PlaneGeometry(nx*C+40,nz*C+40),new THREE.MeshLambertMaterial({map:checker('#5DAA7B','#54A173',(nx*C+40)/4,(nz*C+40)/4)}));
+  fl.rotation.x=-Math.PI/2;fl.position.set((nx-1)*C/2,-0.03,(nz-1)*C/2);lvGroup.add(fl);
+  var rd=new THREE.Mesh(new THREE.PlaneGeometry(nx*C,nz*C),new THREE.MeshLambertMaterial({map:checker('#4B5563','#525C6B',nx,nz)}));
+  rd.rotation.x=-Math.PI/2;rd.position.set((nx-1)*C/2,0,(nz-1)*C/2);lvGroup.add(rd);
+  var wall=['#E8D5B0','#D6A56B','#CBD5E1','#F1C6A7','#B7D3E8'],roof=['#B91C1C','#7C2D12','#475569','#9A3412'];
+  S.fires=[];S.persons=[];S.hyds=[];S.nf=0;S.np=0;
+  for(var z=0;z<nz;z++)for(var x=0;x<nx;x++){var ch=rows[z][x],wx=x*C,wz=z*C;
+    if(ch==='K'){var h=1.7+r()*0.9,wc=wall[Math.floor(r()*wall.length)],rc=roof[Math.floor(r()*roof.length)];
+      bx(C,0.1,C,'#B8C0CC',wx,0.05,wz,lvGroup);bx(C*0.9,h,C*0.9,wc,wx,0.1+h/2,wz,lvGroup);bx(C*1.0,0.4,C*1.0,rc,wx,0.1+h+0.2,wz,lvGroup);bx(C*0.7,0.3,C*0.7,rc,wx,0.1+h+0.55,wz,lvGroup);
+      bx(0.4,0.5,0.06,'#FEF08A',wx-0.4,1.4,wz+C*0.45+0.02,lvGroup);bx(0.4,0.5,0.06,'#FEF08A',wx+0.4,1.4,wz+C*0.45+0.02,lvGroup)}
+    else if(ch==='x'){var hh=1.1+r()*0.6;var m=new THREE.Mesh(new THREE.BoxGeometry(C,hh,C),hedgeMats);m.position.set(wx,hh/2,wz);lvGroup.add(m)}
+    else if(ch==='E'){S.start={x:wx,z:wz}}
+    else if(ch==='F'){var f=makeFire();f.position.set(wx,0,wz);lvGroup.add(f);S.fires.push({x:wx,z:wz,hp:1,out:false,mesh:f,ph:r()*6});S.nf++}
+    else if(ch==='P'){var pe=makePerson();pe.position.set(wx,0,wz);lvGroup.add(pe);S.persons.push({x:wx,z:wz,mesh:pe,saved:false,ph:r()*6});S.np++}
+    else if(ch==='H'){var hy=makeHydrant();hy.position.set(wx,0,wz);lvGroup.add(hy);S.hyds.push({x:wx,z:wz,in:false})}}
+  var tk=makeTruck();tk.position.set(S.start.x,0,-C*1.2);lvGroup.add(tk);
+  // marcas de calle
+  for(var q=1;q<nx-1;q+=2){bx(0.8,0.02,0.15,'#E5E7EB',q*C,0.03,C*1,lvGroup)}
+  scene.add(fighter);
+  S.p={x:S.start.x,z:S.start.z,ry:Math.PI,inv:0,bob:0};S.water=100;S.time=L.time;S.saved=0;S.fl=S.nf;S.camx=S.start.x;S.camz=S.start.z;S.spr=false;S.warnT=0;
+}
+function hud(){var m=Math.max(0,Math.ceil(S.time||0));setHud('Maila '+(S.lv+1)+'/3 · '+new Array(S.lives+1).join('♥'),'Denbora '+m+' s','Ura '+Math.round(S.water)+'%','Suak '+S.fl+' · Salbatuak '+S.saved+'/'+S.np)}
+function showOv(t,s,s2){ov.style.display='flex';ov.innerHTML='<b>'+t+'</b><span>'+s+'</span>'+(s2?'<span>'+s2+'</span>':'')}
+function hideOv(){ov.style.display='none'}
+function newGame(){S={mode:'title',lv:0,t:0,lives:3,water:100,time:0,fl:0,saved:0,np:0,msg:'',msgT:0};logEl.innerHTML='';ev('Jokoaren Start');ac('Aldagaiak: bizitzak = 3, ura = 100, salbatuak = 0');buildLevel(0);showOv('SUHILTZAILE VOXEL','Sakatu Zuriunea edo ukitu hasteko')}
+function loadLevel(n){S.lv=n;S.mode='play';buildLevel(n);hideOv();S.msg='Maila '+(n+1)+' · '+S.L.name;S.msgT=S.t+2400;
+  ev('Load Scene "Maila '+(n+1)+'"');ac('Instantiate Suhiltzailea, '+S.nf+' su, '+S.np+' pertsona eta hidrante; kronometroa = '+S.L.time+' s')}
+function toNext(){if(S.lv<2){S.mode='next';S.msg='Maila gainditu da!';S.msgT=S.t+2000;S.nextAt=S.t+2000;ac('Mezua erakutsi, 2 s itxaron, Load Scene "Maila '+(S.lv+2)+'"')}else{S.mode='won';ac('Load Scene "Garaipena"');showOv('HIRIA SALBU!','Su guztiak itzali dituzu','Sakatu Zuriunea errepikatzeko')}}
+function over(t,w){S.mode='over';drops.forEach(function(d){d.visible=false});showOv(t,w,'Sakatu Zuriunea berriro saiatzeko')}
+function checkWin(){
+  if(S.fl===0&&S.saved>=S.np){co('Su guztiak itzali eta pertsonak erreskatatu dira? BAI');ac('Kronometroa gelditu');toNext()}
+  else if(S.fl===0){co('Su guztiak itzali eta pertsonak erreskatatu dira? EZ (falta dira '+(S.np-S.saved)+')');S.msg='Erreskatatu gabeko pertsonak geratzen dira';S.msgT=S.t+1800}}
+function hurt(){var p=S.p;if(p.inv>S.t)return;S.lives--;p.inv=S.t+2000;
+  ev('On Trigger Enter (Suhiltzailea ∩ Sugarra)');ac('bizitzak = bizitzak − 1 → '+S.lives);
+  if(S.lives<=0){ac('Load Scene "GameOver"');over('ERRE ZARA!','Sugarrak 3 aldiz ukitu dituzu');return}
+  p.x=S.start.x;p.z=S.start.z;ac('Suhiltzailea kamioira Teleport')}
+function update(dt){
+  S.t+=dt*1000;
+  if(S.mode==='next'&&S.t>=S.nextAt)loadLevel(S.lv+1);
+  if(S.mode!=='play')return;
+  var p=S.p;
+  S.time-=dt;if(S.time<=0){S.time=0;ev('Kronometroa = 0');co('Suak edo pertsonak geratzen dira? BAI');ac('Game Over erakutsi');over('DENBORA AMAITU DA!','Ez zenuen denborarik izan hiria salbatzeko');return}
+  var dx=(held.right?1:0)-(held.left?1:0),dz=(held.down?1:0)-(held.up?1:0),m=Math.hypot(dx,dz);
+  if(m>0){dx/=m;dz/=m;var sp=6*dt,nx=p.x+dx*sp,nz=p.z+dz*sp;if(canMove(nx,p.z,0.42))p.x=nx;if(canMove(p.x,nz,0.42))p.z=nz;
+    var ty=Math.atan2(dx,dz),df=ty-p.ry;while(df>Math.PI)df-=6.283;while(df<-Math.PI)df+=6.283;p.ry+=df*Math.min(1,14*dt);p.bob+=dt*12}
+  // agua
+  S.spraying=false;
+  if(held.space){
+    if(!S.spr){S.spr=true;ev('Input: Zuriunea (sakatuta)');if(S.water>0){co('Urik geratzen da? BAI ('+Math.round(S.water)+'%)');ac('Ura bota mahukarekin')}else{co('Urik geratzen da? EZ');ac('Urik ez: joan hidrantera')}}
+    if(S.water>0){S.spraying=true;S.water=Math.max(0,S.water-22*dt);
+      var ux=Math.sin(p.ry),uz=Math.cos(p.ry);
+      S.fires.forEach(function(f){if(f.out)return;var rx=f.x-p.x,rz=f.z-p.z,al=rx*ux+rz*uz,pe=Math.abs(rx*uz-rz*ux);
+        if(al>0.5&&al<7.5&&pe<1.15){f.hp-=dt/1.7;if(f.hp<=0){f.out=true;f.mesh.visible=false;S.fl--;ev('On Particle Collision (Ura ∩ Sua)');ac('Destroy(Sua), puntuak +1; geratzen diren suak = '+S.fl);checkWin()}}})}
+    else if(S.t>S.warnT){S.warnT=S.t+2000;S.msg='Urik ez! Joan hidrantera';S.msgT=S.t+1400}
+  }else S.spr=false;
+  if(S.mode!=='play')return;
+  // fuego
+  S.fires.forEach(function(f){if(!f.out&&Math.hypot(f.x-p.x,f.z-p.z)<1.1)hurt()});
+  if(S.mode!=='play')return;
+  // hidrante
+  S.hyds.forEach(function(h){var near=Math.hypot(h.x-p.x,h.z-p.z)<2.4;
+    if(near){if(S.water<100)S.water=Math.min(100,S.water+70*dt);if(!h.in){h.in=true;ev('On Trigger Stay (Suhiltzailea ∩ Hidrantea)');ac('ura → %100era birkargatzen')}}else h.in=false});
+  // personas
+  S.persons.forEach(function(pe){if(!pe.saved&&Math.hypot(pe.x-p.x,pe.z-p.z)<1.2){pe.saved=true;pe.mesh.visible=false;S.saved++;ev('On Trigger Enter (Suhiltzailea ∩ Pertsona)');ac('Destroy(Pertsona), salbatuak = '+S.saved+'/'+S.np);S.msg='Pertsona erreskatatu da!';S.msgT=S.t+1000;checkWin()}});
+}
+function render(dt){
+  var p=S.p,t=S.t/1000;
+  fighter.position.set(p.x,Math.abs(Math.sin(p.bob))*0.12,p.z);fighter.rotation.y=p.ry;fighter.visible=!(p.inv>S.t&&Math.floor(S.t/90)%2);
+  S.fires.forEach(function(f){if(f.out)return;var s=0.35+0.65*f.hp;f.mesh.scale.set(s,s,s);f.mesh.userData.fl.forEach(function(b,i){b.scale.y=0.8+0.35*Math.sin(t*9+f.ph+i*1.7)})});
+  S.persons.forEach(function(pe){if(pe.saved)return;pe.mesh.userData.arms.forEach(function(a,i){a.position.y=1.55+Math.abs(Math.sin(t*5+pe.ph))*0.35;});pe.mesh.rotation.y=Math.sin(t*2+pe.ph)*0.4});
+  for(var i=0;i<NP;i++){var d=drops[i];
+    if(S.spraying&&S.mode==='play'){var u=((t*1.6)+i/NP)%1,ux=Math.sin(p.ry),uz=Math.cos(p.ry),dist=0.9+u*6.2;
+      d.visible=true;d.position.set(p.x+ux*dist+(Math.sin(i*7.3))*0.18*u,1.35+Math.sin(Math.PI*u)*0.9-u*0.9,p.z+uz*dist+(Math.cos(i*5.1))*0.18*u);d.scale.setScalar(0.6+0.6*u)}
+    else d.visible=false}
+  S.camx+=(p.x-S.camx)*Math.min(1,6*dt);S.camz+=(p.z-S.camz)*Math.min(1,6*dt);
+  cam.position.set(S.camx,22,S.camz+5.5);cam.lookAt(S.camx,0.4,S.camz-0.8);
+  var txt=(S.msg&&S.t<S.msgT)?S.msg:(S.mode==='next'?'Maila gainditu da!':'');
+  if(txt){bn.style.display='block';bn.textContent=txt}else bn.style.display='none';
+  renderer.render(scene,cam);
+}
+var KEYS={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
+function pressSpace(){if(S.mode==='title')loadLevel(0);else if(S.mode==='over'){var lv=S.lv;S.lives=3;newGame()}else if(S.mode==='won')newGame()}
+window.addEventListener('keydown',function(e){
+  if(KEYS[e.key]){held[KEYS[e.key]]=true;e.preventDefault()}
+  else if(e.key===' '){e.preventDefault();held.space=true;if(!e.repeat)pressSpace()}});
+window.addEventListener('keyup',function(e){if(KEYS[e.key])held[KEYS[e.key]]=false;if(e.key===' ')held.space=false});
+document.querySelectorAll('.dpad button').forEach(function(b){var d=b.dataset.d;
+  function on(e){e.preventDefault();held[d]=true}function off(e){e.preventDefault();held[d]=false}
+  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointerleave',off);b.addEventListener('pointercancel',off)});
+var bb=document.getElementById('bBomb');
+bb.addEventListener('pointerdown',function(e){e.preventDefault();held.space=true;pressSpace()});
+['pointerup','pointerleave','pointercancel'].forEach(function(n){bb.addEventListener(n,function(){held.space=false})});
+document.getElementById('bRestart').addEventListener('click',function(){newGame()});
+stage.addEventListener('pointerdown',function(){if(S.mode!=='play')pressSpace()});
+var last=performance.now();
+function loop(now){var dt=Math.min(50,now-last)/1000;last=now;update(dt);hud();render(dt);requestAnimationFrame(loop)}
+newGame();requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

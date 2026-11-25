@@ -1,0 +1,673 @@
+0|Pirataren Kutxa
+1|Pirata batek 5 txanpon bildu behar ditu denbora amaitu aino lehen, altxor-kutxa irekitzeko.
+2|5 txanponekin, garaiz kutxara helduta.
+3|Denbora amaitzen bada edo uretara erortzen bada.
+4|P · Pirata
+5|M · Txanpona (5)
+6|C · Kutxa (helmuga)
+7|Ura (arriskua)
+8|Mugitu
+9|geziekin
+10|Jauzi egin
+11|ur-putzuen gainetik
+12|Pirata
+13|Jokalariak kontrolatzen duen pertsonaia.
+14|Txanpona
+15|Bildu behar den objektua.
+16|Kutxa
+17|Mailaren helmuga.
+18|txanpon bat ukitzen du
+19|desagertu egiten da eta puntu 1 gehitzen du
+20|ura ukitzen du
+21|hasieran berriro agertzen da
+22|5 txanpon ditu eta kutxa ukitzen du
+23|irekitzen da: garaipena!
+24|Irla txikia, etsairik gabe.
+25|Txanpon guztiak bildu eta kutxa ireki.
+26|Kutxa irekitzen du
+27|Putzuak bidean eta patruilatzen duen karramarro bat.
+28|Zubiz lotutako hiru irla eta bi karramarro.
+29|Zubiak zeharkatu eta kutxa ireki denbora gutxiagorekin.
+30|Gertaera
+31|Trigger-ean sartzean: piratak kutxa ukitzen du
+32|Baldintza
+33|Txanpon guztiak ditu?
+34|Ekintza
+35|Maila gainditu dela dioen mezua erakutsi eta 2 segundo itxaron
+36|Hurrengo mailako eszena kargatu
+37|Maila bakoitza Unity-ko eszena bat da (Maila1, Maila2, Maila3) eta guztiak konpilazio-ezarpenetan (Build Settings) gehitzen dira.
+38|Puntuak eta bizitzak aplikazio-aldagai batean gordetzen dira, eszenaz aldatzean galdu ez daitezen.
+39|Azken mailan ez da beste eszenarik kargatzen: garaipen-pantaila erakusten da.
+40|Geziak: mugitu · Zuriunea: jauzi egin
+41|Katu Ninja
+42|Katu ninja batek robot zaintzaileei ihes egiten die teilatuko irteera-atera iristeko.
+43|Giltzarekin, robot batek ukitu gabe atera helduta.
+44|Robot batek katua ukitzen badu.
+45|G · Katu ninja
+46|R · Robota (patruila)
+47|L · Giltza
+48|S · Irteera (helmuga)
+49|C · Kutxa
+50|teilatuetatik
+51|teilatuen artean
+52|Ezkutatu
+53|kutxaren atzean (extra)
+54|Katu ninja
+55|Jokalariaren pertsonaia.
+56|Robota
+57|Patruilatzen duen etsaia.
+58|Giltza eta atea
+59|Mailaren objektua eta helmuga.
+60|Kutxa
+61|Ezkutalekua eta plataforma.
+62|denbora pasatzen da
+63|robot bakoitzak alde batetik bestera patruilatzen du
+64|robot batek katua ukitzen du
+65|maila berrabiarazten da
+66|katuak giltza hartzen du
+67|atea irekitzen da
+68|Teilatu bat, robot bat eta giltza bat.
+69|Giltza hartu eta atera heldu.
+70|Atea zeharkatzen du
+71|Bi teilatu, tartean zulo bat, eta bi robot.
+72|Zulotik salto egin, giltza hartu eta atera heldu.
+73|Hiru robot eta bi giltza.
+74|2 giltzak hartu eta atea ireki.
+75|Trigger-ean sartzean: katuak atea ukitzen du
+76|Giltza guztiak ditu?
+77|Nagusiaren Kobazuloa
+78|Heroi batek kobazulo bat zeharkatzen du eta munstro bat garaitzen du kristala lortzeko.
+79|Munstroari 3 aldiz kolpe eginda eta kristala hartuta.
+80|Munstroak 3 aldiz ukitzen badu.
+81|H · Heroia
+82|J · Munstro nagusia
+83|C · Kristala (helmuga)
+84|A · Zuzia
+85|kobazuloan zehar
+86|Eraso egin
+87|ezpatarekin
+88|Heroia
+89|Jokalariaren pertsonaia.
+90|Munstroa
+91|Kobazuloko nagusia.
+92|Kristala
+93|Saria eta mailaren helmuga.
+94|heroia mugitzen da
+95|munstroak jarraitzen dio
+96|munstroak heroia ukitzen du
+97|heroiak bizitza 1 galtzen du
+98|munstroak 3 kolpe jasotzen ditu
+99|kristala agertzen da
+100|Munstro bat duen kobazulo bat.
+101|3 aldiz kolpatu eta kristala hartu.
+102|Kristala hartzen du
+103|Horma bat erdian eta bi morroi.
+104|Bi morroiak garaitu eta kristala hartu.
+105|Azken nagusia eta bi morroi.
+106|Nagusia garaitu (5 kolpe) eta kristala hartu.
+107|Trigger-ean sartzean: heroiak kristala ukitzen du
+108|Munstro guztiak garaitu dira?
+109|Geziak: mugitu · Zuriunea: eraso egin
+110|Baserri Galdua
+111|Nekazari batek ezkutatuta dituen 4 oiloak bilatzen ditu gaua jo baino lehen.
+112|4 oiloak aurkituta.
+113|Gaua jotzen badu eta oilo bat falta bada.
+114|G · Nekazaria
+115|H · Oiloa (4)
+116|V · Hesia (salto egiten da)
+117|E · Ukuilua (extra)
+118|baserrian zehar
+119|hesien gainetik
+120|Nekazaria
+121|Oiloa
+122|4 aurkitu behar dira.
+123|Hesia
+124|Salto egiten zaion oztopoa.
+125|oilo bat ukitzen du
+126|jaso egiten da eta 1 gehitzen du
+127|segundo bat pasatzen da
+128|tenporizadorea jaisten da
+129|zerora iristen da eta oiloak falta dira
+130|Hesiak dituen baserri bat.
+131|4 oiloak aurkitu gaua jo baino lehen.
+132|Guztiak ukuiluan
+133|Hesi gehiago, oilo bat gehiago eta patruilatzen duen azeri bat.
+134|5 oiloak aurkitu.
+135|Gaua da: bi azeri eta denbora gutxiago.
+136|5 oiloak aurkitu denbora amaitu aino lehen.
+137|Trigger-ean sartzean: nekazaria ukuilura sartzen da
+138|Oilo guztiak ditu?
+139|Rally Voxel
+140|Rally-ko auto batek zirkuitua amaitu behar du denbora bukatu aino lehen, konoei eta olio-orbanei ihes eginez.
+141|Denbora amaitu aino lehen helmuga zeharkatuta.
+142|Denbora amaitzen bada.
+143|C · Autoa
+144|N · Konoa
+145|A · Olio-orbana
+146|G · Gasolina (+5 s)
+147|M · Helmuga
+148|Errepidea
+149|Azeleratu eta balaztatu
+150|Biratu
+151|ezkerrera eta eskuinera
+152|Turboa
+153|Autoa
+154|Jokalariak kontrolatzen duen ibilgailua.
+155|Konoa
+156|Errepideko oztopoa.
+157|Gasolina
+158|Denbora gehigarria ematen duen bidoia.
+159|gasolina-bidoi bat ukitzen du
+160|desagertu egiten da eta 5 segundo gehitzen ditu
+161|kono bat edo olio-orban bat ukitzen du
+162|autoak abiadura galtzen du
+163|helmuga zeharkatzen du denbora amaitu aino lehen
+164|erlojua gelditzen da: garaipena!
+165|Oztoporik gabeko zirkuitu obalatu bat.
+166|Helmugara heldu denbora amaitu aino lehen.
+167|Helmuga zeharkatzen du
+168|Kurbak, konoak eta olio-orban bat.
+169|Garaiz helmugara heldu, oztopoei ihes eginez.
+170|Gauez eta arerio-auto batekin.
+171|Arerioa baino lehen helmugara heldu.
+172|Trigger-ean sartzean: autoak helmuga zeharkatzen du
+173|Garaiz iritsi da?
+174|Geziak: azeleratu, balaztatu eta biratu · Zuriunea: turboa
+175|Tenplu Galdua
+176|Heroi batek tenplu bat arakatzen du, giltza hartzen du eta altxorraren atea irekitzen du.
+177|Giltza hartuta, atea irekita eta altxorrera helduta.
+178|Heroiak bihotzik gabe geratzen bada.
+179|S · Slime (etsaia)
+180|P · Ate itxia
+181|T · Altxorra
+182|C · Bihotz gehigarria
+183|templuan zehar
+184|Ireki
+185|atea giltzarekin
+186|Templuan arakatzen duen pertsonaia.
+187|Slime
+188|Gelan mugitzen den etsaia.
+189|Atea
+190|Heroiak giltza badu, irekitzen da.
+191|giltza bat ukitzen du
+192|desagertu egiten da eta inbentarioan gordetzen da
+193|slime batek heroia ukitzen du
+194|heroiak bihotz 1 galtzen du
+195|atea ukitzen du eta giltza du
+196|Slime bat eta ezkutuko giltza bat dituen baso bat.
+197|Giltza hartu eta templuaren sarrerara heldu.
+198|Templuan sartzen da
+199|Giltzaz itxitako ate batek banatutako gelak.
+200|Atea giltzarekin ireki eta altxorrera heldu.
+201|Atea irekitzen du
+202|Harrizko zaindari bat eta bi slime.
+203|Zaindaria garaitu (5 kolpe) eta azken kutxa ireki.
+204|Trigger-ean sartzean: heroiak mailaren irteera zeharkatzen du
+205|Mailaren helburua bete du?
+206|Geziak: mugitu · Zuriunea: ezpata
+207|Hesi Voxel
+208|Atleta batek 100 metroak korrika egiten ditu hesiak salto eginez, bere arerioak baino lehen helmugara iristeko.
+209|Bi arerioak baino lehen helmuga zeharkatuta.
+210|Arerio bat lehenago helmugara iristen bada.
+211|A · Atleta (jokalaria)
+212|R · Arerioa
+213|V · Hesia
+214|Pista
+215|Belarra
+216|Korrika egin
+217|Esprintatu
+218|(extra)
+219|Atleta
+220|Jokalariak kontrolatzen duen korrikalaria.
+221|Salto egin beharreko oztopoa.
+222|Helmuga
+223|Iristeko lerroa duen arkua.
+224|salto egiteko tekla sakatzen du
+225|atletak hesiaren gainetik salto egiten du
+226|hesi bat ukitzen du
+227|une batez abiadura galtzen du
+228|helmuga zeharkatzen du
+229|kronometroa gelditzen da eta bere postua erakusten da
+230|100 metroko pista zuzena, bi hesi eta arerio bat.
+231|Helmuga lehenengo zeharkatu.
+232|Hiru kale, hesi gehiago eta bi arerio.
+233|Ur- eta lokatz-zulo bat pistaren erdian.
+234|Zulotik salto egin eta arerioei irabazi.
+235|Trigger-ean sartzean: atletak helmuga zeharkatzen du
+236|Lehena iritsi da?
+237|Geziak: korrika egin · Zuriunea: salto egin
+238|Voxel Erregata
+239|Belaontzi batek 3 boiak inguratu eta helmuga zeharkatu behar ditu, harkaitzei ihes eginez.
+240|3 boiak inguratuta eta garaiz helmuga zeharkatuta.
+241|V · Belaontzia (jokalaria)
+242|B · Boia (3)
+243|R · Harkaitza
+244|Itsasoa
+245|lema
+246|Orientatu
+247|bela haizearekin
+248|Bultzada
+249|Belaontzia
+250|Jokalariak kontrolatzen duen ontzia.
+251|Boia
+252|Ibilbidea markatzen du.
+253|Harkaitza
+254|Itsasoko oztopoa.
+255|ontziak boia baten ondotik pasatzen da
+256|boia itzali egiten da eta 1 gehitzen du
+257|harkaitz batekin talka egiten du
+258|abiadura galtzen du
+259|helmuga zeharkatzen du 3 boiekin
+260|3 boia dituen aintzira lasai bat.
+261|3 boiak inguratu eta helmuga zeharkatu.
+262|Harkaitzak bidean.
+263|Boiak inguratu harkaitzekin talka egin gabe.
+264|Ekaitza: ur ilunak, harkaitz gehiago eta denbora gutxiago.
+265|Ibilbidea amaitu denbora bukatu aino lehen.
+266|Trigger-ean sartzean: belaontziak helmuga zeharkatzen du
+267|3 boiak inguratu ditu?
+268|Geziak: lema biratu · Zuriunea: bela doitu
+269|Arrain Gosetua
+270|Arrain txiki batek planktona jan eta kobazulora heldu behar du, marrazoei eta medusei ihes eginez.
+271|Plankton guztia jan eta kobazulora helduta.
+272|3 bizitzak galtzen baditu.
+273|P · Arraina (jokalaria)
+274|C · Planktona
+275|M · Medusa
+276|T · Marrazoa
+277|K · Koralak
+278|G · Algak
+279|E · Kobazuloa (irteera)
+280|Igeri egin
+281|lau norabidetan
+282|hegatsarekin (extra)
+283|algen artean (extra)
+284|Arraina
+285|Jokalariak kontrolatzen duen arrain txikia.
+286|Marrazoa
+287|Medusa
+288|Uretan flotatzen duen arriskua.
+289|planktona ukitzen du
+290|marrazo bat edo medusa bat ukitzen du
+291|bizitza 1 galtzen du
+292|plankton guztia du eta kobazuloa ukitzen du
+293|bidea irekitzen da: garaipena!
+294|Arrezife lasai bat eta medusa bat.
+295|Plankton guztia jan eta kobazulora heldu.
+296|Kobazulora sartzen da
+297|Alga-baso bat eta bi medusa.
+298|Plankton guztia jan bizitzarik galdu gabe.
+299|Kobazulo ilun bat eta marrazo bat.
+300|Marrazoari ihes egin eta kobazulotik atera.
+301|Trigger-ean sartzean: arraina kobazulora sartzen da
+302|Plankton guztia jan du?
+303|Geziak: igeri egin · Zuriunea: esprintatu
+304|Espazio Misioa
+305|Espazio-ontzi batek kristalak biltzen ditu eta planetara heltzen da, asteroideei ihes eginez.
+306|Kristal guztiak bilduta eta planetara helduta.
+307|N · Ontzia (jokalaria)
+308|C · Kristala
+309|A · Asteroidea
+310|P · Planeta (helmuga)
+311|Espazioa
+312|Mugitu
+313|Azeleratu
+314|propultsorra (extra)
+315|Tiro egin
+316|asteroideei (extra)
+317|Ontzia
+318|Jokalariak kontrolatzen duen ontzia.
+319|Guztiak bildu behar dira.
+320|Asteroidea
+321|Ihes egin beharreko arriskua.
+322|kristal bat ukitzen du
+323|asteroide batekin talka egiten du
+324|kristal guztiak ditu eta planeta ukitzen du
+325|hurrengo maila kargatzen da
+326|Espazio irekia eta asteroide bat.
+327|3 kristalak bildu eta planeta ukitu.
+328|Planeta ukitzen du
+329|Asteroide-eremu bat.
+330|Kristalak bildu bizitzarik galdu gabe.
+331|Bi ufo patruilatzen dute sektorean.
+332|Ufoei ihes egin eta planetara heldu.
+333|Trigger-ean sartzean: ontziak planeta ukitzen du
+334|Kristal guztiak bildu ditu?
+335|Geziak: ontzia mugitu
+336|Suhiltzaile Voxel
+337|Suhiltzaile batek hiriko suak itzaltzen ditu eta pertsonak erreskatatzen ditu denbora amaitu aino lehen.
+338|Su guztiak itzalita eta pertsonak erreskatatuta.
+339|B · Suhiltzailea (jokalaria)
+340|F · Sua
+341|C · Erreskatatu beharreko hiritarra
+342|H · Hidrantea
+343|K · Etxea
+344|Kalea
+345|hirian zehar
+346|Ura bota
+347|mahukarekin
+348|Birkargatu
+349|hidrantean (extra)
+350|Suhiltzailea
+351|Jokalariak kontrolatzen duen heroia.
+352|Sua
+353|Urarekin itzali behar da.
+354|Etxea
+355|Erre daitekeen eraikina.
+356|suari ura botatzen dio
+357|sua itzali egiten da eta puntu 1 gehitzen du
+358|sugar bat ukitzen du
+359|pertsona bat ukitzen du
+360|erreskatatu egiten du eta salbatu 1 gehitzen du
+361|Su hartutako etxe bat eta erreskatatu beharreko pertsona bat.
+362|Suak itzali eta pertsona erreskatatu.
+363|Su guztiak itzaltzen ditu
+364|Bi etxe erretzen eta bi pertsona.
+365|Dena itzali eta bi pertsonak erreskatatu.
+366|Hiru etxe erretzen: ura hidrantean birkargatu behar da.
+367|Su guztiak itzali denbora amaitu aino lehen.
+368|Trigger-ean sartzean: suhiltzaileak azken sua itzaltzen du
+369|Suren bat edo erreskatatu gabeko pertsonaren bat geratzen da?
+370|Geziak: mugitu · Zuriunea: ura bota
+371|Etxe Sorgindua
+372|Esploratzaile batek etxe sorgindunaren giltzak bilatzen ditu eta atea irekitzen du, mamuei ihes eginez.
+373|3 giltzak bilduta eta atea irekita.
+374|Mamu batek 3 aldiz harrapatzen badu.
+375|E · Esploratzailea (jokalaria)
+376|F · Mamua
+377|L · Giltza (3)
+378|C · Kalabaza-tranpa
+379|P · Azken atea
+380|gelatan zehar
+381|Hartu
+382|giltzak eta objektuak
+383|Linterna
+384|mamuak izutzen ditu (extra)
+385|Esploratzailea
+386|Jokalariak kontrolatzen duen ausarta.
+387|Mamua
+388|Etxean patruilatzen du.
+389|Giltza
+390|Azken atea irekitzen du.
+391|inbentarioan gordetzen du
+392|mamu bat ukitzen du
+393|atea ukitzen du 3 giltzekin
+394|atea irekitzen da: garaipena!
+395|Giltza bat eta tranpa bat dituen gela bat.
+396|Giltza hartu eta atea ireki.
+397|Bi giltza eta patruilatzen duen mamu bat.
+398|Giltzak hartu mamuak harrapatu gabe.
+399|Hiru giltza, bi mamu eta kalabaza-tranpak.
+400|3 giltzak bildu eta ihes egin.
+401|Trigger-ean sartzean: esploratzaileak atea irekitzen du
+402|Geziak: mugitu · Zuriunea: hartu
+403|Gozotegi Zoroa
+404|Sukaldari batek osagaiak ordenan biltzen ditu, labera eramaten ditu eta tarta garaiz entregatzen du.
+405|Osagai guztiekin tarta garaiz entregatuta.
+406|C · Sukaldaria (jokalaria)
+407|H · Arrautza
+408|A · Irina
+409|F · Marrubia
+410|O · Labea
+411|T · Entrega-mahaia
+412|sukaldean zehar
+413|Hartu eta utzi
+414|osagaiak
+415|presaz (extra)
+416|Sukaldaria
+417|Jokalariak kontrolatzen duen sukaldaria.
+418|Osagaiak
+419|Arrautza, irina eta marrubia.
+420|Tarta
+421|Azken eskaera.
+422|osagai bat ukitzen du
+423|eskuetan daramatza
+424|osagaia labean sartzen du
+425|eskaerari 1 gehitzen dio
+426|dena du eta mahaira iristen da
+427|tarta entregatzen du: garaipena!
+428|Bi osagai dituen errezeta soil bat.
+429|2 osagai labera eraman eta tarta entregatu.
+430|Tarta entregatzen du
+431|Hiru osagai, ordenan.
+432|Osagaiak errezetaren ordenan sartu.
+433|Bi labe eta denbora oso gutxi.
+434|Tarta entregatu erlojua amaitu aino lehen.
+435|Trigger-ean sartzean: sukaldariak tarta entregatzen du
+436|Osagai guztiak labean daude?
+437|Geziak: mugitu · Zuriunea: hartu / utzi
+438|Minigolf Voxel
+439|Golf-jokalari batek bola zuloan sartu behar du ahalik eta kolpe gutxienekin.
+440|Bola zuloan sartuta, kolpe gutxitan.
+441|Bola uretara 3 aldiz erortzen bada.
+442|G · Golf-jokalaria (jokalaria)
+443|B · Bola
+444|H · Zuloa eta bandera
+445|M · Errota
+446|Harea
+447|Ura
+448|Zuzendu
+449|Kolpatu
+450|indar handiagoz edo txikiagoz
+451|Errebotatu
+452|hormetan (extra)
+453|Golf-jokalaria
+454|Bola kolpatzen duen jokalaria.
+455|Bola
+456|Zuloan sartu behar da.
+457|Errota
+458|Hegalak dituen oztopoa.
+459|kolpatu sakatzen du
+460|bola irteten da eta kolpe 1 gehitzen du
+461|bolak ura ukitzen du
+462|hasierara itzultzen da
+463|bola zuloan erortzen da
+464|hurrengo zuloa kargatzen da
+465|1. zuloa: zuzena eta oztoporik gabe.
+466|Bola zuloan sartu 3 kolpetan edo gutxiagotan.
+467|Bola zuloan sartzen da
+468|2. zuloa: harea eta urmael bat.
+469|Ura inguratu eta bola sartu.
+470|3. zuloa: biratzen diren hegalak dituen errota bat.
+471|Bola hegalen artetik pasatu.
+472|Trigger-ean sartzean: bola zuloan erortzen da
+473|Zenbat kolpe ditu?
+474|Geziak: zuzendu · Zuriunea: kolpatu
+475|Elur Harana
+476|Eskiatzaile batek mendia jaisten du ateetatik pasatuz eta zuhaitzei ihes eginez.
+477|Ate guztietatik pasata eta helmugara helduta.
+478|Zuhaitz batekin 3 aldiz talka egiten badu.
+479|E · Eskiatzailea (jokalaria)
+480|P · Pinua
+481|S · Eslalom-atea
+482|M · Elur-gizona
+483|F · Helmuga
+484|Elurra
+485|Eskiatu
+486|Balaztatu
+487|zuriune-teklarekin
+488|maldetan (extra)
+489|Eskiatzailea
+490|Mendia jaisten du.
+491|Pinua
+492|Ihes egin beharreko oztopoa.
+493|Makilen artetik pasatu behar da.
+494|makilen artetik pasatzen da
+495|ate 1 gehitzen du
+496|zuhaitz batekin talka egiten du
+497|kronometroa gelditzen da
+498|Ate bat duen pista zabal bat.
+499|Atetik pasatu eta helmugara heldu.
+500|Bi ate eta zuhaitz gehiago dituen eslaloma.
+501|Ate guztietatik pasatu talka egin gabe.
+502|Lau ate eta denbora gutxi dituen jaitsiera bat.
+503|Eslaloma amaitu denbora bukatu aino lehen.
+504|Trigger-ean sartzean: eskiatzaileak helmuga zeharkatzen du
+505|Ate guztietatik pasa da?
+506|Geziak: eskiatu · Zuriunea: balaztatu
+507|Dino Parkea
+508|Dinosauro txiki batek arrautzak biltzen ditu eta habiara eramaten ditu, T-Rex-ari ihes eginez.
+509|3 arrautzak habiara eramanda, harrapatu gabe.
+510|T-Rex-ak 3 aldiz harrapatzen badu.
+511|D · Dinoa (jokalaria)
+512|T · T-Rex
+513|H · Arrautza (3)
+514|N · Habia
+515|P · Palmondoa
+516|Lokatza
+517|oihanean zehar
+518|une batez (extra)
+519|palmondoen atzean (extra)
+520|Dinoa
+521|Jokalariaren dinosauro txikia.
+522|T-Rex
+523|Arrautza
+524|Habiara eraman behar dira.
+525|arrautza bat ukitzen du
+526|jaso egiten du eta 1 gehitzen du
+527|T-Rex-ak ukitzen du
+528|habiara iristen da arrautzekin
+529|T-Rex lotan duen oihaneko soilgune bat.
+530|2 arrautza habiara eraman.
+531|Habiara iristen da
+532|Patruilatzen duen T-Rex bat duen lokatz-zingira bat.
+533|3 arrautzak bildu ikusi gabe.
+534|Laba eta bi T-Rex dituen sumendi bat.
+535|Habiara heldu arrautzekin, labari ihes eginez.
+536|Trigger-ean sartzean: dinoa habiara iristen da
+537|Arrautza guztiak ditu?
+538|Geziak: mugitu · Maius: korrika egin
+539|Robot Fabrika
+540|Robot batek fabrikako kutxak zona horietaraino bultzatzen ditu, biltegia ordenatzeko.
+541|Kutxa guztiak zona horien gainean utzita.
+542|Kutxa bat izkinan trabatuta uzten badu.
+543|R · Robota (jokalaria)
+544|X · Helburu-zona
+545|O · Kokatutako kutxa
+546|# · Horma
+547|Zorua
+548|Bultzatu
+549|kutxak
+550|Desegin
+551|azken mugimendua (extra)
+552|Jokalariak kontrolatzen duen langilea.
+553|Bultzatu baino ezin da egin.
+554|Kokatutako kutxa
+555|Dagoeneko bere lekuan dago.
+556|kutxa bat bultzatzen du
+557|kutxak lauki bat aurrera egiten du
+558|kutxa zona horira iristen da
+559|berde bihurtzen da eta 1 gehitzen du
+560|kutxa guztiak kokatuta daude
+561|Gela txiki bat: kutxa bat eta helburu bat.
+562|Kutxa zona horiraino bultzatu.
+563|Kutxa guztiak kokatuta
+564|Bi kutxa eta horma bat erdian.
+565|Bi kutxak beren helburuetan kokatu.
+566|Hiru helburu eta izkina arriskutsu bat.
+567|Hiru kutxak ordenatu, trabatu gabe.
+568|Trigger-ean sartzean: azken kutxa bere helburura iristen da
+569|Kutxa guztiak beren lekuan daude?
+570|Geziak: robota mugitu (kutxak bultzatzen ditu)
+571|Gazteluaren Defentsa
+572|Jokalariak dorreak jartzen ditu bidean zehar, etsaiak gazteluraino iritsi aurretik moteltzeko.
+573|Etsaien 3 olatuei bizirik eutsita.
+574|Etsaiek gaztelua suntsitzen badute.
+575|T · Dorrea (jokalariak jartzen du)
+576|C · Gaztelua
+577|G · Goblina
+578|O · Ogroa
+579|s · Dorrearentzako zuloa
+580|Bidea
+581|Eraiki
+582|dorreak txanponekin
+583|Hobetu
+584|dorrearen kaltea (extra)
+585|Konpondu
+586|gaztelua (extra)
+587|Dorrea
+588|Inguruko etsaiei tiro egiten die.
+589|Goblina
+590|Etsai azkarra eta ahula.
+591|Gaztelua
+592|Babestu behar da.
+593|etsai bat dorrearen irismenean sartzen da
+594|dorreak tiro egiten du
+595|etsai bat gaztelura iristen da
+596|gazteluak bizitza 1 galtzen du
+597|azken olatua amaitzen da
+598|Bide zuzena eta hiru goblin.
+599|Etsaiak moteldu gaztelura iritsi aurretik.
+600|Olatua amaitzen da
+601|Goblin gehiago eta hiru dorre.
+602|Bigarren olatuari bizirik eutsi.
+603|Ogro nagusi bat, goblinez lagunduta.
+604|Ogroa garaitu lau dorrerekin.
+605|Trigger-ean sartzean: gazteluak olatuari bizirik eusten dio
+606|Etsairik geratzen da bizirik?
+607|Klik zulo batean: dorre bat eraiki
+608|Erleen Lorategia
+609|Erle bat lorategian zehar hegan egiten du, lore guztiak polinizatzen ditu eta erlauntzera itzultzen da, armiarmei ihes eginez.
+610|Lore guztiak polinizatuta eta erlauntzera itzulita.
+611|Armiarma batek 3 aldiz harrapatzen badu.
+612|B · Erlea (jokalaria)
+613|F · Lorea
+614|A · Armiarma
+615|H · Erlauntza
+616|Urmaela
+617|Hegan egin
+618|Pausatu
+619|lore batean, polinizatzeko
+620|Burrunba
+621|armiarmak izutzen ditu (extra)
+622|Erlea
+623|Jokalariaren polinizatzailea.
+624|Lorea
+625|Guztiak polinizatu behar dira.
+626|Armiarma
+627|Patruilatzen duen etsaia.
+628|lore batean pausatzen da
+629|polinizatu egiten du eta 1 gehitzen du
+630|armiarma bat ukitzen du
+631|erlauntzera itzultzen da lore guztiekin
+632|Bi lore eta armiarma bat dituen lorategi txiki bat.
+633|2 loreak polinizatu eta erlauntzera itzuli.
+634|Erlauntzera itzultzen da
+635|Urmael bat, sei lore eta bi armiarma.
+636|Loreak polinizatu armiarmak ukitu gabe.
+637|Gaueko lorategi bat hiru armiarmarekin.
+638|Lore guztiak polinizatu eta ihes egin.
+639|Trigger-ean sartzean: erlea erlauntzera itzultzen da
+640|Lore guztiak polinizatu ditu?
+641|Geziak: hegan egin · Zuriunea: pausatu
+642|Dinamita Labirintoa
+643|Meatzari batek dinamita jartzen du kaxoien artean bidea irekitzeko, slimeak garaitzen ditu eta irteerako atera heltzen da.
+644|Kaxoiak apurtuta eta irteerako atera helduta.
+645|M · Meatzaria (jokalaria)
+646|D · Dinamita
+647|C · Kaxoia (apurtzen da)
+648|# · Zutabea (ez da apurtzen)
+649|P · Irteerako atea
+650|labirintoan zehar
+651|Dinamita jarri
+652|Irismen handiagoa
+653|objektu gehigarriekin (extra)
+654|Meatzaria
+655|Dinamita
+656|3 segundora lehertzen da.
+657|Bakarrik ibiltzen den etsaia.
+658|dinamita jarri sakatzen du
+659|dinamita agertzen da eta 3 s-ko atzerako kontaketa hasten da
+660|dinamita lehertzen da
+661|inguruko kaxoiak eta slimeak apurtzen ditu, gurutze-formara
+662|sugarra edo slime bat ukitzen du
+663|Labirinto txiki bat, kaxoi gutxirekin eta etsairik gabe.
+664|Bidea blokeatzen duen kaxoia apurtu eta atera heldu.
+665|Atera heltzen da
+666|Kaxoi gehiago eta pasabidean ibiltzen den slime bat.
+667|Slimea dinamitarekin garaitu eta atera heldu.
+668|Labirinto itxiago bat bi slimerekin.
+669|Bidea ireki, zure leherketak harrapatu gabe.
+670|Trigger-ean sartzean: meatzariak atea ukitzen du
+671|Bidea ireki du eta bizirik jarraitzen du?
+672|Geziak: mugitu · Zuriunea: dinamita jarri

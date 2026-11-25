@@ -2203,7 +2203,7 @@ const SIMS = {
  'defensa-castillo':['../sims/eu/castillo3d.html','3D-n']};
 const tabsOf = g => SIMS[g.slug] ? TABS0.concat([['jug','▶ Jokatu']]) : TABS0;
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const img = (g,k) => 'img/' + g.slug + '-' + k + '.webp';
+const img = (g,k) => (k==='poster' ? 'img-eu/' : 'img/') + g.slug + '-' + k + '.webp';
 
 function view(g, id){
   const L = g.levels, F = g.flow;

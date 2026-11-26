@@ -2336,7 +2336,7 @@ function view(g, id){
    <div class="lvls">${L.map(l=>`<div class="lvl"><h5>NIVEL ${l.n}</h5><p><span>NOVEDAD</span>${esc(l.nov)}</p><p><span>META</span>${esc(l.meta)}</p>${l.pasa?`<p><span>PARA PASAR</span>${esc(l.pasa)}</p>`:''}</div>`).join('')}</div>
    <div class="sec"><h4>¿Cómo se pasa al siguiente nivel? (Visual Scripting)</h4><ol class="flow">${F.map(f=>`<li><i>${esc(f[0]).toUpperCase()}</i>${esc(f[1])}</li>`).join('')}</ol><ul class="notes">${g.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul></div>`;
   const s = SIMS[g.slug];
-  const jug = s ? `<div class="sec"><h4>Simulación jugable (${esc(s[1])})</h4><p class="tagline">Prueba el juego tal y como lo imaginaría el alumnado: ${esc(g.tag)}</p><p class="cap">Controles: ${esc(g.hint)}. En la simulación, el panel de la derecha muestra en vivo qué EVENTO, CONDICIÓN y ACCIÓN de Visual Scripting se dispara.</p><p><a class="play" href="${s[0]}" target="_blank" rel="noopener">▶ Abrir la simulación jugable</a></p></div>` : '';
+  const jug = s ? `<div class="sec"><h4>Juego (${esc(s[1])})</h4><p class="tagline">Prueba el juego tal y como lo imaginaría el alumnado: ${esc(g.tag)}</p><p class="cap">Controles: ${esc(g.hint)}. En la simulación, el panel de la derecha muestra en vivo qué EVENTO, CONDICIÓN y ACCIÓN de Visual Scripting se dispara.</p><p><a class="play" href="${s[0]}" target="_blank" rel="noopener">▶ Abrir el juego</a></p></div>` : '';
   return {res,pos,pan,niv,jug};
 }
 
@@ -2347,7 +2347,7 @@ function row(g){
     <span class="num l${g.lv}" role="img" aria-label="Dificultad: ${g.lvname}">${'★'.repeat(g.lv)}</span>
     <img class="thumb" loading="lazy" width="44" height="60" src="${img(g,'portada')}" alt="">
     <span class="ttl"><b>${esc(g.title)}</b><small>${esc(g.tag)}</small></span>
-    ${SIMS[g.slug]?'<span class="playtag">▶ Jugable</span>':''}<span class="chev" aria-hidden="true"></span>
+    ${SIMS[g.slug]?'<span class="playtag">▶ Juego</span>':''}<span class="chev" aria-hidden="true"></span>
    </button>
    <div class="panel" id="p-${id}" role="region" aria-label="Información de ${esc(g.title)}">
     <div class="tabs" role="group" aria-label="Secciones">${tabsOf(g).map((t,i)=>`<button class="tab" data-t="${t[0]}" aria-selected="${i==0}">${t[1]}</button>`).join('')}</div>

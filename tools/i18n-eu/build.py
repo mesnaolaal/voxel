@@ -114,8 +114,8 @@ HELP={
 'robot3d':'Geziak edo WASD: robota mugitu, kutxak bultzatzen ditu (bat aldi berean, inoiz ez tiratu). Eraman kutxa guztiak zona horietara. Zuriunea: azken mugimendua desegin. Kutxa bat izkinan geratzen bada helburutik kanpo, galtzen duzu.',
 'vallas3d':'Eutsi ↑ edo → korrika egiteko · Zuriunea: hesiak saltatu (eta 3. mailako zuloa) · Maius: esprintatu (teklatua). Zeharkatu helmuga zure arerioak baino lehen; hesi bat ukitzen baduzu, abiadura galtzen duzu.',
 'laberinto':'Geziak edo WASD mugitzeko · Zuriunea dinamita jartzeko. Apurtu kaxoiak, saihestu edo garaitu slimeak eta heldu ate horira. Ez gelditu leherketaren gurutzean.'}
-SUB='Proiektu-adibidearen simulazio jokagarria 3D-n. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.'
-SUB2='Proiektu-adibidearen simulazio jokagarria. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.'
+SUB='Proiektu-adibidearen jokoa 3D-n. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.'
+SUB2='Proiektu-adibidearen jokoa. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.'
 os.makedirs('/home/claude/simeu/out',exist_ok=True)
 files=sorted(glob.glob('/home/claude/gen/sim3/*3d.html')+glob.glob('/home/claude/gen/sim/*3d.html'))+['/home/claude/gen/laberinto.html']
 miss={}
@@ -126,7 +126,7 @@ for f in files:
     # head
     h=t[:i];sc=t[i:]
     h=h.replace('<html lang="es">','<html lang="eu">')
-    h=re.sub(r'<title>.*?</title>','<title>'+NAMES[key]+(' – simulazio jokagarria 3D' if key!='laberinto' else ' – simulazio jokagarria')+'</title>',h)
+    h=re.sub(r'<title>.*?</title>','<title>'+NAMES[key]+(' – Jokoa 3D' if key!='laberinto' else ' – Jokoa')+'</title>',h)
     h=re.sub(r'(<h1>)[^<]*',lambda m:m.group(1)+NAMES[key]+' ',h,count=1)
     h=re.sub(r'<p class="sub">.*?</p>','<p class="sub">'+(SUB2 if key=='laberinto' else SUB)+'</p>',h,flags=re.S)
     h=re.sub(r'(<button class="bomb"[^>]*>).*?(</button>)',lambda m:m.group(1)+BTN[key]+m.group(2),h,flags=re.S)

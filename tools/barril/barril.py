@@ -152,8 +152,8 @@ def make(lang):
     build(out,title,btn,hp,'#2E1065',g)
     s=open(out,encoding='utf8').read()
     if lang=='eu':
-        for a,b in [('<html lang="es">','<html lang="eu">'),('– simulación jugable 3D','– simulazio jokagarria 3D'),
-         ('Simulación jugable en 3D del ejemplo de proyecto. A la derecha verás qué EVENTO → CONDICIÓN → ACCIÓN de Visual Scripting se dispara en cada momento.','Proiektu-adibidearen simulazio jokagarria 3D-n. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.'),
+        for a,b in [('<html lang="es">','<html lang="eu">'),('– Juego 3D','– Jokoa 3D'),
+         ('Juego en 3D del ejemplo de proyecto. A la derecha verás qué EVENTO → CONDICIÓN → ACCIÓN de Visual Scripting se dispara en cada momento.','Proiektu-adibidearen jokoa 3D-n. Eskuinean ikusiko duzu une bakoitzean Visual Scripting-eko zein GERTAERA → BALDINTZA → EKINTZA aktibatzen den.'),
          ('aria-label="Arriba"','aria-label="Gora"'),('aria-label="Izquierda"','aria-label="Ezkerrera"'),('aria-label="Abajo"','aria-label="Behera"'),('aria-label="Derecha"','aria-label="Eskuinera"'),
          ('Visual Scripting en vivo','Visual Scripting zuzenean'),('Reiniciar partida','Partida berrabiarazi'),
          ("log('ev','EVENTO',t)","log('ev','GERTAERA',t)"),("log('co','CONDICIÓN',t)","log('co','BALDINTZA',t)"),("log('ac','ACCIÓN',t)","log('ac','EKINTZA',t)"),("'¡Nivel superado!'","'Maila gaindituta!'")]:

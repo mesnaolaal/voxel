@@ -3,7 +3,7 @@ base=open('/home/claude/gen/sim/templo3d.html').read()
 HEAD0=base[:base.index('<script src=')]
 
 def head(title,btn,help_,bg):
-    h=HEAD0.replace('El Templo Perdido – simulación jugable 3D',title+' – simulación jugable 3D').replace('<h1>El Templo Perdido <span','<h1>'+title+' <span')
+    h=HEAD0.replace('El Templo Perdido – Juego 3D',title+' – Juego 3D').replace('<h1>El Templo Perdido <span','<h1>'+title+' <span')
     h=h.replace('ESPADA<br>(Espacio)',btn).replace('background:#A5DBFF;aspect-ratio','background:'+bg+';aspect-ratio')
     h=re.sub(r'<p class="help">.*?</p>','<p class="help">'+help_+'</p>',h,flags=re.S)
     return h

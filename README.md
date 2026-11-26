@@ -1,7 +1,7 @@
 # VoxelArt · 21 ejemplos de proyecto final / 21 proiektu-adibide
 
-Ejemplos de minijuegos del alumnado (MagicaVoxel + Unity con Visual Scripting), ordenados por dificultad, con simulación jugable 3D de cada uno.
-Ikasleen minijoko-adibideak (MagicaVoxel + Unity Visual Scripting), zailtasun-ordenan, bakoitzaren simulazio jokagarri 3D-rekin.
+Ejemplos de minijuegos del alumnado (MagicaVoxel + Unity con Visual Scripting), ordenados por dificultad, con juego 3D de cada uno.
+Ikasleen minijoko-adibideak (MagicaVoxel + Unity Visual Scripting), zailtasun-ordenan, bakoitzaren jokoa 3D-rekin.
 
 ## Contenido
 - `web/index.es.html` · `web/index.eu.html` — página con los 21 juegos (castellano / euskera). Imágenes compartidas en `web/img/` (portadas y pósters, en castellano).
